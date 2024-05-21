@@ -11,3 +11,13 @@ def get_response(
     print(user_message)
 
     return f"rag response to: {user_message}"
+
+
+async def on_startup():
+    # This function is called when the server is started.
+    pass
+
+
+async def on_shutdown():
+    # This function is called when the server is stopped.
+    pass

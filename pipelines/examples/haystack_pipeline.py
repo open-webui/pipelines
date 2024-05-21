@@ -89,3 +89,13 @@ def get_response(
     )
 
     return response["llm"]["replies"][0]
+
+
+async def on_startup():
+    # This function is called when the server is started.
+    pass
+
+
+async def on_shutdown():
+    # This function is called when the server is stopped.
+    pass

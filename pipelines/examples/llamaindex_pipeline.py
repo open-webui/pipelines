@@ -25,3 +25,13 @@ def get_response(
     response = query_engine.query(user_message)
 
     return response.response_gen
+
+
+async def on_startup():
+    # This function is called when the server is started.
+    pass
+
+
+async def on_shutdown():
+    # This function is called when the server is stopped.
+    pass

@@ -1,5 +1,7 @@
 from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
+import os
+import asyncio
 
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
@@ -12,41 +14,9 @@ Settings.embed_model = OllamaEmbedding(
 )
 Settings.llm = Ollama(model="llama3")
 
-import os
 
-github_token = os.environ.get("GITHUB_TOKEN")
-owner = "open-webui"
-repo = "open-webui"
-branch = "main"
-
-github_client = GithubClient(github_token=github_token, verbose=True)
-
-documents = GithubRepositoryReader(
-    github_client=github_client,
-    owner=owner,
-    repo=repo,
-    use_parser=False,
-    verbose=False,
-    filter_directories=(
-        ["docs"],
-        GithubRepositoryReader.FilterType.INCLUDE,
-    ),
-    filter_file_extensions=(
-        [
-            ".png",
-            ".jpg",
-            ".jpeg",
-            ".gif",
-            ".svg",
-            ".ico",
-            "json",
-            ".ipynb",
-        ],
-        GithubRepositoryReader.FilterType.EXCLUDE,
-    ),
-).load_data(branch=branch)
-
-index = VectorStoreIndex.from_documents(documents)
+index = None
+documents = None
 
 
 def get_response(
@@ -62,3 +32,54 @@ def get_response(
     response = query_engine.query(user_message)
 
     return response.response_gen
+
+
+async def on_startup():
+    global index, documents
+
+    github_token = os.environ.get("GITHUB_TOKEN")
+    owner = "open-webui"
+    repo = "plugin-server"
+    branch = "main"
+
+    github_client = GithubClient(github_token=github_token, verbose=True)
+
+    reader = GithubRepositoryReader(
+        github_client=github_client,
+        owner=owner,
+        repo=repo,
+        use_parser=False,
+        verbose=False,
+        filter_file_extensions=(
+            [
+                ".png",
+                ".jpg",
+                ".jpeg",
+                ".gif",
+                ".svg",
+                ".ico",
+                "json",
+                ".ipynb",
+            ],
+            GithubRepositoryReader.FilterType.EXCLUDE,
+        ),
+    )
+
+    loop = asyncio.new_event_loop()
+
+    reader._loop = loop
+
+    try:
+        # Load data from the branch
+        documents = await asyncio.to_thread(reader.load_data, branch=branch)
+        index = VectorStoreIndex.from_documents(documents)
+    finally:
+        loop.close()
+
+    print(documents)
+    print(index)
+
+
+async def on_shutdown():
+    # This function is called when the pipeline is stopped.
+    pass

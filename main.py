@@ -14,9 +14,23 @@ from utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
 from config import MODEL_ID, MODEL_NAME
 
-from pipelines.pipeline import get_response
+from pipelines.examples.llamaindex_ollama_github_pipeline import (
+    get_response,
+    on_startup,
+    on_shutdown,
+)
 
-app = FastAPI(docs_url="/docs", redoc_url=None)
+from contextlib import asynccontextmanager
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await on_startup()
+    yield
+    await on_shutdown()
+
+
+app = FastAPI(docs_url="/docs", redoc_url=None, lifespan=lifespan)
 
 
 origins = ["*"]
