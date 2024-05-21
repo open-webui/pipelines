@@ -2,18 +2,15 @@ from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
 
 from llama_index.embeddings.ollama import OllamaEmbedding
-from llama_index.llms.openai import OpenAI
+from llama_index.llms.ollama import Ollama
 from llama_index.core import Settings
 
-ollama_embedding = OllamaEmbedding(
+
+Settings.embed_model = OllamaEmbedding(
     model_name="nomic-embed-text",
     base_url="http://localhost:11434",
 )
-
-Settings.embed_model = ollama_embedding
-Settings.llm = OpenAI(
-    temperature=0, model="llama3", api_key="none", api_base="http://localhost:11434"
-)
+Settings.llm = Ollama(model="llama3")
 
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
