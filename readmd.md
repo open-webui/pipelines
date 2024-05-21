@@ -1,1 +1,1 @@
-# RAG Plugin
+# Open WebUI Plugin Server
