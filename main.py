@@ -10,6 +10,7 @@ import time
 import json
 import uuid
 
+from utils import stream_message_template
 from config import MODEL_ID, MODEL_NAME
 
 
@@ -36,11 +37,6 @@ async def check_url(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
 
     return response
-
-
-@app.get("/")
-async def get_status():
-    return {"status": True}
 
 
 @app.get("/models")
@@ -76,32 +72,19 @@ class OpenAIChatCompletionForm(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-def stream_message_template(message: str):
-    return {
-        "id": f"rag-{str(uuid.uuid4())}",
-        "object": "chat.completion.chunk",
-        "created": int(time.time()),
-        "model": MODEL_ID,
-        "choices": [
-            {
-                "index": 0,
-                "delta": {"content": message},
-                "logprobs": None,
-                "finish_reason": None,
-            }
-        ],
-    }
-
-
-def get_response():
-    return "rag response"
+def get_response(user_message):
+    return f"rag response to: {user_message}"
 
 
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
 async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
-    res = get_response()
+    # get last user message (role == 'user') from the form_data
+    # last message might be role == 'assistant' or 'system' or 'user'
+    user_message = form_data.messages[-1].content
+
+    res = get_response(user_message)
 
     finish_message = {
         "id": f"rag-{str(uuid.uuid4())}",
@@ -121,3 +104,8 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         yield f"data: [DONE]"
 
     return StreamingResponse(stream_content(), media_type="text/event-stream")
+
+
+@app.get("/")
+async def get_status():
+    return {"status": True}
