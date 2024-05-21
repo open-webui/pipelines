@@ -1,6 +1,16 @@
 from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
 
+import os
+
+# Set the OpenAI API key
+os.environ["OPENAI_API_KEY"] = "your_openai_api_key_here"
+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+documents = SimpleDirectoryReader("./data").load_data()
+index = VectorStoreIndex.from_documents(documents)
+
 
 def get_response(
     user_message: str, messages: List[OpenAIChatMessage]
@@ -11,4 +21,7 @@ def get_response(
     print(messages)
     print(user_message)
 
-    return f"rag response to: {user_message}"
+    query_engine = index.as_query_engine(streaming=True)
+    response = query_engine.query(user_message)
+
+    return response.response_gen

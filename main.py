@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from starlette.responses import StreamingResponse, Response
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Union, Generator
 
 
 import time
@@ -64,11 +64,18 @@ async def get_models():
 @app.post("/v1/chat/completions")
 async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
-    res = get_response(user_message, messages=form_data.messages)
 
     def stream_content():
-        message = stream_message_template(res)
-        yield f"data: {json.dumps(message)}\n\n"
+        res = get_response(user_message, messages=form_data.messages)
+
+        if isinstance(res, str):
+            message = stream_message_template(res)
+            yield f"data: {json.dumps(message)}\n\n"
+
+        elif isinstance(res, Generator):
+            for message in res:
+                message = stream_message_template(message)
+                yield f"data: {json.dumps(message)}\n\n"
 
         finish_message = {
             "id": f"rag-{str(uuid.uuid4())}",
@@ -79,6 +86,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 {"index": 0, "delta": {}, "logprobs": None, "finish_reason": "stop"}
             ],
         }
+
         yield f"data: {json.dumps(finish_message)}\n\n"
         yield f"data: [DONE]"
 
