@@ -10,6 +10,7 @@ class OpenAIChatMessage(BaseModel):
 
 
 class OpenAIChatCompletionForm(BaseModel):
+    stream: bool = True
     model: str
     messages: List[OpenAIChatMessage]
 
