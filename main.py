@@ -100,7 +100,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         message = ""
 
         if isinstance(res, str):
-            message = stream_message_template(res)
+            message = res
 
         elif isinstance(res, Generator):
             for stream in res:
