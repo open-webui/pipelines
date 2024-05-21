@@ -3,7 +3,8 @@ from schemas import OpenAIChatMessage
 
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
-from llama_index.core import Settings
+from llama_index.core import VectorStoreIndex, Settings
+from llama_index.readers.github import GithubRepositoryReader, GithubClient
 
 Settings.embed_model = OllamaEmbedding(
     model_name="nomic-embed-text",
@@ -11,9 +12,40 @@ Settings.embed_model = OllamaEmbedding(
 )
 Settings.llm = Ollama(model="llama3")
 
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+import os
 
-documents = SimpleDirectoryReader("./data").load_data()
+github_token = os.environ.get("GITHUB_TOKEN")
+owner = "open-webui"
+repo = "open-webui"
+branch = "main"
+
+github_client = GithubClient(github_token=github_token, verbose=True)
+
+documents = GithubRepositoryReader(
+    github_client=github_client,
+    owner=owner,
+    repo=repo,
+    use_parser=False,
+    verbose=False,
+    filter_directories=(
+        ["docs"],
+        GithubRepositoryReader.FilterType.INCLUDE,
+    ),
+    filter_file_extensions=(
+        [
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".svg",
+            ".ico",
+            "json",
+            ".ipynb",
+        ],
+        GithubRepositoryReader.FilterType.EXCLUDE,
+    ),
+).load_data(branch=branch)
+
 index = VectorStoreIndex.from_documents(documents)
 
 
