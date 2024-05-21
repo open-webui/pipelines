@@ -14,7 +14,7 @@ from utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
 from config import MODEL_ID, MODEL_NAME
 
-from rag_pipeline import get_response
+from pipeline import get_response
 
 app = FastAPI(docs_url="/docs", redoc_url=None)
 
