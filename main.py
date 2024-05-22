@@ -146,6 +146,10 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                 if isinstance(res, Iterator):
                     for line in res:
+                        if isinstance(line, BaseModel):
+                            line = line.model_dump_json()
+                            line = f"data: {line}"
+
                         try:
                             line = line.decode("utf-8")
                         except:
@@ -189,18 +193,20 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
             if isinstance(res, dict):
                 return res
+            elif isinstance(res, BaseModel):
+                return res.model_dump()
             else:
+
                 message = ""
 
                 if isinstance(res, str):
                     message = res
 
-                elif isinstance(res, Generator):
+                if isinstance(res, Generator):
                     for stream in res:
                         message = f"{message}{stream}"
 
                 logging.info(f"stream:false:{message}")
-
                 return {
                     "id": f"{form_data.model}-{str(uuid.uuid4())}",
                     "object": "chat.completion",
