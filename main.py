@@ -18,6 +18,7 @@ from schemas import OpenAIChatCompletionForm
 import os
 import importlib.util
 
+import logging
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -37,7 +38,7 @@ def load_modules_from_directory(directory):
 
 for loaded_module in load_modules_from_directory("./pipelines"):
     # Do something with the loaded module
-    print("Loaded:", loaded_module.__name__)
+    logging.info("Loaded:", loaded_module.__name__)
 
     pipeline = loaded_module.Pipeline()
 
@@ -105,6 +106,7 @@ async def get_models():
                 "object": "model",
                 "created": int(time.time()),
                 "owned_by": "openai",
+                "pipeline": True,
             }
             for pipeline in PIPELINES.values()
         ]
@@ -123,7 +125,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         )
 
     def job():
-        print(form_data.model)
+        logging.info(form_data.model)
         get_response = app.state.PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
@@ -135,11 +137,11 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     body=form_data.model_dump(),
                 )
 
-                print(f"stream:true:{res}")
+                logging.info(f"stream:true:{res}")
 
                 if isinstance(res, str):
                     message = stream_message_template(form_data.model, res)
-                    print(f"stream_content:str:{message}")
+                    logging.info(f"stream_content:str:{message}")
                     yield f"data: {json.dumps(message)}\n\n"
 
                 if isinstance(res, Iterator):
@@ -149,7 +151,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                         except:
                             pass
 
-                        print(f"stream_content:Generator:{line}")
+                        logging.info(f"stream_content:Generator:{line}")
 
                         if line.startswith("data:"):
                             yield f"{line}\n\n"
@@ -183,7 +185,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 messages=form_data.messages,
                 body=form_data.model_dump(),
             )
-            print(f"stream:false:{res}")
+            logging.info(f"stream:false:{res}")
 
             if isinstance(res, dict):
                 return res
@@ -197,7 +199,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     for stream in res:
                         message = f"{message}{stream}"
 
-                print(f"stream:false:{message}")
+                logging.info(f"stream:false:{message}")
 
                 return {
                     "id": f"{form_data.model}-{str(uuid.uuid4())}",
