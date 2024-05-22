@@ -14,7 +14,6 @@ import uuid
 
 from utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
-from config import MODEL_ID, MODEL_NAME
 
 import os
 import importlib.util
@@ -61,6 +60,7 @@ async def lifespan(app: FastAPI):
     yield
 
     for pipeline in PIPELINES.values():
+
         if hasattr(pipeline["module"], "on_shutdown"):
             await pipeline["module"].on_shutdown()
 
@@ -124,12 +124,15 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         )
 
     def job():
+        print(form_data.model)
         get_response = app.state.PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
 
             def stream_content():
                 res = get_response(user_message, messages=form_data.messages)
+
+                print(res)
 
                 if isinstance(res, str):
                     message = stream_message_template(res)
@@ -145,7 +148,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     "id": f"{form_data.model}-{str(uuid.uuid4())}",
                     "object": "chat.completion.chunk",
                     "created": int(time.time()),
-                    "model": MODEL_ID,
+                    "model": form_data.model,
                     "choices": [
                         {
                             "index": 0,
@@ -175,7 +178,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 "id": f"{form_data.model}-{str(uuid.uuid4())}",
                 "object": "chat.completion",
                 "created": int(time.time()),
-                "model": MODEL_ID,
+                "model": form_data.model,
                 "choices": [
                     {
                         "index": 0,
