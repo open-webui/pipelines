@@ -64,6 +64,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(docs_url="/docs", redoc_url=None, lifespan=lifespan)
 
+app.state.PIPELINES = PIPELINES
+
 
 origins = ["*"]
 
@@ -112,14 +114,14 @@ async def get_models():
 async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
 
-    if form_data.model not in PIPELINES:
+    if form_data.model not in app.state.PIPELINES:
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Model {form_data.model} not found",
         )
 
-    async def job():
-        get_response = PIPELINES[form_data.model]["module"].get_response
+    def job():
+        get_response = app.state.PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
 
@@ -184,7 +186,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 ],
             }
 
-    return await job()
+    return await run_in_threadpool(job)
 
 
 @app.get("/")
