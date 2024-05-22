@@ -38,8 +38,10 @@ for loaded_module in load_modules_from_directory("./pipelines"):
     # Do something with the loaded module
     print("Loaded:", loaded_module.__name__)
 
+    pipeline = loaded_module.Pipeline()
+
     PIPELINES[loaded_module.__name__] = {
-        "module": loaded_module.Pipeline(),
+        "module": pipeline,
         "id": loaded_module.__name__,
         "name": loaded_module.__name__,
     }
