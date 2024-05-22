@@ -1,17 +1,6 @@
 from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
 
-from llama_index.embeddings.ollama import OllamaEmbedding
-from llama_index.llms.ollama import Ollama
-from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
-
-
-Settings.embed_model = OllamaEmbedding(
-    model_name="nomic-embed-text",
-    base_url="http://localhost:11434",
-)
-Settings.llm = Ollama(model="llama3")
-
 
 documents = None
 index = None
@@ -29,10 +18,22 @@ def get_response(
     query_engine = index.as_query_engine(streaming=True)
     response = query_engine.query(user_message)
 
+    print(response)
+
     return response.response_gen
 
 
 async def on_startup():
+    from llama_index.embeddings.ollama import OllamaEmbedding
+    from llama_index.llms.ollama import Ollama
+    from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
+
+    Settings.embed_model = OllamaEmbedding(
+        model_name="nomic-embed-text",
+        base_url="http://localhost:11434",
+    )
+    Settings.llm = Ollama(model="llama3")
+
     # This function is called when the server is started.
     global documents, index
 

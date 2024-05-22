@@ -3,18 +3,6 @@ from schemas import OpenAIChatMessage
 import os
 import asyncio
 
-from llama_index.embeddings.ollama import OllamaEmbedding
-from llama_index.llms.ollama import Ollama
-from llama_index.core import VectorStoreIndex, Settings
-from llama_index.readers.github import GithubRepositoryReader, GithubClient
-
-Settings.embed_model = OllamaEmbedding(
-    model_name="nomic-embed-text",
-    base_url="http://localhost:11434",
-)
-Settings.llm = Ollama(model="llama3")
-
-
 index = None
 documents = None
 
@@ -35,6 +23,18 @@ def get_response(
 
 
 async def on_startup():
+
+    from llama_index.embeddings.ollama import OllamaEmbedding
+    from llama_index.llms.ollama import Ollama
+    from llama_index.core import VectorStoreIndex, Settings
+    from llama_index.readers.github import GithubRepositoryReader, GithubClient
+
+    Settings.embed_model = OllamaEmbedding(
+        model_name="nomic-embed-text",
+        base_url="http://localhost:11434",
+    )
+    Settings.llm = Ollama(model="llama3")
+
     global index, documents
 
     github_token = os.environ.get("GITHUB_TOKEN")

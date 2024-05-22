@@ -16,12 +16,7 @@ def get_response(
 async def on_startup():
     # This function is called when the server is started.
     print(f"on_startup:{__name__}")
-
-    # Optional: return pipeline metadata
-    # return {
-    #     "id": "pipeline_id",
-    #     "name": "pipeline_name",
-    # }
+    pass
 
 
 async def on_shutdown():

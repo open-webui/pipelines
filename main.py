@@ -109,7 +109,7 @@ async def get_models():
 
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
-async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
+def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
 
     if form_data.model not in PIPELINES:
@@ -119,7 +119,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         )
 
     def job():
-
         get_response = PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
@@ -138,7 +137,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                         yield f"data: {json.dumps(message)}\n\n"
 
                 finish_message = {
-                    "id": f"rag-{str(uuid.uuid4())}",
+                    "id": f"{form_data.model}-{str(uuid.uuid4())}",
                     "object": "chat.completion.chunk",
                     "created": int(time.time()),
                     "model": MODEL_ID,
@@ -168,7 +167,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     message = f"{message}{stream}"
 
             return {
-                "id": f"rag-{str(uuid.uuid4())}",
+                "id": f"{form_data.model}-{str(uuid.uuid4())}",
                 "object": "chat.completion",
                 "created": int(time.time()),
                 "model": MODEL_ID,
@@ -185,14 +184,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 ],
             }
 
-    try:
-        return await run_in_threadpool(job)
-    except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=500,
-            detail="{e}",
-        )
+    return job()
 
 
 @app.get("/")
