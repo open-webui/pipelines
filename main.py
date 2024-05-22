@@ -117,6 +117,7 @@ async def get_models():
 @app.post("/v1/chat/completions")
 async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
+    messages = [message.model_dump() for message in form_data.messages]
 
     if form_data.model not in app.state.PIPELINES:
         return HTTPException(
@@ -133,7 +134,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             def stream_content():
                 res = get_response(
                     user_message,
-                    messages=form_data.messages,
+                    messages=messages,
                     body=form_data.model_dump(),
                 )
 
@@ -186,7 +187,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         else:
             res = get_response(
                 user_message,
-                messages=form_data.messages,
+                messages=messages,
                 body=form_data.model_dump(),
             )
             logging.info(f"stream:false:{res}")
