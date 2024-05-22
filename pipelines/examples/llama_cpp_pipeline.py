@@ -40,7 +40,7 @@ class Pipeline:
         print(body)
 
         response = self.llm.create_chat_completion_openai_v1(
-            messages=[message.model_dump() for message in messages],
+            messages=messages,
             stream=body["stream"],
         )
 
