@@ -5,6 +5,9 @@ import requests
 
 class Pipeline:
     def __init__(self):
+        # Optionally, you can set the id and name of the pipeline.
+        self.id = "openai_pipeline"
+        self.name = "OpenAI Pipeline"
         pass
 
     async def on_startup(self):

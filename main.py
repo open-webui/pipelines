@@ -43,8 +43,8 @@ for loaded_module in load_modules_from_directory("./pipelines"):
 
     PIPELINES[loaded_module.__name__] = {
         "module": pipeline,
-        "id": loaded_module.__name__,
-        "name": loaded_module.__name__,
+        "id": pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__,
+        "name": pipeline.name if hasattr(pipeline, "name") else loaded_module.__name__,
     }
 
 

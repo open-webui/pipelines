@@ -4,6 +4,9 @@ from schemas import OpenAIChatMessage
 
 class Pipeline:
     def __init__(self):
+        # Optionally, you can set the id and name of the pipeline.
+        self.id = "pipeline_example"
+        self.name = "Pipeline Example"
         pass
 
     async def on_startup(self):
