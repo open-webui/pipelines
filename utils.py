@@ -7,7 +7,7 @@ from schemas import OpenAIChatMessage
 
 def stream_message_template(model: str, message: str):
     return {
-        "id": f"rag-{str(uuid.uuid4())}",
+        "id": f"{model}-{str(uuid.uuid4())}",
         "object": "chat.completion.chunk",
         "created": int(time.time()),
         "model": model,
