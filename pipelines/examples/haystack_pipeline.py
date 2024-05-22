@@ -1,4 +1,4 @@
-from typing import List, Union, Generator
+from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 import os
 import asyncio
