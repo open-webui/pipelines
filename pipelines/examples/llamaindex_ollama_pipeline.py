@@ -3,7 +3,8 @@ from schemas import OpenAIChatMessage
 
 from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
-from llama_index.core import Settings
+from llama_index.core import Settings, VectorStoreIndex, SimpleDirectoryReader
+
 
 Settings.embed_model = OllamaEmbedding(
     model_name="nomic-embed-text",
@@ -11,10 +12,9 @@ Settings.embed_model = OllamaEmbedding(
 )
 Settings.llm = Ollama(model="llama3")
 
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 
-documents = SimpleDirectoryReader("./data").load_data()
-index = VectorStoreIndex.from_documents(documents)
+documents = None
+index = None
 
 
 def get_response(
@@ -34,6 +34,11 @@ def get_response(
 
 async def on_startup():
     # This function is called when the server is started.
+    global documents, index
+
+    documents = SimpleDirectoryReader("./data").load_data()
+    index = VectorStoreIndex.from_documents(documents)
+
     pass
 
 

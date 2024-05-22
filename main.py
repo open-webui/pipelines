@@ -14,7 +14,7 @@ from utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
 from config import MODEL_ID, MODEL_NAME
 
-from pipelines.examples.llamaindex_ollama_github_pipeline import (
+from pipelines.pipeline import (
     get_response,
     on_startup,
     on_shutdown,
