@@ -1,21 +1,16 @@
 """
-title: MLX Pipeline
-author: justinh-rahb
-date: 2024-05-22
-version: 1.0
-license: MIT
-description: A pipeline for running the mlx-lm server with a specified model.
-dependencies: requests, mlx-lm, huggingface_hub
-environment_variables: MLX_MODEL, MLX_STOP, HUGGINGFACE_TOKEN
+Plugin Name: MLX Pipeline
+Description: A pipeline for running the mlx-lm server with a specified model and dynamically allocated port.
+Author: justinh-rahb
+License: MIT
+Python Dependencies: requests, subprocess, os, socket, schemas
 """
 
 from typing import List, Union, Generator, Iterator
+import requests
 import subprocess
 import os
 import socket
-import time
-import requests
-from huggingface_hub import login
 from schemas import OpenAIChatMessage
 
 
@@ -28,11 +23,6 @@ class Pipeline:
         self.model = os.getenv('MLX_MODEL', 'mistralai/Mistral-7B-Instruct-v0.2')  # Default model if not set in environment variable
         self.port = self.find_free_port()
         self.stop_sequences = os.getenv('MLX_STOP', '[INST]')  # Stop sequences from environment variable
-        self.hf_token = os.getenv('HUGGINGFACE_TOKEN', None)  # Hugging Face token from environment variable
-
-        # Authenticate with Hugging Face if a token is provided
-        if self.hf_token:
-            self.authenticate_huggingface(self.hf_token)
 
     @staticmethod
     def find_free_port():
@@ -40,14 +30,6 @@ class Pipeline:
             s.bind(('', 0))
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             return s.getsockname()[1]
-
-    @staticmethod
-    def authenticate_huggingface(token: str):
-        try:
-            login(token)
-            print("Successfully authenticated with Hugging Face.")
-        except Exception as e:
-            print(f"Failed to authenticate with Hugging Face: {e}")
 
     async def on_startup(self):
         # This function is called when the server is started.
@@ -68,15 +50,8 @@ class Pipeline:
                 stderr=subprocess.PIPE
             )
             print(f"Subprocess started with PID: {self.process.pid} on port {self.port}")
-
-            # Check if the process has started correctly
-            time.sleep(2)  # Give it a moment to start
-            if self.process.poll() is not None:
-                raise RuntimeError(f"Subprocess failed to start. Return code: {self.process.returncode}")
-
         except Exception as e:
             print(f"Failed to start subprocess: {e}")
-            self.process = None
 
     def stop_subprocess(self):
         # Stop the subprocess if it is running
@@ -87,17 +62,12 @@ class Pipeline:
                 print(f"Subprocess with PID {self.process.pid} terminated")
             except Exception as e:
                 print(f"Failed to terminate subprocess: {e}")
-            finally:
-                self.process = None
 
     def get_response(
         self, user_message: str, messages: List[OpenAIChatMessage], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
         print(f"get_response:{__name__}")
-
-        if not self.process or self.process.poll() is not None:
-            return "Error: Subprocess is not running."
 
         MLX_BASE_URL = f"http://localhost:{self.port}"
         MODEL = self.model
@@ -106,8 +76,8 @@ class Pipeline:
         messages_dict = [{"role": message.role, "content": message.content} for message in messages]
 
         # Extract additional parameters from the body
-        temperature = body.get("temperature", 0.8)
-        max_tokens = body.get("max_tokens", 1000)
+        temperature = body.get("temperature", 1.0)
+        max_tokens = body.get("max_tokens", 100)
         top_p = body.get("top_p", 1.0)
         repetition_penalty = body.get("repetition_penalty", 1.0)
         stop = self.stop_sequences
