@@ -3,7 +3,7 @@ Name: MLX Pipeline
 Description: A pipeline for running the mlx-lm server with a specified model.
 Author: justinh-rahb
 License: MIT
-Python Dependencies: requests, subprocess, os, socket, schemas
+Python Dependencies: requests, mlx-lm
 Environment Variables: MLX_MODEL
 """
 
