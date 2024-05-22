@@ -3,15 +3,14 @@ import time
 
 from typing import List
 from schemas import OpenAIChatMessage
-from config import MODEL_ID
 
 
-def stream_message_template(message: str):
+def stream_message_template(model: str, message: str):
     return {
         "id": f"rag-{str(uuid.uuid4())}",
         "object": "chat.completion.chunk",
         "created": int(time.time()),
-        "model": MODEL_ID,
+        "model": model,
         "choices": [
             {
                 "index": 0,

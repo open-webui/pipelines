@@ -135,13 +135,13 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 print(res)
 
                 if isinstance(res, str):
-                    message = stream_message_template(res)
+                    message = stream_message_template(form_data.model, res)
                     yield f"data: {json.dumps(message)}\n\n"
 
                 elif isinstance(res, Generator):
                     for message in res:
                         print(message)
-                        message = stream_message_template(message)
+                        message = stream_message_template(form_data.model, message)
                         yield f"data: {json.dumps(message)}\n\n"
 
                 finish_message = {
