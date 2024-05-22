@@ -28,7 +28,9 @@ class Pipeline:
 
         print(messages)
         print(user_message)
+
         OPENAI_API_KEY = "your-openai-api-key-here"
+        MODEL = "gpt-3.5-turbo"
 
         headers = {}
         headers["Authorization"] = f"Bearer {OPENAI_API_KEY}"
@@ -37,7 +39,7 @@ class Pipeline:
         try:
             r = requests.post(
                 url="https://api.openai.com/v1/chat/completions",
-                json={**body, "model": "gpt-3.5-turbo"},
+                json={**body, "model": MODEL},
                 headers=headers,
                 stream=True,
             )

@@ -32,6 +32,7 @@ class Pipeline:
         AZURE_OPENAI_API_KEY = "your-azure-openai-api-key-here"
         AZURE_OPENAI_ENDPOINT = "your-azure-openai-endpoint-here"
         DEPLOYMENT_NAME = "your-deployment-name-here"
+        MODEL = "gpt-3.5-turbo"
 
         headers = {"api-key": AZURE_OPENAI_API_KEY, "Content-Type": "application/json"}
 
@@ -40,7 +41,7 @@ class Pipeline:
         try:
             r = requests.post(
                 url=url,
-                json={**body, "model": "gpt-3.5-turbo"},
+                json={**body, "model": MODEL},
                 headers=headers,
                 stream=True,
             )
