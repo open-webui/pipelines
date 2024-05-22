@@ -109,7 +109,7 @@ async def get_models():
 
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
-def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
+async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
 
     if form_data.model not in PIPELINES:
@@ -118,7 +118,7 @@ def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             detail=f"Model {form_data.model} not found",
         )
 
-    def job():
+    async def job():
         get_response = PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
@@ -184,7 +184,7 @@ def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 ],
             }
 
-    return job()
+    return await job()
 
 
 @app.get("/")

@@ -2,7 +2,7 @@ from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
 import os
 
-global basic_rag_pipeline
+basic_rag_pipeline = None
 
 
 def get_response(
@@ -23,6 +23,7 @@ def get_response(
 
 
 async def on_startup():
+    global basic_rag_pipeline
 
     os.environ["OPENAI_API_KEY"] = "your_openai_api_key_here"
 
