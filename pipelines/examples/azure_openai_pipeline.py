@@ -47,7 +47,7 @@ class Pipeline:
 
             r.raise_for_status()
 
-            if data["stream"]:
+            if body["stream"]:
                 return r.iter_lines()
             else:
                 return r.json()
