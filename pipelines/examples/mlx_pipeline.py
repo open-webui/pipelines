@@ -1,3 +1,12 @@
+"""
+Name: MLX Pipeline
+Description: A pipeline for running the mlx-lm server with a specified model.
+Author: justinh-rahb
+License: MIT
+Python Dependencies: requests, subprocess, os, socket, schemas
+Environment Variables: MLX_MODEL
+"""
+
 from typing import List, Union, Generator, Iterator
 import requests
 import subprocess
