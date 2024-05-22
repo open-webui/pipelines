@@ -93,8 +93,7 @@ class Pipeline:
             "max_tokens": max_tokens,
             "top_p": top_p,
             "repetition_penalty": repetition_penalty,
-            "stop": stop,
-            "stream": True  # Always stream responses
+            "stop": stop
         }
 
         try:
