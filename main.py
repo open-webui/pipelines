@@ -5,7 +5,7 @@ from fastapi.concurrency import run_in_threadpool
 
 from starlette.responses import StreamingResponse, Response
 from pydantic import BaseModel, ConfigDict
-from typing import List, Union, Generator
+from typing import List, Union, Generator, Iterator
 
 
 import time
@@ -132,77 +132,88 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 res = get_response(
                     user_message,
                     messages=form_data.messages,
-                    body=form_data.model_dump_json(),
+                    body=form_data.model_dump(),
                 )
 
                 print(f"stream:true:{res}")
 
-                if isinstance(res, str):
-                    message = stream_message_template(form_data.model, res)
-                    print(f"stream_content:str:{message}")
-                    yield f"data: {json.dumps(message)}\n\n"
-
-                elif isinstance(res, Generator):
-                    for message in res:
-                        print(f"stream_content:Generator:{message}")
-                        message = stream_message_template(form_data.model, message)
+                if isinstance(res, Iterator):
+                    for line in res:
+                        if line:
+                            # Decode the JSON data
+                            decoded_line = line.decode("utf-8")
+                            print(f"stream_content:Iterator:{decoded_line}")
+                            yield f"{decoded_line}\n\n"
+                else:
+                    if isinstance(res, str):
+                        message = stream_message_template(form_data.model, res)
+                        print(f"stream_content:str:{message}")
                         yield f"data: {json.dumps(message)}\n\n"
 
-                finish_message = {
-                    "id": f"{form_data.model}-{str(uuid.uuid4())}",
-                    "object": "chat.completion.chunk",
-                    "created": int(time.time()),
-                    "model": form_data.model,
-                    "choices": [
-                        {
-                            "index": 0,
-                            "delta": {},
-                            "logprobs": None,
-                            "finish_reason": "stop",
-                        }
-                    ],
-                }
+                    elif isinstance(res, Generator):
+                        for message in res:
+                            print(f"stream_content:Generator:{message}")
+                            message = stream_message_template(form_data.model, message)
+                            yield f"data: {json.dumps(message)}\n\n"
 
-                yield f"data: {json.dumps(finish_message)}\n\n"
-                yield f"data: [DONE]"
+                    finish_message = {
+                        "id": f"{form_data.model}-{str(uuid.uuid4())}",
+                        "object": "chat.completion.chunk",
+                        "created": int(time.time()),
+                        "model": form_data.model,
+                        "choices": [
+                            {
+                                "index": 0,
+                                "delta": {},
+                                "logprobs": None,
+                                "finish_reason": "stop",
+                            }
+                        ],
+                    }
+
+                    yield f"data: {json.dumps(finish_message)}\n\n"
+                    yield f"data: [DONE]"
 
             return StreamingResponse(stream_content(), media_type="text/event-stream")
         else:
             res = get_response(
                 user_message,
                 messages=form_data.messages,
-                body=form_data.model_dump_json(),
+                body=form_data.model_dump(),
             )
             print(f"stream:false:{res}")
 
-            message = ""
+            if isinstance(res, dict):
+                return res
+            else:
+                message = ""
 
-            if isinstance(res, str):
-                message = res
+                if isinstance(res, str):
+                    message = res
 
-            elif isinstance(res, Generator):
-                for stream in res:
-                    message = f"{message}{stream}"
+                elif isinstance(res, Generator):
+                    for stream in res:
+                        message = f"{message}{stream}"
 
-            print(f"stream:false:{message}")
+                print(f"stream:false:{message}")
 
-            return {
-                "id": f"{form_data.model}-{str(uuid.uuid4())}",
-                "object": "chat.completion",
-                "created": int(time.time()),
-                "model": form_data.model,
-                "choices": [
-                    {
-                        "index": 0,
-                        "message": {
-                            "role": "assistant",
-                            "content": message,
-                        },
-                        "logprobs": None,
-                        "finish_reason": "stop",
-                    }
-                ],
-            }
+                return {
+                    "id": f"{form_data.model}-{str(uuid.uuid4())}",
+                    "object": "chat.completion",
+                    "created": int(time.time()),
+                    "model": form_data.model,
+                    "choices": [
+                        {
+                            "index": 0,
+                            "message": {
+                                "role": "assistant",
+                                "content": message,
+                            },
+                            "logprobs": None,
+                            "finish_reason": "stop",
+                        }
+                    ],
+                }
 
     return await run_in_threadpool(job)
 
