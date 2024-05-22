@@ -58,7 +58,7 @@ class Pipeline:
         try:
             # Load data from the branch
             self.documents = await asyncio.to_thread(reader.load_data, branch=branch)
-            self.index = VectorStoreIndex.from_documents(documents)
+            self.index = VectorStoreIndex.from_documents(self.documents)
         finally:
             loop.close()
 

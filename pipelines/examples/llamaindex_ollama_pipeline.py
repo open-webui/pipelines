@@ -22,7 +22,7 @@ class Pipeline:
         global documents, index
 
         self.documents = SimpleDirectoryReader("./data").load_data()
-        self.index = VectorStoreIndex.from_documents(documents)
+        self.index = VectorStoreIndex.from_documents(self.documents)
         pass
 
     async def on_shutdown(self):
