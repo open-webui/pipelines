@@ -12,6 +12,6 @@ class OpenAIChatMessage(BaseModel):
 class OpenAIChatCompletionForm(BaseModel):
     stream: bool = True
     model: str
-    messages: List[dict]
+    messages: List[OpenAIChatMessage]
 
     model_config = ConfigDict(extra="allow")
