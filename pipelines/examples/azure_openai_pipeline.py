@@ -6,8 +6,8 @@ import requests
 class Pipeline:
     def __init__(self):
         # Optionally, you can set the id and name of the pipeline.
-        self.id = "openai_pipeline"
-        self.name = "OpenAI Pipeline"
+        self.id = "azure_openai_pipeline"
+        self.name = "Azure OpenAI Pipeline"
         pass
 
     async def on_startup(self):
@@ -28,15 +28,18 @@ class Pipeline:
 
         print(messages)
         print(user_message)
-        OPENAI_API_KEY = "your-openai-api-key-here"
 
-        headers = {}
-        headers["Authorization"] = f"Bearer {OPENAI_API_KEY}"
-        headers["Content-Type"] = "application/json"
+        AZURE_OPENAI_API_KEY = "your-azure-openai-api-key-here"
+        AZURE_OPENAI_ENDPOINT = "your-azure-openai-endpoint-here"
+        DEPLOYMENT_NAME = "your-deployment-name-here"
+
+        headers = {"api-key": AZURE_OPENAI_API_KEY, "Content-Type": "application/json"}
+
+        url = f"{AZURE_OPENAI_ENDPOINT}/openai/deployments/{DEPLOYMENT_NAME}/chat/completions?api-version=2023-10-01-preview"
 
         try:
             r = requests.post(
-                url="https://api.openai.com/v1/chat/completions",
+                url=url,
                 json={**body, "model": "gpt-3.5-turbo"},
                 headers=headers,
                 stream=True,
