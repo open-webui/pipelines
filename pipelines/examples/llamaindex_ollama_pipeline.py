@@ -41,6 +41,4 @@ class Pipeline:
         query_engine = self.index.as_query_engine(streaming=True)
         response = query_engine.query(user_message)
 
-        print(response)
-
         return response.response_gen

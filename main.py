@@ -19,6 +19,8 @@ import os
 import importlib.util
 
 
+from concurrent.futures import ThreadPoolExecutor
+
 PIPELINES = {}
 
 
@@ -53,10 +55,7 @@ from contextlib import asynccontextmanager
 async def lifespan(app: FastAPI):
     for pipeline in PIPELINES.values():
         if hasattr(pipeline["module"], "on_startup"):
-            info = await pipeline["module"].on_startup()
-            if info:
-                pipeline["id"] = info["id"]
-                pipeline["name"] = info["name"]
+            await pipeline["module"].on_startup()
     yield
 
     for pipeline in PIPELINES.values():
@@ -132,15 +131,16 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             def stream_content():
                 res = get_response(user_message, messages=form_data.messages)
 
-                print(res)
+                print(f"stream:true:{res}")
 
                 if isinstance(res, str):
                     message = stream_message_template(form_data.model, res)
+                    print(f"stream_content:str:{message}")
                     yield f"data: {json.dumps(message)}\n\n"
 
                 elif isinstance(res, Generator):
                     for message in res:
-                        print(message)
+                        print(f"stream_content:Generator:{message}")
                         message = stream_message_template(form_data.model, message)
                         yield f"data: {json.dumps(message)}\n\n"
 
@@ -165,6 +165,8 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             return StreamingResponse(stream_content(), media_type="text/event-stream")
         else:
             res = get_response(user_message, messages=form_data.messages)
+            print(f"stream:false:{res}")
+
             message = ""
 
             if isinstance(res, str):
@@ -173,6 +175,8 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             elif isinstance(res, Generator):
                 for stream in res:
                     message = f"{message}{stream}"
+
+            print(f"stream:false:{message}")
 
             return {
                 "id": f"{form_data.model}-{str(uuid.uuid4())}",
