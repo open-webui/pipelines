@@ -1,5 +1,6 @@
 from typing import List, Union, Generator
 from schemas import OpenAIChatMessage
+import requests
 
 
 class Pipeline:
@@ -24,5 +25,25 @@ class Pipeline:
 
         print(messages)
         print(user_message)
+        OPENAI_API_KEY = "your-api-key-here"
 
-        return f"{__name__} response to: {user_message}"
+        headers = {}
+        headers["Authorization"] = f"Bearer {OPENAI_API_KEY}"
+        headers["Content-Type"] = "application/json"
+
+        r = requests.request(
+            method="POST",
+            url="https://api.openai.com/v1",
+            data=body,
+            headers=headers,
+            stream=True,
+        )
+
+        r.raise_for_status()
+
+        # Check if response is SSE
+        if "text/event-stream" in r.headers.get("Content-Type", ""):
+            return r.iter_content(chunk_size=8192)
+        else:
+            response_data = r.json()
+            return f"{response_data['choices'][0]['text']}"

@@ -17,12 +17,13 @@ class Pipeline:
         pass
 
     def get_response(
-        self, user_message: str, messages: List[OpenAIChatMessage]
+        self, user_message: str, messages: List[OpenAIChatMessage], body: dict
     ) -> Union[str, Generator]:
         # This is where you can add your custom pipelines like RAG.'
         print(f"get_response:{__name__}")
 
         print(messages)
         print(user_message)
+        print(body)
 
         return f"{__name__} response to: {user_message}"

@@ -129,7 +129,11 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         if form_data.stream:
 
             def stream_content():
-                res = get_response(user_message, messages=form_data.messages)
+                res = get_response(
+                    user_message,
+                    messages=form_data.messages,
+                    body=form_data.model_dump_json(),
+                )
 
                 print(f"stream:true:{res}")
 
@@ -164,7 +168,11 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
             return StreamingResponse(stream_content(), media_type="text/event-stream")
         else:
-            res = get_response(user_message, messages=form_data.messages)
+            res = get_response(
+                user_message,
+                messages=form_data.messages,
+                body=form_data.model_dump_json(),
+            )
             print(f"stream:false:{res}")
 
             message = ""
