@@ -23,7 +23,7 @@ class Pipeline:
         self.process = None
         self.model = os.getenv('MLX_MODEL', 'mistralai/Mistral-7B-Instruct-v0.2')  # Default model if not set in environment variable
         self.port = self.find_free_port()
-        self.stop_sequences = os.getenv('MLX_STOP', None)  # Stop sequences from environment variable
+        self.stop_sequences = os.getenv('MLX_STOP', '[INST]')  # Stop sequences from environment variable
 
     @staticmethod
     def find_free_port():
@@ -74,8 +74,8 @@ class Pipeline:
         MODEL = self.model
 
         # Extract additional parameters from the body
-        temperature = body.get("temperature", 1.0)
-        max_tokens = body.get("max_tokens", 100)
+        temperature = body.get("temperature", 0.8)
+        max_tokens = body.get("max_tokens", 1000)
         top_p = body.get("top_p", 1.0)
         repetition_penalty = body.get("repetition_penalty", 1.0)
         stop = self.stop_sequences
