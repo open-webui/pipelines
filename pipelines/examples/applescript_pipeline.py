@@ -35,7 +35,7 @@ class Pipeline:
 
         if body.get("title", False):
             print("Title Generation")
-            return "PyAutoGUI Pipeline"
+            return "AppleScript Pipeline"
         else:
             if "user" in body:
                 print("######################################")
