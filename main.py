@@ -137,25 +137,26 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                 print(f"stream:true:{res}")
 
-                if isinstance(res, Iterator):
-                    for line in res:
-                        if line:
-                            # Decode the JSON data
-                            decoded_line = line.decode("utf-8")
-                            print(f"stream_content:Iterator:{decoded_line}")
-                            yield f"{decoded_line}\n\n"
-                else:
-                    if isinstance(res, str):
-                        message = stream_message_template(form_data.model, res)
-                        print(f"stream_content:str:{message}")
-                        yield f"data: {json.dumps(message)}\n\n"
+                if isinstance(res, str):
+                    message = stream_message_template(form_data.model, res)
+                    print(f"stream_content:str:{message}")
+                    yield f"data: {json.dumps(message)}\n\n"
 
-                    elif isinstance(res, Generator):
+                if isinstance(res, Iterator):
+                    if isinstance(res, Generator):
                         for message in res:
                             print(f"stream_content:Generator:{message}")
                             message = stream_message_template(form_data.model, message)
                             yield f"data: {json.dumps(message)}\n\n"
+                    else:
+                        for line in res:
+                            if line:
+                                # Decode the JSON data
+                                decoded_line = line.decode("utf-8")
+                                print(f"stream_content:Iterator:{decoded_line}")
+                                yield f"{decoded_line}\n\n"
 
+                if isinstance(res, str) or isinstance(res, Generator):
                     finish_message = {
                         "id": f"{form_data.model}-{str(uuid.uuid4())}",
                         "object": "chat.completion.chunk",
