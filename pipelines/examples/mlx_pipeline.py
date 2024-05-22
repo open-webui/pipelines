@@ -1,10 +1,12 @@
 """
-Name: MLX Pipeline
-Description: A pipeline for running the mlx-lm server with a specified model.
-Author: justinh-rahb
-License: MIT
-Python Dependencies: requests, mlx-lm
-Environment Variables: MLX_MODEL
+title: MLX Pipeline
+author: justinh-rahb
+date: 2024-05-22
+version: 1.0
+license: MIT
+description: A pipeline for running the mlx-lm server with a specified model.
+dependencies: requests, mlx-lm
+environment: MLX_MODEL
 """
 
 from typing import List, Union, Generator, Iterator
