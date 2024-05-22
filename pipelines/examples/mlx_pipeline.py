@@ -6,7 +6,7 @@ version: 1.0
 license: MIT
 description: A pipeline for running the mlx-lm server with a specified model.
 dependencies: requests, mlx-lm
-environment: MLX_MODEL
+environment_variables: MLX_MODEL
 """
 
 from typing import List, Union, Generator, Iterator
