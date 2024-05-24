@@ -14,6 +14,16 @@ requires-python = ">= 3.11, < 3.12.0a1"
 dotenv = [
     "python-dotenv>=1.0.1",
 ]
+examples = [
+    "haystack-ai>=2.1.2",
+    "datasets>=2.19.1",
+    "sentence-transformers>=2.7.0",
+    "llama-cpp-python>=0.2.76",
+    "llama-index>=0.10.38",
+]
+
+[project.scripts]
+open-webui-pipeline = "open_webui.pipeline.main:cli"
 
 [build-system]
 requires = ["hatchling"]
@@ -29,3 +39,9 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["open_webui"]
 force-include = { "schemas.py" = "schemas.py" }
+
+[tool.ruff]
+extend-exclude = ["pipelines"]
+
+[tool.ruff.lint]
+select = ["I"]

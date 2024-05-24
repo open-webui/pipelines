@@ -1,26 +1,23 @@
-from fastapi import FastAPI, Request, Depends, status, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.concurrency import run_in_threadpool
-
-
-from starlette.responses import StreamingResponse, Response
-from pydantic import BaseModel, ConfigDict
-from typing import List, Union, Generator, Iterator
-
-
-import time
+import importlib.util
 import json
+import logging
+import os
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
+from pathlib import Path
+from typing import Generator, Iterator, List, Union, Optional
+
+import typer
+from fastapi import Depends, FastAPI, HTTPException, Request, status
+from fastapi.concurrency import run_in_threadpool
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, ConfigDict
+from starlette.responses import Response, StreamingResponse
 
 from open_webui.pipeline.utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
-
-import os
-import importlib.util
-
-import logging
-
-from concurrent.futures import ThreadPoolExecutor
 
 PIPELINES = {}
 
@@ -36,22 +33,6 @@ def load_modules_from_directory(directory):
             yield module
 
 
-for loaded_module in load_modules_from_directory("./pipelines"):
-    # Do something with the loaded module
-    logging.info("Loaded:", loaded_module.__name__)
-
-    pipeline = loaded_module.Pipeline()
-
-    PIPELINES[loaded_module.__name__] = {
-        "module": pipeline,
-        "id": pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__,
-        "name": pipeline.name if hasattr(pipeline, "name") else loaded_module.__name__,
-    }
-
-
-from contextlib import asynccontextmanager
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     for pipeline in PIPELINES.values():
@@ -60,7 +41,6 @@ async def lifespan(app: FastAPI):
     yield
 
     for pipeline in PIPELINES.values():
-
         if hasattr(pipeline["module"], "on_shutdown"):
             await pipeline["module"].on_shutdown()
 
@@ -196,7 +176,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             elif isinstance(res, BaseModel):
                 return res.model_dump()
             else:
-
                 message = ""
 
                 if isinstance(res, str):
@@ -231,3 +210,41 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 @app.get("/")
 async def get_status():
     return {"status": True}
+
+
+def callback(
+    pipelines: Optional[Path] = None
+):
+    for loaded_module in load_modules_from_directory(pipelines):
+        # Do something with the loaded module
+        logging.info("Loaded:", loaded_module.__name__)
+
+        pipeline = loaded_module.Pipeline()
+
+        PIPELINES[loaded_module.__name__] = {
+            "module": pipeline,
+            "id": pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__,
+            "name": pipeline.name if hasattr(pipeline, "name") else loaded_module.__name__,
+        }
+
+cli = typer.Typer(callback=callback)
+
+
+@cli.command()
+def serve(
+    host: str = "0.0.0.0",
+    port: int = 9099,
+):
+    import uvicorn
+
+    uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*")
+
+
+@cli.command()
+def dev(
+    host: str = "0.0.0.0",
+    port: int = 9099,
+):
+    import uvicorn
+
+    uvicorn.run("open_webui.pipeline.main:app", host=host, port=port, reload=True, forwarded_allow_ips="*")
