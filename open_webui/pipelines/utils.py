@@ -2,7 +2,7 @@ import time
 import uuid
 from typing import List
 
-from schemas import OpenAIChatMessage
+from open_webui.pipelines.schemas import OpenAIChatMessage
 
 
 def stream_message_template(model: str, message: str):

@@ -1,5 +1,5 @@
 from typing import List, Union, Generator, Iterator
-from schemas import OpenAIChatMessage
+from open_webui.pipelines.schemas import OpenAIChatMessage
 
 
 class Pipeline:
