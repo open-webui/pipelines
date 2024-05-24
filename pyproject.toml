@@ -1,5 +1,5 @@
 [project]
-name = "open-webui-pipeline"
+name = "open-webui-pipelines"
 version = "0.1.0"
 description = "Open WebUI Pipeline"
 dependencies = [
@@ -23,7 +23,7 @@ examples = [
 ]
 
 [project.scripts]
-open-webui-pipeline = "open_webui.pipeline.main:cli"
+open-webui-pipelines = "open_webui.pipelines.main:cli"
 
 [build-system]
 requires = ["hatchling"]
