@@ -3,8 +3,8 @@
 #
 # last locked with the following flags:
 #   pre: false
-#   features: ["examples"]
-#   all-features: false
+#   features: []
+#   all-features: true
 #   with-sources: false
 
 -e file:.
@@ -44,7 +44,7 @@ dataclasses-json==0.6.6
     # via llama-index-core
     # via llama-index-legacy
 datasets==2.19.1
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 deprecated==1.2.14
     # via llama-index-core
     # via llama-index-legacy
@@ -63,7 +63,7 @@ dnspython==2.6.1
 email-validator==2.1.1
     # via fastapi
 fastapi==0.111.0
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 fastapi-cli==0.0.4
     # via fastapi
 filelock==3.14.0
@@ -86,7 +86,7 @@ h11==0.14.0
     # via httpcore
     # via uvicorn
 haystack-ai==2.1.2
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 haystack-bm25==1.0.2
     # via haystack-ai
 httpcore==1.0.5
@@ -121,9 +121,9 @@ joblib==1.4.2
 lazy-imports==0.3.1
     # via haystack-ai
 llama-cpp-python==0.2.76
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 llama-index==0.10.38
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 llama-index-agent-openai==0.2.5
     # via llama-index
     # via llama-index-program-openai
@@ -258,6 +258,7 @@ python-dateutil==2.9.0.post0
     # via pandas
     # via posthog
 python-dotenv==1.0.1
+    # via open-webui-pipelines
     # via uvicorn
 python-multipart==0.0.9
     # via fastapi
@@ -280,7 +281,7 @@ requests==2.32.2
     # via huggingface-hub
     # via llama-index-core
     # via llama-index-legacy
-    # via open-webui-pipeline
+    # via open-webui-pipelines
     # via posthog
     # via tiktoken
     # via transformers
@@ -294,7 +295,7 @@ scipy==1.13.1
     # via scikit-learn
     # via sentence-transformers
 sentence-transformers==2.7.0
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 shellingham==1.5.4
     # via typer
 six==1.16.0
@@ -341,7 +342,7 @@ transformers==4.41.1
     # via sentence-transformers
 typer==0.12.3
     # via fastapi-cli
-    # via open-webui-pipeline
+    # via open-webui-pipelines
 typing-extensions==4.12.0
     # via fastapi
     # via haystack-ai

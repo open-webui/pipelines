@@ -16,8 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict
 from starlette.responses import Response, StreamingResponse
 
-from open_webui.pipelines.utils import get_last_user_message, stream_message_template
-from open_webui.pipelines.schemas import OpenAIChatCompletionForm
+from .schemas import OpenAIChatCompletionForm
+from .utils import get_last_user_message, stream_message_template
 
 PIPELINES = {}
 
