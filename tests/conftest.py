@@ -14,10 +14,29 @@ def import_module(module_path):
     return module
 
 
-@pytest.fixture
-def ollama_pipeline():
+@pytest.fixture(scope="session")
+def ollama_pipeline(app):
     module = import_module(BASE_DIR / "pipelines" / "ollama_pipeline.py")
-    return module.Pipeline()
+    ollama_pipeline = module.Pipeline()
+    app.state.PIPELINES[ollama_pipeline.id] = {
+        "module": ollama_pipeline,
+        "id": ollama_pipeline.id,
+        "name": ollama_pipeline.name,
+    }
+    return ollama_pipeline
+
+
+@pytest.fixture(scope="session")
+def pipeline(app):
+    module = import_module(BASE_DIR / "pipelines" / "pipeline.py")
+    module.__name__ = "pipeline"
+    pipeline = module.Pipeline()
+    app.state.PIPELINES["pipeline"] = {
+        "module": pipeline,
+        "id": "pipeline",
+        "name": "Pipeline",
+    }
+    return pipeline
 
 
 @pytest.fixture(scope="session")
