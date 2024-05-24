@@ -1,0 +1,31 @@
+[project]
+name = "open-webui-pipeline"
+version = "0.1.0"
+description = "Open WebUI Pipeline"
+dependencies = [
+    "fastapi>=0.111.0",
+    "requests>=2.32.2",
+    "typer>=0.12.3",
+]
+readme = "README.md"
+requires-python = ">= 3.11, < 3.12.0a1"
+
+[project.optional-dependencies]
+dotenv = [
+    "python-dotenv>=1.0.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["open_webui"]
+force-include = { "schemas.py" = "schemas.py" }

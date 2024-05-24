@@ -12,7 +12,7 @@ import time
 import json
 import uuid
 
-from utils import get_last_user_message, stream_message_template
+from open_webui.pipeline.utils import get_last_user_message, stream_message_template
 from schemas import OpenAIChatCompletionForm
 
 import os
