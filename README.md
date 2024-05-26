@@ -6,7 +6,7 @@ Welcome to **Pipelines**, Open WebUI initiative that brings modular, customizabl
 
 - **Seamless Integration:** Compatible with any UI/client that supports OpenAI API specs.
 - **Endless Possibilities:** Got a specific need? Pipelines make it easy to add your custom logic and functionalities. Integrate any Python library, from AI agents via libraries like CrewAI to API calls for home automation – the sky's the limit!
-- **Custom Hooks:** Build and integrate custom RAG (Retrospective Agent Guidance) pipelines and more.
+- **Custom Hooks:** Build and integrate custom RAG pipelines and more.
 
 ## 🔧 How It Works
 
