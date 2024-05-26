@@ -1,6 +1,6 @@
 # Pipelines: UI-Agnostic OpenAI API Compatible Plugin Framework
 
-Welcome to **Pipelines**, Open WebUI initiative that brings modular, customizable workflows to any UI client supporting OpenAI API specs – and much more! Dive into a world where you can effortlessly extend functionalities, integrate unique logic, and create dynamic agentic workflows, all with a few lines of code.
+Welcome to **Pipelines**, [Open WebUI](https://github.com/open-webui) initiative that brings modular, customizable workflows to any UI client supporting OpenAI API specs – and much more! Dive into a world where you can effortlessly extend functionalities, integrate unique logic, and create dynamic agentic workflows, all with a few lines of code.
 
 ## 🚀 Why Pipelines?
 
@@ -16,4 +16,4 @@ Integrating Pipelines with any OpenAI API-compatible UI client is a breeze. Simp
 
 We’re continuously evolving! We'd love to hear your feedback and understand which hooks and features would best suit your use case. Feel free to reach out and become a part of our Open WebUI community!
 
-Our vision is to push **Pipelines** to become the ultimate plugin framework for our AI interface, **Open-WebUI**. Imagine **Open-WebUI** as the WordPress of AI interfaces, with **Pipelines** being its diverse range of plugins. Join us on this exciting journey! 🌍
+Our vision is to push **Pipelines** to become the ultimate plugin framework for our AI interface, **Open WebUI**. Imagine **Open WebUI** as the WordPress of AI interfaces, with **Pipelines** being its diverse range of plugins. Join us on this exciting journey! 🌍
