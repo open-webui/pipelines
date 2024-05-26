@@ -4,9 +4,22 @@ from schemas import OpenAIChatMessage
 
 class Pipeline:
     def __init__(self):
-        # Optionally, you can set the id and name of the pipeline.
-        self.id = "pipeline_example"
-        self.name = "Pipeline Example"
+        self.id = "manifold_pipeline"
+        self.name = "Manifold Pipeline"
+        # You can also set the pipelines that are available in this pipeline.
+        # Set manifold to True if you want to use this pipeline as a manifold.
+        # Manifold pipelines can have multiple pipelines.
+        self.manifold = True
+        self.pipelines = [
+            {
+                "id": "pipeline-1",  # This will turn into `manifold_pipeline.pipeline-1`
+                "name": "Manifold: Pipeline 1",
+            },
+            {
+                "id": "pipeline-2",
+                "name": "Manifold: Pipeline 2",
+            },
+        ]
         pass
 
     async def on_startup(self):
@@ -29,4 +42,4 @@ class Pipeline:
         print(user_message)
         print(body)
 
-        return f"{__name__} response to: {user_message}"
+        return f"{model_id} response to: {user_message}"

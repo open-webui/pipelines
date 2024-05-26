@@ -31,7 +31,7 @@ class Pipeline:
             return e.output.strip(), e.returncode
 
     def get_response(
-        self, user_message: str, messages: List[dict], body: dict
+        self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
         print(f"get_response:{__name__}")

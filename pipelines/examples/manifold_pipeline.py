@@ -7,6 +7,17 @@ class Pipeline:
         # Optionally, you can set the id and name of the pipeline.
         self.id = "pipeline_example"
         self.name = "Pipeline Example"
+        # You can also set the pipelines that are available in this pipeline.
+        self.pipelines = [
+            {
+                "id": "pipeline-1",
+                "name": "Pipeline 1",
+            },
+            {
+                "id": "pipeline-2",
+                "name": "Pipeline 2",
+            },
+        ]
         pass
 
     async def on_startup(self):

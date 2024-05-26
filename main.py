@@ -25,28 +25,46 @@ from concurrent.futures import ThreadPoolExecutor
 PIPELINES = {}
 
 
-def load_modules_from_directory(directory):
-    for filename in os.listdir(directory):
-        if filename.endswith(".py"):
-            module_name = filename[:-3]  # Remove the .py extension
-            module_path = os.path.join(directory, filename)
-            spec = importlib.util.spec_from_file_location(module_name, module_path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            yield module
+def on_startup():
+    def load_modules_from_directory(directory):
+        for filename in os.listdir(directory):
+            if filename.endswith(".py"):
+                module_name = filename[:-3]  # Remove the .py extension
+                module_path = os.path.join(directory, filename)
+                spec = importlib.util.spec_from_file_location(module_name, module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                yield module
+
+    for loaded_module in load_modules_from_directory("./pipelines"):
+        # Do something with the loaded module
+        logging.info("Loaded:", loaded_module.__name__)
+
+        pipeline = loaded_module.Pipeline()
+
+        pipeline_id = pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__
+
+        if hasattr(pipeline, "manifold") and pipeline.manifold:
+            for p in pipeline.pipelines:
+                manifold_pipeline_id = f'{pipeline_id}.{p["id"]}'
+                PIPELINES[manifold_pipeline_id] = {
+                    "module": pipeline,
+                    "id": manifold_pipeline_id,
+                    "name": p["name"],
+                }
+        else:
+            PIPELINES[loaded_module.__name__] = {
+                "module": pipeline,
+                "id": pipeline_id,
+                "name": (
+                    pipeline.name
+                    if hasattr(pipeline, "name")
+                    else loaded_module.__name__
+                ),
+            }
 
 
-for loaded_module in load_modules_from_directory("./pipelines"):
-    # Do something with the loaded module
-    logging.info("Loaded:", loaded_module.__name__)
-
-    pipeline = loaded_module.Pipeline()
-
-    PIPELINES[loaded_module.__name__] = {
-        "module": pipeline,
-        "id": pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__,
-        "name": pipeline.name if hasattr(pipeline, "name") else loaded_module.__name__,
-    }
+on_startup()
 
 
 from contextlib import asynccontextmanager
@@ -60,7 +78,6 @@ async def lifespan(app: FastAPI):
     yield
 
     for pipeline in PIPELINES.values():
-
         if hasattr(pipeline["module"], "on_shutdown"):
             await pipeline["module"].on_shutdown()
 
@@ -126,14 +143,15 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         )
 
     def job():
-        logging.info(form_data.model)
+        print(form_data.model)
         get_response = app.state.PIPELINES[form_data.model]["module"].get_response
 
         if form_data.stream:
 
             def stream_content():
                 res = get_response(
-                    user_message,
+                    user_message=user_message,
+                    model_id=form_data.model,
                     messages=messages,
                     body=form_data.model_dump(),
                 )
@@ -186,7 +204,8 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             return StreamingResponse(stream_content(), media_type="text/event-stream")
         else:
             res = get_response(
-                user_message,
+                user_message=user_message,
+                model_id=form_data.model,
                 messages=messages,
                 body=form_data.model_dump(),
             )
