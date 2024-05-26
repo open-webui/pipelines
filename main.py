@@ -51,6 +51,7 @@ def on_startup():
                     "module": pipeline,
                     "id": manifold_pipeline_id,
                     "name": p["name"],
+                    "manifold": True,
                 }
         else:
             PIPELINES[loaded_module.__name__] = {
@@ -144,14 +145,21 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
     def job():
         print(form_data.model)
-        get_response = app.state.PIPELINES[form_data.model]["module"].get_response
+
+        pipeline = app.state.PIPELINES[form_data.model]
+        pipeline_id = form_data.model
+
+        if pipeline.get("manifold", False):
+            pipeline_id = pipeline_id.split(".")[1]
+
+        get_response = pipeline["module"].get_response
 
         if form_data.stream:
 
             def stream_content():
                 res = get_response(
                     user_message=user_message,
-                    model_id=form_data.model,
+                    model_id=pipeline_id,
                     messages=messages,
                     body=form_data.model_dump(),
                 )
@@ -205,7 +213,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         else:
             res = get_response(
                 user_message=user_message,
-                model_id=form_data.model,
+                model_id=pipeline_id,
                 messages=messages,
                 body=form_data.model_dump(),
             )
