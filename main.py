@@ -47,10 +47,15 @@ def on_startup():
         if hasattr(pipeline, "manifold") and pipeline.manifold:
             for p in pipeline.pipelines:
                 manifold_pipeline_id = f'{pipeline_id}.{p["id"]}'
+
+                manifold_pipeline_name = p["name"]
+                if hasattr(pipeline, "name"):
+                    manifold_pipeline_name = f"{pipeline.name}{manifold_pipeline_name}"
+
                 PIPELINES[manifold_pipeline_id] = {
                     "module": pipeline,
                     "id": manifold_pipeline_id,
-                    "name": p["name"],
+                    "name": manifold_pipeline_name,
                     "manifold": True,
                 }
         else:

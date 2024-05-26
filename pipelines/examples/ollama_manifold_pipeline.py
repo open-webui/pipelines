@@ -5,8 +5,7 @@ from schemas import OpenAIChatMessage
 class Pipeline:
     def __init__(self):
         self.id = "manifold_pipeline"
-        # Optionally, you can set the name of the manifold pipeline.
-        self.name = "Manifold: "
+        self.name = "Manifold Pipeline"
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
         # Manifold pipelines can have multiple pipelines.
@@ -14,11 +13,11 @@ class Pipeline:
         self.pipelines = [
             {
                 "id": "pipeline-1",  # This will turn into `manifold_pipeline.pipeline-1`
-                "name": "Pipeline 1",  # This will turn into `Manifold: Pipeline 1`
+                "name": "Manifold: Pipeline 1",
             },
             {
                 "id": "pipeline-2",
-                "name": "Pipeline 2",
+                "name": "Manifold: Pipeline 2",
             },
         ]
         pass
