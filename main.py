@@ -23,6 +23,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 PIPELINES = {}
+PIPELINE_MODULES = {}
 
 
 def on_startup():
@@ -41,8 +42,9 @@ def on_startup():
         logging.info("Loaded:", loaded_module.__name__)
 
         pipeline = loaded_module.Pipeline()
-
         pipeline_id = pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__
+
+        PIPELINE_MODULES[pipeline_id] = pipeline
 
         if hasattr(pipeline, "manifold") and pipeline.manifold:
             for p in pipeline.pipelines:
@@ -53,14 +55,14 @@ def on_startup():
                     manifold_pipeline_name = f"{pipeline.name}{manifold_pipeline_name}"
 
                 PIPELINES[manifold_pipeline_id] = {
-                    "module": pipeline,
+                    "module": pipeline_id,
                     "id": manifold_pipeline_id,
                     "name": manifold_pipeline_name,
                     "manifold": True,
                 }
         else:
             PIPELINES[loaded_module.__name__] = {
-                "module": pipeline,
+                "module": pipeline_id,
                 "id": pipeline_id,
                 "name": (
                     pipeline.name
@@ -78,14 +80,14 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    for pipeline in PIPELINES.values():
-        if hasattr(pipeline["module"], "on_startup"):
-            await pipeline["module"].on_startup()
+    for module in PIPELINE_MODULES.values():
+        if hasattr(module, "on_startup"):
+            await module.on_startup()
     yield
 
-    for pipeline in PIPELINES.values():
-        if hasattr(pipeline["module"], "on_shutdown"):
-            await pipeline["module"].on_shutdown()
+    for module in PIPELINE_MODULES.values():
+        if hasattr(module, "on_shutdown"):
+            await module.on_shutdown()
 
 
 app = FastAPI(docs_url="/docs", redoc_url=None, lifespan=lifespan)
