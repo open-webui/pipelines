@@ -6,10 +6,8 @@ import time
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Generator, Iterator, List, Union, Optional
 
-import typer
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
@@ -210,41 +208,3 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 @app.get("/")
 async def get_status():
     return {"status": True}
-
-
-def callback(
-    pipelines: Optional[Path] = None
-):
-    for loaded_module in load_modules_from_directory(pipelines):
-        # Do something with the loaded module
-        logging.info("Loaded:", loaded_module.__name__)
-
-        pipeline = loaded_module.Pipeline()
-
-        PIPELINES[loaded_module.__name__] = {
-            "module": pipeline,
-            "id": pipeline.id if hasattr(pipeline, "id") else loaded_module.__name__,
-            "name": pipeline.name if hasattr(pipeline, "name") else loaded_module.__name__,
-        }
-
-cli = typer.Typer(callback=callback)
-
-
-@cli.command()
-def serve(
-    host: str = "0.0.0.0",
-    port: int = 9099,
-):
-    import uvicorn
-
-    uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*")
-
-
-@cli.command()
-def dev(
-    host: str = "0.0.0.0",
-    port: int = 9099,
-):
-    import uvicorn
-
-    uvicorn.run("open_webui.pipeline.main:app", host=host, port=port, reload=True, forwarded_allow_ips="*")

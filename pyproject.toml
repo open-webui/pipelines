@@ -23,7 +23,7 @@ examples = [
 ]
 
 [project.scripts]
-open-webui-pipelines = "open_webui.pipelines.main:cli"
+open-webui-pipelines = "open_webui.pipelines.cli:main"
 
 [build-system]
 requires = ["hatchling"]
