@@ -22,7 +22,7 @@ def stream_message_template(model: str, message: str):
     }
 
 
-def get_last_user_message(messages: List[OpenAIChatMessage]) -> str:
+def get_last_user_message(messages: List[dict]) -> str:
     for message in reversed(messages):
         if message.role == "user":
             return message.content

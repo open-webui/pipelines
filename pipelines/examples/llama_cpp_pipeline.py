@@ -30,7 +30,7 @@ class Pipeline:
         pass
 
     def get_response(
-        self, user_message: str, messages: List[OpenAIChatMessage], body: dict
+        self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
         print(f"get_response:{__name__}")
@@ -40,7 +40,7 @@ class Pipeline:
         print(body)
 
         response = self.llm.create_chat_completion_openai_v1(
-            messages=[message.model_dump() for message in messages],
+            messages=messages,
             stream=body["stream"],
         )
 
