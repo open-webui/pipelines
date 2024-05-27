@@ -156,10 +156,13 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         pipeline = app.state.PIPELINES[form_data.model]
         pipeline_id = form_data.model
 
-        if pipeline.get("manifold", False):
-            pipeline_id = pipeline_id.split(".")[1]
+        print(pipeline_id)
 
-        get_response = pipeline["module"].get_response
+        if pipeline.get("manifold", False):
+            manifold_id, pipeline_id = pipeline_id.split(".", 1)
+            get_response = PIPELINE_MODULES[manifold_id].get_response
+        else:
+            get_response = PIPELINE_MODULES[pipeline_id].get_response
 
         if form_data.stream:
 
