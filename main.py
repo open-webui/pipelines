@@ -170,7 +170,7 @@ async def valve(form_data: ValveForm):
         )
 
     pipeline = PIPELINE_MODULES[form_data.model]
-    return await pipeline.control_valve(form_data.body)
+    return await pipeline.control_valve(form_data.body, form_data.user)
 
 
 @app.post("/chat/completions")

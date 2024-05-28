@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 
 
@@ -20,4 +20,5 @@ class OpenAIChatCompletionForm(BaseModel):
 class ValveForm(BaseModel):
     model: str
     body: dict
+    user: Optional[dict] = None
     model_config = ConfigDict(extra="allow")

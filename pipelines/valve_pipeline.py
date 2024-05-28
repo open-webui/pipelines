@@ -1,4 +1,4 @@
-from typing import List, Union, Generator, Iterator
+from typing import List, Optional
 from schemas import OpenAIChatMessage
 
 
@@ -31,7 +31,10 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    async def control_valve(self, body: dict) -> dict:
+    async def control_valve(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"get_response:{__name__}")
+
         print(body)
+        print(user)
+
         return body
