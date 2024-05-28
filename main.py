@@ -22,6 +22,21 @@ import logging
 
 from concurrent.futures import ThreadPoolExecutor
 
+
+import os
+
+####################################
+# Load .env file
+####################################
+
+try:
+    from dotenv import load_dotenv, find_dotenv
+
+    load_dotenv(find_dotenv(".env"))
+except ImportError:
+    print("dotenv not installed, skipping...")
+
+
 PIPELINES = {}
 PIPELINE_MODULES = {}
 
