@@ -32,12 +32,12 @@ class Pipeline:
         ]
 
     async def on_startup(self):
-        # This function is called when the server is started.
+        # This function is called when the server is started or after valves are updated.
         print(f"on_startup:{__name__}")
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped.
+        # This function is called when the server is stopped or before valves are updated.
         print(f"on_shutdown:{__name__}")
         pass
 

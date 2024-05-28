@@ -24,32 +24,38 @@ class Pipeline:
             LITELLM_BASE_URL: str
 
         # Initialize rate limits
-        self.valves = Valves(**{"LITELLM_BASE_URL": "http://localhost:4000"})
-
-        self.pipelines = self.get_litellm_models()
+        self.valves = Valves(**{"LITELLM_BASE_URL": "http://localhost:4001"})
+        self.pipelines = []
         pass
 
     def get_litellm_models(self):
         if self.valves.LITELLM_BASE_URL:
-            r = requests.get(f"{self.valves.LITELLM_BASE_URL}/v1/models")
-            models = r.json()
-            return [
-                {
-                    "id": model["id"],
-                    "name": model["name"] if "name" in model else model["id"],
-                }
-                for model in models["data"]
-            ]
+            try:
+                r = requests.get(f"{self.valves.LITELLM_BASE_URL}/v1/models")
+                models = r.json()
+                return [
+                    {
+                        "id": model["id"],
+                        "name": model["name"] if "name" in model else model["id"],
+                    }
+                    for model in models["data"]
+                ]
+            except Exception as e:
+                print(f"Error: {e}")
+                return [
+                    {"id": "litellm", "name": "LiteLLM: Please configure LiteLLM URL"},
+                ]
         else:
             return []
 
     async def on_startup(self):
-        # This function is called when the server is started.
+        # This function is called when the server is started or after valves are updated.
         print(f"on_startup:{__name__}")
+        self.pipelines = self.get_litellm_models()
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped.
+        # This function is called when the server is stopped or before valves are updated.
         print(f"on_shutdown:{__name__}")
         pass
 

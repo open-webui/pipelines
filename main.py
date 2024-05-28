@@ -255,6 +255,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
 
     pipeline_module = PIPELINE_MODULES[pipeline_id]
 
+    await pipeline_module.on_shutdown()
     try:
         ValvesModel = pipeline_module.valves.__class__
         valves = ValvesModel(**form_data)
@@ -265,6 +266,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"{str(e)}",
         )
+    await pipeline_module.on_startup()
 
     return pipeline_module.valves
 

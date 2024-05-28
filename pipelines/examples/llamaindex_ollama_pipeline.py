@@ -18,7 +18,7 @@ class Pipeline:
         )
         Settings.llm = Ollama(model="llama3")
 
-        # This function is called when the server is started.
+        # This function is called when the server is started or after valves are updated.
         global documents, index
 
         self.documents = SimpleDirectoryReader("./data").load_data()
@@ -26,7 +26,7 @@ class Pipeline:
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped.
+        # This function is called when the server is stopped or before valves are updated.
         pass
 
     def pipe(
