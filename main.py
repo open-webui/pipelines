@@ -199,7 +199,7 @@ async def filter(form_data: FilterForm):
         print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error in filter {form_data.model}: {str(e)}",
+            detail=f"{str(e)}",
         )
 
 
