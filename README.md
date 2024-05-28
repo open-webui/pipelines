@@ -26,7 +26,7 @@ Everything you need to build and extend Pipelines can be found in the `/pipeline
 
 ### Integration Examples
 
-To help you get started quickly, we've included a variety of integration examples in the `/pipeline/examples` directory. These examples demonstrate how to integrate different functionalities and libraries, providing a solid foundation for building your own custom pipelines.
+To help you get started quickly, we've included a variety of integration examples in the `/pipelines/examples` directory. These examples demonstrate how to integrate different functionalities and libraries, providing a solid foundation for building your own custom pipelines.
 
 ## 📦 Installation and Setup
 
