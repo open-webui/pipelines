@@ -177,7 +177,7 @@ async def get_models():
                         if pipeline.get("filter", False)
                         else {}
                     ),
-                    "valves": "valves" in pipeline,
+                    "valves": pipeline["valves"] != None,
                 },
             }
             for pipeline in PIPELINES.values()
