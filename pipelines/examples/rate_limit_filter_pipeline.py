@@ -20,10 +20,8 @@ class Pipeline:
         # List target pipelines (models) that this filter will be connected to.
         self.pipelines = ["*"]
 
-        pass
-
         # Initialize rate limits
-        self.requests_per_minute: Optional[int] = 60
+        self.requests_per_minute: Optional[int] = 10
         self.requests_per_hour: Optional[int] = 1000
         self.sliding_window_limit: Optional[int] = 100
         self.sliding_window_minutes: Optional[int] = 15
@@ -48,7 +46,14 @@ class Pipeline:
             self.user_requests[user_id] = [
                 req
                 for req in self.user_requests[user_id]
-                if now - req < self.sliding_window_minutes * 60
+                if (
+                    (self.requests_per_minute is not None and now - req < 60)
+                    or (self.requests_per_hour is not None and now - req < 3600)
+                    or (
+                        self.sliding_window_limit is not None
+                        and now - req < self.sliding_window_minutes * 60
+                    )
+                )
             ]
 
     def log_request(self, user_id: str):
