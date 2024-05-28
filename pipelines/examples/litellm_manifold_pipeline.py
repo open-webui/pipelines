@@ -54,7 +54,10 @@ class Pipeline:
             except Exception as e:
                 print(f"Error: {e}")
                 return [
-                    {"id": "litellm", "name": "Please configure LiteLLM URL"},
+                    {
+                        "id": self.id,
+                        "name": "Could not fetch models from LiteLLM, please update the URL in the valves.",
+                    },
                 ]
         else:
             return []

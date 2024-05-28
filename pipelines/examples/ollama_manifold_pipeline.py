@@ -23,7 +23,7 @@ class Pipeline:
         class Valves(BaseModel):
             OLLAMA_BASE_URL: str
 
-        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11434"})
+        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
         self.pipelines = []
         pass
 
@@ -39,12 +39,24 @@ class Pipeline:
         pass
 
     def get_ollama_models(self):
-        r = requests.get(f"{self.valves.OLLAMA_BASE_URL}/api/tags")
-        models = r.json()
-
-        return [
-            {"id": model["model"], "name": model["name"]} for model in models["models"]
-        ]
+        if self.valves.OLLAMA_BASE_URL:
+            try:
+                r = requests.get(f"{self.valves.OLLAMA_BASE_URL}/api/tags")
+                models = r.json()
+                return [
+                    {"id": model["model"], "name": model["name"]}
+                    for model in models["models"]
+                ]
+            except Exception as e:
+                print(f"Error: {e}")
+                return [
+                    {
+                        "id": self.id,
+                        "name": "Could not fetch models from Ollama, please update the URL in the valves.",
+                    },
+                ]
+        else:
+            return []
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
