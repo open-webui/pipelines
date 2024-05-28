@@ -197,7 +197,7 @@ async def get_valves(pipeline_id: str):
     ].get("valves", False):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Valves {pipeline_id} not found",
+            detail=f"Valves for {pipeline_id} not found",
         )
 
     pipeline = PIPELINE_MODULES[pipeline_id]
@@ -211,7 +211,7 @@ async def get_valves_spec(pipeline_id: str):
     ].get("valves", False):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Valves {pipeline_id} not found",
+            detail=f"Valves for {pipeline_id} not found",
         )
 
     pipeline = PIPELINE_MODULES[pipeline_id]
@@ -225,7 +225,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
     ].get("valves", False):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Valves {pipeline_id} not found",
+            detail=f"Valves for {pipeline_id} not found",
         )
 
     pipeline = PIPELINE_MODULES[pipeline_id]
