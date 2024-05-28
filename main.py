@@ -227,7 +227,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
 
     try:
         ValvesModel = pipeline.valves.__class__
-        valves = ValvesModel(**form_data.valves)
+        valves = ValvesModel(**form_data)
         pipeline.valves = valves
     except Exception as e:
         print(e)

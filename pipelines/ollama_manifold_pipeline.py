@@ -16,7 +16,7 @@ class Pipeline:
         self.id = "ollama_manifold"
 
         # Optionally, you can set the name of the manifold pipeline.
-        self.name = "Ollama: "
+        self.name = "Manifold: "
 
         self.OLLAMA_BASE_URL = "http://localhost:11434"
         self.pipelines = self.get_ollama_models()
