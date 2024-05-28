@@ -31,12 +31,15 @@ class Pipeline:
     async def on_startup(self):
         # This function is called when the server is started or after valves are updated.
         print(f"on_startup:{__name__}")
-        self.pipelines = self.get_litellm_models()
         pass
 
     async def on_shutdown(self):
         # This function is called when the server is stopped or before valves are updated.
         print(f"on_shutdown:{__name__}")
+        pass
+
+    async def on_valves_update(self):
+        self.pipelines = self.get_litellm_models()
         pass
 
     def get_litellm_models(self):
