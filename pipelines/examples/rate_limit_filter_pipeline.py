@@ -1,4 +1,5 @@
 from typing import List, Optional
+from pydantic import BaseModel
 from schemas import OpenAIChatMessage
 import time
 
@@ -20,11 +21,21 @@ class Pipeline:
         # List target pipelines (models) that this filter will be connected to.
         self.pipelines = ["*"]
 
+        class Valves(BaseModel):
+            requests_per_minute: Optional[int] = None
+            requests_per_hour: Optional[int] = None
+            sliding_window_limit: Optional[int] = None
+            sliding_window_minutes: Optional[int] = None
+
         # Initialize rate limits
-        self.requests_per_minute: Optional[int] = 10
-        self.requests_per_hour: Optional[int] = 1000
-        self.sliding_window_limit: Optional[int] = 100
-        self.sliding_window_minutes: Optional[int] = 15
+        self.valves = Valves(
+            **{
+                "requests_per_minute": 10,
+                "requests_per_hour": 1000,
+                "sliding_window_limit": 100,
+                "sliding_window_minutes": 15,
+            }
+        )
 
         # Tracking data - user_id -> (timestamps of requests)
         self.user_requests = {}
@@ -47,11 +58,11 @@ class Pipeline:
                 req
                 for req in self.user_requests[user_id]
                 if (
-                    (self.requests_per_minute is not None and now - req < 60)
-                    or (self.requests_per_hour is not None and now - req < 3600)
+                    (self.valves.requests_per_minute is not None and now - req < 60)
+                    or (self.valves.requests_per_hour is not None and now - req < 3600)
                     or (
-                        self.sliding_window_limit is not None
-                        and now - req < self.sliding_window_minutes * 60
+                        self.valves.sliding_window_limit is not None
+                        and now - req < self.valves.sliding_window_minutes * 60
                     )
                 )
             ]
@@ -69,19 +80,19 @@ class Pipeline:
 
         user_reqs = self.user_requests.get(user_id, [])
 
-        if self.requests_per_minute is not None:
+        if self.valves.requests_per_minute is not None:
             requests_last_minute = sum(1 for req in user_reqs if time.time() - req < 60)
-            if requests_last_minute >= self.requests_per_minute:
+            if requests_last_minute >= self.valves.requests_per_minute:
                 return True
 
-        if self.requests_per_hour is not None:
+        if self.valves.requests_per_hour is not None:
             requests_last_hour = sum(1 for req in user_reqs if time.time() - req < 3600)
-            if requests_last_hour >= self.requests_per_hour:
+            if requests_last_hour >= self.valves.requests_per_hour:
                 return True
 
-        if self.sliding_window_limit is not None:
+        if self.valves.sliding_window_limit is not None:
             requests_in_window = len(user_reqs)
-            if requests_in_window >= self.sliding_window_limit:
+            if requests_in_window >= self.valves.sliding_window_limit:
                 return True
 
         return False
