@@ -1,4 +1,5 @@
 from typing import List, Optional
+from pydantic import BaseModel
 from schemas import OpenAIChatMessage
 
 
@@ -15,16 +16,21 @@ class Pipeline:
         self.id = "filter_pipeline"
         self.name = "Filter"
 
-        # Assign a priority level to the filter pipeline.
-        # The priority level determines the order in which the filter pipelines are executed.
-        # The lower the number, the higher the priority.
-        self.priority = 0
+        class Valves(BaseModel):
+            # List target pipeline ids (models) that this filter will be connected to.
+            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+            pipelines: List[str] = []
 
-        # List target pipelines (models) that this filter will be connected to.
-        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-        self.pipelines = [
-            {"id": "llama3:latest"},
-        ]
+            # Assign a priority level to the filter pipeline.
+            # The priority level determines the order in which the filter pipelines are executed.
+            # The lower the number, the higher the priority.
+            priority: int = 0
+
+            # Add your custom parameters here
+            pass
+
+        self.valves = Valves(**{"pipelines": ["llama3:latest"]})
+
         pass
 
     async def on_startup(self):

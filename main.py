@@ -74,9 +74,9 @@ def on_startup():
 
                     PIPELINES[manifold_pipeline_id] = {
                         "module": pipeline_id,
+                        "type": pipeline.type if hasattr(pipeline, "type") else "pipe",
                         "id": manifold_pipeline_id,
                         "name": manifold_pipeline_name,
-                        "manifold": True,
                         "valves": (
                             pipeline.valves if hasattr(pipeline, "valves") else None
                         ),
@@ -84,22 +84,29 @@ def on_startup():
             if pipeline.type == "filter":
                 PIPELINES[pipeline_id] = {
                     "module": pipeline_id,
+                    "type": (pipeline.type if hasattr(pipeline, "type") else "pipe"),
                     "id": pipeline_id,
                     "name": (
                         pipeline.name if hasattr(pipeline, "name") else pipeline_id
                     ),
-                    "filter": True,
                     "pipelines": (
-                        pipeline.pipelines if hasattr(pipeline, "pipelines") else []
+                        pipeline.valves.pipelines
+                        if hasattr(pipeline, "valves")
+                        and hasattr(pipeline.valves, "pipelines")
+                        else []
                     ),
                     "priority": (
-                        pipeline.priority if hasattr(pipeline, "priority") else 0
+                        pipeline.valves.priority
+                        if hasattr(pipeline, "valves")
+                        and hasattr(pipeline.valves, "priority")
+                        else 0
                     ),
                     "valves": pipeline.valves if hasattr(pipeline, "valves") else None,
                 }
         else:
             PIPELINES[pipeline_id] = {
                 "module": pipeline_id,
+                "type": (pipeline.type if hasattr(pipeline, "type") else "pipe"),
                 "id": pipeline_id,
                 "name": (pipeline.name if hasattr(pipeline, "name") else pipeline_id),
                 "valves": pipeline.valves if hasattr(pipeline, "valves") else None,
@@ -166,15 +173,13 @@ async def get_models():
                 "created": int(time.time()),
                 "owned_by": "openai",
                 "pipeline": {
+                    "type": pipeline["type"],
                     **(
                         {
-                            "type": (
-                                "pipeline" if not pipeline.get("filter") else "filter"
-                            ),
                             "pipelines": pipeline.get("pipelines", []),
                             "priority": pipeline.get("priority", 0),
                         }
-                        if pipeline.get("filter", False)
+                        if pipeline.get("type", "pipe") == "filter"
                         else {}
                     ),
                     "valves": pipeline["valves"] != None,
@@ -241,12 +246,13 @@ async def update_valves(pipeline_id: str, form_data: dict):
 
 @app.post("/{pipeline_id}/filter")
 async def filter(pipeline_id: str, form_data: FilterForm):
-    if pipeline_id not in app.state.PIPELINES or not app.state.PIPELINES[
-        pipeline_id
-    ].get("filter", False):
+    if (
+        pipeline_id not in app.state.PIPELINES
+        or app.state.PIPELINES[pipeline_id].get("type", "pipe") != "filter"
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"filter {pipeline_id} not found",
+            detail=f"Filter {pipeline_id} not found",
         )
 
     pipeline = PIPELINE_MODULES[pipeline_id]

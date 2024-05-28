@@ -16,15 +16,17 @@ class Pipeline:
         self.id = "rate_limit_filter_pipeline"
         self.name = "Rate Limit Filter"
 
-        # Assign a priority level to the filter pipeline.
-        # The priority level determines the order in which the filter pipelines are executed.
-        # The lower the number, the higher the priority.
-        self.priority = 0
-
-        # List target pipelines (models) that this filter will be connected to.
-        self.pipelines = ["*"]
-
         class Valves(BaseModel):
+            # List target pipeline ids (models) that this filter will be connected to.
+            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+            pipelines: List[str] = []
+
+            # Assign a priority level to the filter pipeline.
+            # The priority level determines the order in which the filter pipelines are executed.
+            # The lower the number, the higher the priority.
+            priority: int = 0
+
+            # Valves for rate limiting
             requests_per_minute: Optional[int] = None
             requests_per_hour: Optional[int] = None
             sliding_window_limit: Optional[int] = None
@@ -33,6 +35,7 @@ class Pipeline:
         # Initialize rate limits
         self.valves = Valves(
             **{
+                "pipelines": ["*"],  # Connect to all pipelines
                 "requests_per_minute": 10,
                 "requests_per_hour": 1000,
                 "sliding_window_limit": 100,
