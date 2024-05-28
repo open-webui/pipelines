@@ -159,6 +159,7 @@ app.add_middleware(
 @app.middleware("http")
 async def check_url(request: Request, call_next):
     start_time = int(time.time())
+    app.state.PIPELINES = get_all_pipelines()
     response = await call_next(request)
     process_time = int(time.time()) - start_time
     response.headers["X-Process-Time"] = str(process_time)
@@ -202,8 +203,6 @@ async def get_models():
 
 @app.get("/{pipeline_id}/valves")
 async def get_valves(pipeline_id: str):
-    app.state.PIPELINES = get_all_pipelines()
-
     if pipeline_id not in app.state.PIPELINES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
