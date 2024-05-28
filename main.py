@@ -274,9 +274,10 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
     messages = [message.model_dump() for message in form_data.messages]
 
-    if form_data.model not in app.state.PIPELINES or app.state.PIPELINES[
-        form_data.model
-    ].get("filter", False):
+    if (
+        form_data.model not in app.state.PIPELINES
+        or app.state.PIPELINES[form_data.model]["type"] == "filter"
+    ):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Pipeline {form_data.model} not found",
@@ -290,7 +291,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
         print(pipeline_id)
 
-        if pipeline.get("manifold", False):
+        if pipeline["type"] == "manifold":
             manifold_id, pipeline_id = pipeline_id.split(".", 1)
             pipe = PIPELINE_MODULES[manifold_id].pipe
         else:
