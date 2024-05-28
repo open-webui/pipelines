@@ -191,7 +191,16 @@ async def filter(form_data: FilterForm):
         )
 
     pipeline = PIPELINE_MODULES[form_data.model]
-    return await pipeline.filter(form_data.body, form_data.user)
+
+    try:
+        body = await pipeline.filter(form_data.body, form_data.user)
+        return body
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error in filter {form_data.model}: {str(e)}",
+        )
 
 
 @app.post("/chat/completions")
