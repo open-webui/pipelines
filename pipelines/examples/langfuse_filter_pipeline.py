@@ -21,9 +21,8 @@ class Pipeline:
         self.priority = 0
 
         # List target pipelines (models) that this filter will be connected to.
-        self.pipelines = [
-            {"id": "llama3:latest"},
-        ]
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        self.pipelines = ["*"]
 
         self.secret_key = os.getenv("LANGFUSE_SECRET_KEY")
         self.public_key = os.getenv("LANGFUSE_PUBLIC_KEY")

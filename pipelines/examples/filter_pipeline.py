@@ -17,6 +17,7 @@ class Pipeline:
         self.priority = 0
 
         # List target pipelines (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
         self.pipelines = [
             {"id": "llama3:latest"},
         ]
