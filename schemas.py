@@ -15,3 +15,9 @@ class OpenAIChatCompletionForm(BaseModel):
     messages: List[OpenAIChatMessage]
 
     model_config = ConfigDict(extra="allow")
+
+
+class ValveForm(BaseModel):
+    model: str
+    body: dict
+    model_config = ConfigDict(extra="allow")

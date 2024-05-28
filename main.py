@@ -13,7 +13,7 @@ import json
 import uuid
 
 from utils import get_last_user_message, stream_message_template
-from schemas import OpenAIChatCompletionForm
+from schemas import ValveForm, OpenAIChatCompletionForm
 
 import os
 import importlib.util
@@ -79,11 +79,12 @@ def on_startup():
             PIPELINES[loaded_module.__name__] = {
                 "module": pipeline_id,
                 "id": pipeline_id,
-                "name": (
-                    pipeline.name
-                    if hasattr(pipeline, "name")
-                    else loaded_module.__name__
+                "name": (pipeline.name if hasattr(pipeline, "name") else pipeline_id),
+                "valve": hasattr(pipeline, "valve"),
+                "pipelines": (
+                    pipeline.pipelines if hasattr(pipeline, "pipelines") else []
                 ),
+                "priority": pipeline.priority if hasattr(pipeline, "priority") else 0,
             }
 
 
@@ -146,11 +147,30 @@ async def get_models():
                 "object": "model",
                 "created": int(time.time()),
                 "owned_by": "openai",
-                "pipeline": True,
+                "pipeline": {
+                    "type": "pipeline" if not pipeline.get("valve") else "valve",
+                    "pipelines": pipeline.get("pipelines", []),
+                    "priority": pipeline.get("priority", 0),
+                },
             }
             for pipeline in PIPELINES.values()
         ]
     }
+
+
+@app.post("/valve")
+@app.post("/v1/valve")
+async def valve(form_data: ValveForm):
+    if form_data.model not in app.state.PIPELINES or not app.state.PIPELINES[
+        form_data.model
+    ].get("valve", False):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Valve {form_data.model} not found",
+        )
+
+    pipeline = PIPELINE_MODULES[form_data.model]
+    return await pipeline.control_valve(form_data.body)
 
 
 @app.post("/chat/completions")
@@ -159,10 +179,12 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
     messages = [message.model_dump() for message in form_data.messages]
 
-    if form_data.model not in app.state.PIPELINES:
-        return HTTPException(
+    if form_data.model not in app.state.PIPELINES or app.state.PIPELINES[
+        form_data.model
+    ].get("valve", False):
+        raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Model {form_data.model} not found",
+            detail=f"Pipeline {form_data.model} not found",
         )
 
     def job():
