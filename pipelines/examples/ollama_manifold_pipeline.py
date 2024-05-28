@@ -1,5 +1,6 @@
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
+from pydantic import BaseModel
 import requests
 
 
@@ -19,27 +20,31 @@ class Pipeline:
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "Ollama: "
 
-        self.OLLAMA_BASE_URL = "http://localhost:11434"
-        self.pipelines = self.get_ollama_models()
+        class Valves(BaseModel):
+            OLLAMA_BASE_URL: str
+
+        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11434"})
+        self.pipelines = []
         pass
-
-    def get_ollama_models(self):
-        r = requests.get(f"{self.OLLAMA_BASE_URL}/api/tags")
-        models = r.json()
-
-        return [
-            {"id": model["model"], "name": model["name"]} for model in models["models"]
-        ]
 
     async def on_startup(self):
         # This function is called when the server is started or after valves are updated.
         print(f"on_startup:{__name__}")
+        self.pipelines = self.get_ollama_models()
         pass
 
     async def on_shutdown(self):
         # This function is called when the server is stopped or before valves are updated.
         print(f"on_shutdown:{__name__}")
         pass
+
+    def get_ollama_models(self):
+        r = requests.get(f"{self.valves.OLLAMA_BASE_URL}/api/tags")
+        models = r.json()
+
+        return [
+            {"id": model["model"], "name": model["name"]} for model in models["models"]
+        ]
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict

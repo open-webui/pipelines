@@ -28,6 +28,17 @@ class Pipeline:
         self.pipelines = []
         pass
 
+    async def on_startup(self):
+        # This function is called when the server is started or after valves are updated.
+        print(f"on_startup:{__name__}")
+        self.pipelines = self.get_litellm_models()
+        pass
+
+    async def on_shutdown(self):
+        # This function is called when the server is stopped or before valves are updated.
+        print(f"on_shutdown:{__name__}")
+        pass
+
     def get_litellm_models(self):
         if self.valves.LITELLM_BASE_URL:
             try:
@@ -43,21 +54,10 @@ class Pipeline:
             except Exception as e:
                 print(f"Error: {e}")
                 return [
-                    {"id": "litellm", "name": "LiteLLM: Please configure LiteLLM URL"},
+                    {"id": "litellm", "name": "Please configure LiteLLM URL"},
                 ]
         else:
             return []
-
-    async def on_startup(self):
-        # This function is called when the server is started or after valves are updated.
-        print(f"on_startup:{__name__}")
-        self.pipelines = self.get_litellm_models()
-        pass
-
-    async def on_shutdown(self):
-        # This function is called when the server is stopped or before valves are updated.
-        print(f"on_shutdown:{__name__}")
-        pass
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
