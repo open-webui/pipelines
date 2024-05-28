@@ -10,6 +10,9 @@ class Pipeline:
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
         self.type = "filter"
 
+        # Assign a unique identifier to the filter pipeline.
+        # The identifier must be unique across all filter pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
         self.id = "rate_limit_filter_pipeline"
         self.name = "Rate Limit Filter"
 
