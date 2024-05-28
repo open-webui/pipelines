@@ -20,6 +20,10 @@ from huggingface_hub import login
 
 class Pipeline:
     def __init__(self):
+        # Optionally, you can set the id and name of the pipeline.
+        # Assign a unique identifier to the pipeline.
+        # The identifier must be unique across all pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
         self.id = "mlx_pipeline"
         self.name = "MLX Pipeline"
         self.host = os.getenv("MLX_HOST", "localhost")
