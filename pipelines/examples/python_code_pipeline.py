@@ -30,11 +30,11 @@ class Pipeline:
         except subprocess.CalledProcessError as e:
             return e.output.strip(), e.returncode
 
-    def get_response(
+    def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
-        print(f"get_response:{__name__}")
+        print(f"pipe:{__name__}")
 
         print(messages)
         print(user_message)

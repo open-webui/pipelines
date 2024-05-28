@@ -17,6 +17,7 @@ import subprocess
 import logging
 from huggingface_hub import login
 
+
 class Pipeline:
     def __init__(self):
         self.id = "mlx_pipeline"
@@ -24,7 +25,9 @@ class Pipeline:
         self.host = os.getenv("MLX_HOST", "localhost")
         self.port = os.getenv("MLX_PORT", "8080")
         self.model = os.getenv("MLX_MODEL", "mistralai/Mistral-7B-Instruct-v0.2")
-        self.stop_sequence = os.getenv("MLX_STOP", "[INST]").split(",")  # Default stop sequence is [INST]
+        self.stop_sequence = os.getenv("MLX_STOP", "[INST]").split(
+            ","
+        )  # Default stop sequence is [INST]
         self.subprocess = os.getenv("MLX_SUBPROCESS", "true").lower() == "true"
         self.huggingface_token = os.getenv("HUGGINGFACE_TOKEN", None)
 
@@ -43,8 +46,9 @@ class Pipeline:
 
     def find_free_port(self):
         import socket
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('', 0))
+        s.bind(("", 0))
         port = s.getsockname()[1]
         s.close()
         return port
@@ -53,14 +57,14 @@ class Pipeline:
         logging.info(f"on_startup:{__name__}")
 
     async def on_shutdown(self):
-        if self.subprocess and hasattr(self, 'server_process'):
+        if self.subprocess and hasattr(self, "server_process"):
             self.server_process.terminate()
             logging.info(f"Terminated MLX server on port {self.port}")
 
-    def get_response(
+    def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
-        logging.info(f"get_response:{__name__}")
+        logging.info(f"pipe:{__name__}")
 
         url = f"http://{self.host}:{self.port}/v1/chat/completions"
         headers = {"Content-Type": "application/json"}
@@ -84,11 +88,13 @@ class Pipeline:
             "temperature": temperature,
             "repetition_penalty": repeat_penalty,
             "stop": self.stop_sequence,
-            "stream": body.get("stream", False)
+            "stream": body.get("stream", False),
         }
 
         try:
-            r = requests.post(url, headers=headers, json=payload, stream=body.get("stream", False))
+            r = requests.post(
+                url, headers=headers, json=payload, stream=body.get("stream", False)
+            )
             r.raise_for_status()
 
             if body.get("stream", False):

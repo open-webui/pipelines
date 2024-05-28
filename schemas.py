@@ -17,7 +17,7 @@ class OpenAIChatCompletionForm(BaseModel):
     model_config = ConfigDict(extra="allow")
 
 
-class ValveForm(BaseModel):
+class FilterForm(BaseModel):
     model: str
     body: dict
     user: Optional[dict] = None

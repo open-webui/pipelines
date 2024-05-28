@@ -7,7 +7,7 @@ class Pipeline:
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
         # Manifold pipelines can have multiple pipelines.
-        self.manifold = True
+        self.type = "manifold"
 
         self.id = "manifold_pipeline"
         # Optionally, you can set the name of the manifold pipeline.
@@ -34,11 +34,11 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    def get_response(
+    def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
-        print(f"get_response:{__name__}")
+        print(f"pipe:{__name__}")
 
         print(messages)
         print(user_message)

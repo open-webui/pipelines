@@ -24,11 +24,11 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    def get_response(
+    def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.'
-        print(f"get_response:{__name__}")
+        print(f"pipe:{__name__}")
 
         OLLAMA_BASE_URL = "http://localhost:11434"
         MODEL = "llama3"
