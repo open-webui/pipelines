@@ -1,5 +1,5 @@
 """
-title: Anthropic Pipeline
+title: Anthropic Manifold Pipeline
 author: justinh-rahb
 date: 2024-05-27
 version: 1.0
