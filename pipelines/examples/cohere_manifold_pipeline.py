@@ -21,7 +21,7 @@ class Pipeline:
     def __init__(self):
         self.type = "manifold"
         self.id = "cohere"
-        self.name = "Cohere/"
+        self.name = "cohere/"
 
         class Valves(BaseModel):
             COHERE_API_BASE_URL: str = "https://api.cohere.com/v1"

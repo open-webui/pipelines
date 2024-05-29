@@ -22,7 +22,7 @@ class Pipeline:
     def __init__(self):
         self.type = "manifold"
         self.id = "anthropic"
-        self.name = "Anthropic/"
+        self.name = "anthropic/"
 
         class Valves(BaseModel):
             ANTHROPIC_API_KEY: str
