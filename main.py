@@ -600,8 +600,8 @@ async def delete_pipeline(
         )
 
 
-@app.post("/v1/reload")
-@app.post("/reload")
+@app.post("/v1/pipelines/reload")
+@app.post("/pipelines/reload")
 async def reload_pipelines(user: str = Depends(get_current_user)):
     if user == API_KEY:
         await reload()

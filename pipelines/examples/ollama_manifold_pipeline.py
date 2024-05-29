@@ -30,12 +30,17 @@ class Pipeline:
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
-        self.pipelines = self.get_ollama_models()
         pass
 
     async def on_shutdown(self):
         # This function is called when the server is stopped.
         print(f"on_shutdown:{__name__}")
+        pass
+
+    async def on_valves_update(self):
+        # This function is called when the valves are updated.
+        print(f"on_valves_update:{__name__}")
+        self.pipelines = self.get_ollama_models()
         pass
 
     def get_ollama_models(self):
