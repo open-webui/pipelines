@@ -175,8 +175,8 @@ async def check_url(request: Request, call_next):
     return response
 
 
-@app.get("/models")
 @app.get("/v1/models")
+@app.get("/models")
 async def get_models():
     """
     Returns the available pipelines
@@ -209,6 +209,7 @@ async def get_models():
     }
 
 
+@app.get("/v1/{pipeline_id}/valves")
 @app.get("/{pipeline_id}/valves")
 async def get_valves(pipeline_id: str):
     if pipeline_id not in app.state.PIPELINES:
@@ -231,6 +232,7 @@ async def get_valves(pipeline_id: str):
     return pipeline_module.valves
 
 
+@app.get("/v1/{pipeline_id}/valves/spec")
 @app.get("/{pipeline_id}/valves/spec")
 async def get_valves_spec(pipeline_id: str):
 
@@ -255,6 +257,7 @@ async def get_valves_spec(pipeline_id: str):
     return pipeline_module.valves.schema()
 
 
+@app.post("/v1/{pipeline_id}/valves/update")
 @app.post("/{pipeline_id}/valves/update")
 async def update_valves(pipeline_id: str, form_data: dict):
 
@@ -293,6 +296,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
     return pipeline_module.valves
 
 
+@app.post("/v1/{pipeline_id}/filter")
 @app.post("/{pipeline_id}/filter")
 async def filter(pipeline_id: str, form_data: FilterForm):
     if (
@@ -317,8 +321,8 @@ async def filter(pipeline_id: str, form_data: FilterForm):
         )
 
 
-@app.post("/chat/completions")
 @app.post("/v1/chat/completions")
+@app.post("/chat/completions")
 async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     user_message = get_last_user_message(form_data.messages)
     messages = [message.model_dump() for message in form_data.messages]
