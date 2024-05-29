@@ -22,7 +22,7 @@ Integrating Pipelines with any OpenAI API-compatible UI client is simple. Launch
 
 ## 📂 Directory Structure and Examples
 
-The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here.
+The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.
 
 ### Integration Examples
 
