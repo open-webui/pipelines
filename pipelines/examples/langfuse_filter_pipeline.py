@@ -24,6 +24,7 @@ class Pipeline:
         class Valves(BaseModel):
             # List target pipeline ids (models) that this filter will be connected to.
             # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+            # e.g. ["llama3:latest", "gpt-3.5-turbo"]
             pipelines: List[str] = []
 
             # Assign a priority level to the filter pipeline.
