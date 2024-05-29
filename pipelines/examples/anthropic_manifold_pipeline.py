@@ -74,8 +74,8 @@ class Pipeline:
         stream = self.client.messages.create(
             model=model_id,
             messages=messages,
-            max_tokens=body.get("max_tokens", 1024),
-            temperature=body.get("temperature", 1.0),
+            max_tokens=body.get("max_tokens", 4096),
+            temperature=body.get("temperature", 0.8),
             top_k=body.get("top_k", 40),
             top_p=body.get("top_p", 0.9),
             stop_sequences=body.get("stop", []),
@@ -92,8 +92,8 @@ class Pipeline:
         response = self.client.messages.create(
             model=model_id,
             messages=messages,
-            max_tokens=body.get("max_tokens", 1024),
-            temperature=body.get("temperature", 1.0),
+            max_tokens=body.get("max_tokens", 4096),
+            temperature=body.get("temperature", 0.8),
             top_k=body.get("top_k", 40),
             top_p=body.get("top_p", 0.9),
             stop_sequences=body.get("stop", []),
