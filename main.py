@@ -8,22 +8,22 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Union, Generator, Iterator
 
 
-import time
-import json
-import uuid
+from utils.auth import bearer_security, get_current_user
+from utils.main import get_last_user_message, stream_message_template
 
-from utils import get_last_user_message, stream_message_template
+
+from contextlib import asynccontextmanager
+from concurrent.futures import ThreadPoolExecutor
 from schemas import FilterForm, OpenAIChatCompletionForm
 
 
 import sys
 import os
 import importlib.util
-
 import logging
-
-from contextlib import asynccontextmanager
-from concurrent.futures import ThreadPoolExecutor
+import time
+import json
+import uuid
 
 
 ####################################
@@ -460,5 +460,8 @@ async def get_status():
 
 @app.post("/v1/restart")
 @app.post("/restart")
-def restart_server():
-    sys.exit(42)  # Use a distinctive code to indicate a restart request
+def restart_server(user: str = Depends(get_current_user)):
+
+    print(user)
+
+    return True
