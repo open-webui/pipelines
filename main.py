@@ -49,7 +49,15 @@ def get_all_pipelines():
 
         if hasattr(pipeline, "type"):
             if pipeline.type == "manifold":
-                for p in pipeline.pipelines:
+                manifold_pipelines = []
+
+                # Check if pipelines is a function or a list
+                if callable(pipeline.pipelines):
+                    manifold_pipelines = pipeline.pipelines()
+                else:
+                    manifold_pipelines = pipeline.pipelines
+
+                for p in manifold_pipelines:
                     manifold_pipeline_id = f'{pipeline_id}.{p["id"]}'
 
                     manifold_pipeline_name = p["name"]

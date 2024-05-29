@@ -32,10 +32,8 @@ class Pipeline:
             LITELLM_PROXY_HOST: str = "127.0.0.1"
             litellm_config: dict = {}
 
-        # Initialize rate limits
+        # Initialize Valves
         self.valves = Valves(**{"LITELLM_CONFIG_DIR": f"./litellm/config.yaml"})
-        self.pipelines = []
-
         self.background_process = None
         pass
 
@@ -101,8 +99,6 @@ class Pipeline:
             )
             self.background_process = process
             print("Subprocess started successfully.")
-
-            self.pipelines = self.get_litellm_models()
 
             # Capture STDERR for debugging purposes
             stderr_output = await process.stderr.read()
@@ -171,6 +167,11 @@ class Pipeline:
                 ]
         else:
             return []
+
+    # Pipelines are the models that are available in the manifold.
+    # It can be a list or a function that returns a list.
+    def pipelines(self) -> List[dict]:
+        return self.get_litellm_models()
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
