@@ -15,6 +15,8 @@ import uuid
 from utils import get_last_user_message, stream_message_template
 from schemas import FilterForm, OpenAIChatCompletionForm
 
+
+import sys
 import os
 import importlib.util
 
@@ -23,8 +25,6 @@ import logging
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
 
-
-import os
 
 ####################################
 # Load .env file
@@ -452,6 +452,13 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
     return await run_in_threadpool(job)
 
 
+@app.get("/v1")
 @app.get("/")
 async def get_status():
     return {"status": True}
+
+
+@app.post("/v1/restart")
+@app.post("/restart")
+def restart_server():
+    sys.exit(42)  # Use a distinctive code to indicate a restart request
