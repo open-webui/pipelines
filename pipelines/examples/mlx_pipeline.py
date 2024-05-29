@@ -74,9 +74,9 @@ class Pipeline:
         headers = {"Content-Type": "application/json"}
 
         # Extract and validate parameters from the request body
-        max_tokens = body.get("max_tokens", 1024)
+        max_tokens = body.get("max_tokens", 4096)
         if not isinstance(max_tokens, int) or max_tokens < 0:
-            max_tokens = 1024  # Default to 1024 if invalid
+            max_tokens = 4096  # Default to 4096 if invalid
 
         temperature = body.get("temperature", 0.8)
         if not isinstance(temperature, (int, float)) or temperature < 0:

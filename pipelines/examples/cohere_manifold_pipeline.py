@@ -1,11 +1,11 @@
 """
-title: Anthropic Pipeline
+title: Cohere Manifold Pipeline
 author: justinh-rahb
-date: 2024-05-27
+date: 2024-05-28
 version: 1.0
 license: MIT
 description: A pipeline for generating text using the Anthropic API.
-dependencies: requests, anthropic
+dependencies: requests
 environment_variables: COHERE_API_KEY
 """
 
@@ -20,8 +20,8 @@ import requests
 class Pipeline:
     def __init__(self):
         self.type = "manifold"
-        self.id = "cohere_manifold"
-        self.name = "Cohere/"
+        self.id = "cohere"
+        self.name = "cohere/"
 
         class Valves(BaseModel):
             COHERE_API_BASE_URL: str = "https://api.cohere.com/v1"
