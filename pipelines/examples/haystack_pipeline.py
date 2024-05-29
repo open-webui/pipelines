@@ -75,7 +75,7 @@ class Pipeline:
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped or before valves are updated.
+        # This function is called when the server is stopped.
         pass
 
     def pipe(

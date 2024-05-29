@@ -48,6 +48,7 @@ class Pipeline:
         pass
 
     async def on_valves_update(self):
+        # This function is called when the valves are updated.
         self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
         pass
 

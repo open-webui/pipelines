@@ -17,11 +17,11 @@ class Pipeline:
 
         self.documents = SimpleDirectoryReader("./data").load_data()
         self.index = VectorStoreIndex.from_documents(self.documents)
-        # This function is called when the server is started or after valves are updated.
+        # This function is called when the server is started.
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped or before valves are updated.
+        # This function is called when the server is stopped.
         pass
 
     def pipe(

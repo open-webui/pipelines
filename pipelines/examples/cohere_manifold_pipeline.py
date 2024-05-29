@@ -40,6 +40,8 @@ class Pipeline:
         pass
 
     async def on_valves_update(self):
+        # This function is called when the valves are updated.
+
         self.pipelines = self.get_cohere_models()
 
         pass

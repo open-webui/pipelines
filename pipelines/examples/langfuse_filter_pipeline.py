@@ -51,18 +51,20 @@ class Pipeline:
         pass
 
     async def on_startup(self):
-        # This function is called when the server is started or after valves are updated.
+        # This function is called when the server is started.
         print(f"on_startup:{__name__}")
         self.set_langfuse()
         pass
 
     async def on_shutdown(self):
-        # This function is called when the server is stopped or before valves are updated.
+        # This function is called when the server is stopped.
         print(f"on_shutdown:{__name__}")
         self.langfuse.flush()
         pass
 
     async def on_valves_update(self):
+        # This function is called when the valves are updated.
+
         self.set_langfuse()
         pass
 
