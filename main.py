@@ -498,7 +498,12 @@ async def get_status():
 @app.get("/pipelines")
 async def list_pipelines(user: str = Depends(get_current_user)):
     if user == API_KEY:
-        return {"data": list(PIPELINE_MODULES.keys())}
+        return {
+            "data": [
+                {"id": pipeline_id, "name": PIPELINE_NAMES[pipeline_id]}
+                for pipeline_id in list(PIPELINE_MODULES.keys())
+            ]
+        }
     else:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
