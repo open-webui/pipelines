@@ -24,13 +24,11 @@ class Pipeline:
             OLLAMA_BASE_URL: str
 
         self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
-        self.pipelines = []
         pass
 
     async def on_startup(self):
         # This function is called when the server is started or after valves are updated.
         print(f"on_startup:{__name__}")
-        self.pipelines = self.get_ollama_models()
         pass
 
     async def on_shutdown(self):
@@ -57,6 +55,11 @@ class Pipeline:
                 ]
         else:
             return []
+
+    # Pipelines are the models that are available in the manifold.
+    # It can be a list or a function that returns a list.
+    def pipelines(self) -> List[dict]:
+        return self.get_ollama_models()
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
