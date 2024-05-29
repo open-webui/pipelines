@@ -23,7 +23,7 @@ class Pipeline:
         class Valves(BaseModel):
             OLLAMA_BASE_URL: str
 
-        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
+        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11434"})
         pass
 
     async def on_startup(self):
