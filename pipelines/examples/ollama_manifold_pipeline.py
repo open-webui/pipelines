@@ -38,9 +38,9 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    async def on_valves_update(self):
+    async def on_valves_updated(self):
         # This function is called when the valves are updated.
-        print(f"on_valves_update:{__name__}")
+        print(f"on_valves_updated:{__name__}")
         self.pipelines = self.get_ollama_models()
         pass
 

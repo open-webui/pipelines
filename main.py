@@ -451,8 +451,8 @@ async def update_valves(pipeline_id: str, form_data: dict):
         valves = ValvesModel(**form_data)
         pipeline.valves = valves
 
-        if hasattr(pipeline, "on_valves_update"):
-            await pipeline.on_valves_update()
+        if hasattr(pipeline, "on_valves_updated"):
+            await pipeline.on_valves_updated()
     except Exception as e:
         print(e)
         raise HTTPException(

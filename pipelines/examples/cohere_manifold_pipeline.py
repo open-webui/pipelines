@@ -39,7 +39,7 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    async def on_valves_update(self):
+    async def on_valves_updated(self):
         # This function is called when the valves are updated.
 
         self.pipelines = self.get_cohere_models()

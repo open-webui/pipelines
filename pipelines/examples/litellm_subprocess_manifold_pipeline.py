@@ -72,10 +72,10 @@ class Pipeline:
         await self.shutdown_litellm_background()
         pass
 
-    async def on_valves_update(self):
+    async def on_valves_updated(self):
         # This function is called when the valves are updated.
 
-        print(f"on_valves_update:{__name__}")
+        print(f"on_valves_updated:{__name__}")
 
         with open(self.valves.LITELLM_CONFIG_DIR, "r") as file:
             litellm_config = yaml.safe_load(file)

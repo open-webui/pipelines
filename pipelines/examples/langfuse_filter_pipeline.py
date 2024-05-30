@@ -62,7 +62,7 @@ class Pipeline:
         self.langfuse.flush()
         pass
 
-    async def on_valves_update(self):
+    async def on_valves_updated(self):
         # This function is called when the valves are updated.
 
         self.set_langfuse()

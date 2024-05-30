@@ -47,7 +47,7 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    async def on_valves_update(self):
+    async def on_valves_updated(self):
         # This function is called when the valves are updated.
         self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
         pass
@@ -71,8 +71,12 @@ class Pipeline:
     def stream_response(
         self, model_id: str, messages: List[dict], body: dict
     ) -> Generator:
-        max_tokens = body.get("max_tokens") if body.get("max_tokens") is not None else 4096
-        temperature = body.get("temperature") if body.get("temperature") is not None else 0.8
+        max_tokens = (
+            body.get("max_tokens") if body.get("max_tokens") is not None else 4096
+        )
+        temperature = (
+            body.get("temperature") if body.get("temperature") is not None else 0.8
+        )
         top_k = body.get("top_k") if body.get("top_k") is not None else 40
         top_p = body.get("top_p") if body.get("top_p") is not None else 0.9
         stop_sequences = body.get("stop") if body.get("stop") is not None else []
@@ -95,8 +99,12 @@ class Pipeline:
                 yield chunk.delta.text
 
     def get_completion(self, model_id: str, messages: List[dict], body: dict) -> str:
-        max_tokens = body.get("max_tokens") if body.get("max_tokens") is not None else 4096
-        temperature = body.get("temperature") if body.get("temperature") is not None else 0.8
+        max_tokens = (
+            body.get("max_tokens") if body.get("max_tokens") is not None else 4096
+        )
+        temperature = (
+            body.get("temperature") if body.get("temperature") is not None else 0.8
+        )
         top_k = body.get("top_k") if body.get("top_k") is not None else 40
         top_p = body.get("top_p") if body.get("top_p") is not None else 0.9
         stop_sequences = body.get("stop") if body.get("stop") is not None else []
