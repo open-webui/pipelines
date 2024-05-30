@@ -108,7 +108,7 @@ class Pipeline:
         print(body)
         print(user)
 
-        if user["role"] == "user":
+        if user.get("role", "admin") == "user":
             user_id = user["id"] if user and "id" in user else "default_user"
             if self.rate_limited(user_id):
                 raise Exception("Rate limit exceeded. Please try again later.")
