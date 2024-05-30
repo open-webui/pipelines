@@ -2,7 +2,64 @@ fastapi==0.111.0
 uvicorn[standard]==0.22.0
 pydantic==2.7.1
 python-multipart==0.0.9
+python-socketio
+grpcio
+
+passlib==1.7.4
+passlib[bcrypt]
+PyJWT[crypto]
+
 requests==2.32.2
 aiohttp==3.9.5
-passlib==1.7.4
-jwt==1.3.1
+httpx
+
+openai
+anthropic
+
+# Database
+pymongo
+peewee
+SQLAlchemy
+boto3
+redis
+sqlmodel
+
+# Data processing
+chromadb
+langchain
+langchain-community
+langfuse
+
+# ML libraries
+tensorflow
+torch
+xgboost
+
+numpy
+pandas
+scikit-learn
+
+# NLP libraries
+sentence-transformers
+transformers
+tokenizers
+spacy
+nltk
+
+# Image processing
+Pillow
+opencv-python
+
+# Visualization
+matplotlib
+seaborn
+
+# Web scraping
+selenium
+playwright
+beautifulsoup4
+
+# Misc
+youtube_dl
+twilio
+streamlit
