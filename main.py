@@ -229,7 +229,11 @@ async def get_models():
                     "type": pipeline["type"],
                     **(
                         {
-                            "pipelines": pipeline.get("pipelines", []),
+                            "pipelines": (
+                                pipeline["valves"].pipelines
+                                if pipeline.get("valves", None)
+                                else []
+                            ),
                             "priority": pipeline.get("priority", 0),
                         }
                         if pipeline.get("type", "pipe") == "filter"
