@@ -43,8 +43,9 @@ class Pipeline:
         print(f"on_shutdown:{__name__}")
         pass
 
-    async def filter(self, body: dict, user: Optional[dict] = None) -> dict:
-        print(f"pipe:{__name__}")
+    async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
+        # This filter is applied to the form data before it is sent to the OpenAI API.
+        print(f"inlet:{__name__}")
 
         print(body)
         print(user)

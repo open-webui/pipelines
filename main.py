@@ -463,9 +463,9 @@ async def update_valves(pipeline_id: str, form_data: dict):
     return pipeline.valves
 
 
-@app.post("/v1/{pipeline_id}/filter")
-@app.post("/{pipeline_id}/filter")
-async def filter(pipeline_id: str, form_data: FilterForm):
+@app.post("/v1/{pipeline_id}/filter/inlet")
+@app.post("/{pipeline_id}/filter/inlet")
+async def filter_inlet(pipeline_id: str, form_data: FilterForm):
     if (
         pipeline_id not in app.state.PIPELINES
         or app.state.PIPELINES[pipeline_id].get("type", "pipe") != "filter"
@@ -478,8 +478,39 @@ async def filter(pipeline_id: str, form_data: FilterForm):
     pipeline = PIPELINE_MODULES[pipeline_id]
 
     try:
-        body = await pipeline.filter(form_data.body, form_data.user)
-        return body
+        if hasattr(pipeline, "inlet"):
+            body = await pipeline.inlet(form_data.body, form_data.user)
+            return body
+        else:
+            return form_data.body
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{str(e)}",
+        )
+
+
+@app.post("/v1/{pipeline_id}/filter/outlet")
+@app.post("/{pipeline_id}/filter/outlet")
+async def filter_outlet(pipeline_id: str, form_data: FilterForm):
+    if (
+        pipeline_id not in app.state.PIPELINES
+        or app.state.PIPELINES[pipeline_id].get("type", "pipe") != "filter"
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Filter {pipeline_id} not found",
+        )
+
+    pipeline = PIPELINE_MODULES[pipeline_id]
+
+    try:
+        if hasattr(pipeline, "outlet"):
+            body = await pipeline.outlet(form_data.body, form_data.user)
+            return body
+        else:
+            return form_data.body
     except Exception as e:
         print(e)
         raise HTTPException(

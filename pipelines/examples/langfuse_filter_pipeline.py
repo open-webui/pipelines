@@ -77,8 +77,8 @@ class Pipeline:
         )
         self.langfuse.auth_check()
 
-    async def filter(self, body: dict, user: Optional[dict] = None) -> dict:
-        print(f"filter:{__name__}")
+    async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
+        print(f"inlet:{__name__}")
 
         trace = self.langfuse.trace(
             name=f"filter:{__name__}",

@@ -103,7 +103,7 @@ class Pipeline:
 
         return False
 
-    async def filter(self, body: dict, user: Optional[dict] = None) -> dict:
+    async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"pipe:{__name__}")
         print(body)
         print(user)
