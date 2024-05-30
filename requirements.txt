@@ -46,7 +46,6 @@ scikit-learn
 sentence-transformers
 transformers
 tokenizers
-spacy
 nltk
 
 # Image processing
