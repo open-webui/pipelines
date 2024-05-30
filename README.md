@@ -61,7 +61,7 @@ Once the server is running, set the OpenAI URL on your client to the Pipelines U
 3. **Configure Open WebUI:**
 
    - In Open WebUI, go to **Settings > Connections > OpenAI API**.
-   - Set the API URL to `http://localhost:9099` and the API key to 'none'. Your filter should now be active.
+   - Set the API URL to `http://localhost:9099` and set the API key (default: `0p3n-w3bu!`). Your filter should now be active.
 
 4. **Adjust Settings:**
    - In the admin panel, go to **Admin Settings > Pipelines tab**.
