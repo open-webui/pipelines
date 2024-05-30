@@ -77,7 +77,7 @@ class Pipeline:
 
         try:
             r = requests.post(
-                url=f"{self.OLLAMA_BASE_URL}/v1/chat/completions",
+                url=f"{self.valves.OLLAMA_BASE_URL}/v1/chat/completions",
                 json={**body, "model": model_id},
                 stream=True,
             )
