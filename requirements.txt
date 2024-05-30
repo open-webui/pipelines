@@ -13,8 +13,11 @@ requests==2.32.2
 aiohttp==3.9.5
 httpx
 
+
+# AI libraries
 openai
 anthropic
+google-generativeai
 
 # Database
 pymongo
@@ -60,6 +63,7 @@ playwright
 beautifulsoup4
 
 # Misc
+APScheduler
 youtube_dl
 twilio
 streamlit
