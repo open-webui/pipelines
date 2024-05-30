@@ -24,6 +24,21 @@ def stream_message_template(model: str, message: str):
 
 def get_last_user_message(messages: List[dict]) -> str:
     for message in reversed(messages):
-        if message.role == "user":
-            return message.content
+        if message["role"] == "user":
+            if isinstance(message["content"], list):
+                for item in message["content"]:
+                    if item["type"] == "text":
+                        return item["text"]
+            return message["content"]
+    return None
+
+
+def get_last_assistant_message(messages: List[dict]) -> str:
+    for message in reversed(messages):
+        if message["role"] == "assistant":
+            if isinstance(message["content"], list):
+                for item in message["content"]:
+                    if item["type"] == "text":
+                        return item["text"]
+            return message["content"]
     return None
