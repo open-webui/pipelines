@@ -5,7 +5,7 @@ date: 2024-05-27
 version: 1.1
 license: MIT
 description: A pipeline for generating text using Apple MLX Framework.
-dependencies: requests, mlx-lm, huggingface-hub
+requirements: requests, mlx-lm, huggingface-hub
 environment_variables: MLX_HOST, MLX_PORT, MLX_MODEL, MLX_STOP, MLX_SUBPROCESS, HUGGINGFACE_TOKEN
 """
 

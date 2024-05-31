@@ -5,7 +5,7 @@ date: 2024-05-28
 version: 1.0
 license: MIT
 description: A pipeline for generating text using the Anthropic API.
-dependencies: requests
+requirements: requests
 environment_variables: COHERE_API_KEY
 """
 
