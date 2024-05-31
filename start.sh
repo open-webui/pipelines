@@ -70,7 +70,12 @@ install_frontmatter_requirements() {
 if [[ -n "$PIPELINES_PATH" ]]; then
   pipelines_dir="./pipelines"
   mkdir -p "$pipelines_dir"
-  download_pipelines "$PIPELINES_PATH" "$pipelines_dir"
+
+  # Split PIPELINES_PATH by ';' and iterate over each path
+  IFS=';' read -ra ADDR <<< "$PIPELINES_PATH"
+  for path in "${ADDR[@]}"; do
+    download_pipelines "$path" "$pipelines_dir"
+  done
 
   for file in "$pipelines_dir"/*; do
     if [[ -f "$file" ]]; then
@@ -80,6 +85,7 @@ if [[ -n "$PIPELINES_PATH" ]]; then
 else
   echo "PIPELINES_PATH not specified. Skipping pipelines download and installation."
 fi
+
 
 
 # Start the server
