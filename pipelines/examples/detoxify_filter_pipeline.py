@@ -1,3 +1,13 @@
+"""
+title: Detoxify Filter Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.0
+license: MIT
+description: A pipeline for filtering out toxic messages using the Detoxify library.
+requirements: detoxify
+"""
+
 from typing import List, Optional
 from schemas import OpenAIChatMessage
 from pydantic import BaseModel
