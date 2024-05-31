@@ -33,13 +33,19 @@ class Pipeline:
             sliding_window_minutes: Optional[int] = None
 
         # Initialize rate limits
+        pipelines = os.getenv("RATE_LIMIT_PIPELINES", "*").split(",")
+        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", 10))
+        requests_per_hour = int(os.getenv("RATE_LIMIT_REQUESTS_PER_HOUR", 1000))
+        sliding_window_limit = int(os.getenv("RATE_LIMIT_SLIDING_WINDOW_LIMIT", 100))
+        sliding_window_minutes = int(os.getenv("RATE_LIMIT_SLIDING_WINDOW_MINUTES", 15))
+
         self.valves = Valves(
             **{
-                "pipelines": ["*"],  # Connect to all pipelines
-                "requests_per_minute": 10,
-                "requests_per_hour": 1000,
-                "sliding_window_limit": 100,
-                "sliding_window_minutes": 15,
+                "pipelines": pipelines,
+                "requests_per_minute": requests_per_minute,
+                "requests_per_hour": requests_per_hour,
+                "sliding_window_limit": sliding_window_limit,
+                "sliding_window_minutes": sliding_window_minutes,
             }
         )
 
