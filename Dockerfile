@@ -25,9 +25,11 @@ WORKDIR /app
 # Install Python dependencies
 RUN pip3 install uv && \
     if [ "$USE_CUDA" = "true" ]; then \
+    pip3 install --no-binary=h5py h5py --no-cache-dir && \
     pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/$USE_CUDA_DOCKER_VER --no-cache-dir && \
     uv pip install --system -r requirements.txt --no-cache-dir; \
     else \
+    pip3 install --no-binary=h5py h5py --no-cache-dir && \
     pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu --no-cache-dir && \
     uv pip install --system -r requirements.txt --no-cache-dir; \
     fi
