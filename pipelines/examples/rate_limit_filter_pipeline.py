@@ -113,5 +113,5 @@ class Pipeline:
             if self.rate_limited(user_id):
                 raise Exception("Rate limit exceeded. Please try again later.")
 
-        self.log_request(user_id)
+            self.log_request(user_id)
         return body
