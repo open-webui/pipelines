@@ -1,3 +1,12 @@
+"""
+title: LiteLLM Manifold Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.0
+license: MIT
+description: A manifold pipeline that uses LiteLLM.
+"""
+
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 from pydantic import BaseModel

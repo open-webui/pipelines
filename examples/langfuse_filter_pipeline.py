@@ -1,3 +1,13 @@
+"""
+title: Langfuse Filter Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.0
+license: MIT
+description: A filter pipeline that uses Langfuse.
+requirements: langfuse
+"""
+
 from typing import List, Optional
 from schemas import OpenAIChatMessage
 import os

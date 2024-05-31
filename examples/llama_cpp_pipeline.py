@@ -1,3 +1,13 @@
+"""
+title: Llama C++ Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.0
+license: MIT
+description: A pipeline for generating responses using the Llama C++ library.
+requirements: llama-cpp-python
+"""
+
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 

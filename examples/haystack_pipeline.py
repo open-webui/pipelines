@@ -1,3 +1,13 @@
+"""
+title: Haystack Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.0
+license: MIT
+description: A pipeline for retrieving relevant information from a knowledge base using the Haystack library.
+requirements: haystack-ai, datasets>=2.6.1, sentence-transformers>=2.2.0
+"""
+
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 import os
