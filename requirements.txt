@@ -13,7 +13,6 @@ requests==2.32.2
 aiohttp==3.9.5
 httpx
 
-
 # AI libraries
 openai
 anthropic
@@ -26,19 +25,14 @@ SQLAlchemy
 boto3
 redis
 sqlmodel
-
-# Data processing
 chromadb
-langchain
-langchain-community
-langfuse
 
 # ML libraries
 torch
-xgboost
-
 numpy
 pandas
+
+xgboost
 scikit-learn
 
 # NLP libraries
@@ -59,9 +53,3 @@ seaborn
 selenium
 playwright
 beautifulsoup4
-
-# Misc
-APScheduler
-youtube_dl
-twilio
-streamlit
