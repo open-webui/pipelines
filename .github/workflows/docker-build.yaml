@@ -218,8 +218,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=sha,prefix=git-
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
           flavor: |
             latest=${{ github.ref == 'refs/heads/main' }}
 
@@ -263,8 +261,6 @@ jobs:
             type=ref,event=branch
             type=ref,event=tag
             type=sha,prefix=git-
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
             type=raw,enable=${{ github.ref == 'refs/heads/main' }},prefix=,suffix=,value=cuda
           flavor: |
             latest=${{ github.ref == 'refs/heads/main' }}
