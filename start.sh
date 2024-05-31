@@ -41,8 +41,12 @@ download_pipelines() {
       cd "$destination" || exit
       git sparse-checkout set "$subdir"
     )
+  elif [[ "$path" =~ \.py$ ]]; then
+    # It's a single .py file (but not from GitHub)
+    dest_file=$(basename "$path")
+    curl -L "$path" -o "$destination/$dest_file"
   else
-    echo "Invalid PIPELINES_URLS format."
+    echo "Invalid URL format: $path"
     exit 1
   fi
 }
