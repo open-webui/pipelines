@@ -1,3 +1,13 @@
+"""
+title: Filter Pipeline
+author: open-webui
+date: 2024-05-30
+version: 1.1
+license: MIT
+description: Example of a filter pipeline that can be used to edit the form data before it is sent to the OpenAI API.
+requirements: requests
+"""
+
 from typing import List, Optional
 from pydantic import BaseModel
 from schemas import OpenAIChatMessage
