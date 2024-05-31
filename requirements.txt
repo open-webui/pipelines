@@ -27,6 +27,9 @@ redis
 sqlmodel
 chromadb
 
+# Deployment
+langfuse
+
 # ML libraries
 torch
 numpy
