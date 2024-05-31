@@ -94,7 +94,7 @@ class Pipeline:
             input=body,
             user_id=user["id"],
             metadata={"name": user["name"]},
-            trace_id=body["chat_id"]
+            session_id=body["chat_id"]
         )
 
         print(trace.get_trace_url())
