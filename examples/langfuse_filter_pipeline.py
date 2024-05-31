@@ -15,7 +15,6 @@ import os
 
 from pydantic import BaseModel
 from langfuse import Langfuse
-from langfuse.decorators import langfuse_context, observe
 
 
 class Pipeline:
@@ -83,7 +82,7 @@ class Pipeline:
             secret_key=self.valves.secret_key,
             public_key=self.valves.public_key,
             host=self.valves.host,
-            debug=True,
+            debug=False,
         )
         self.langfuse.auth_check()
 
@@ -95,6 +94,7 @@ class Pipeline:
             input=body,
             user_id=user["id"],
             metadata={"name": user["name"]},
+            session_id=body["chat_id"]
         )
 
         print(trace.get_trace_url())
