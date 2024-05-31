@@ -42,7 +42,7 @@ download_pipelines() {
       git sparse-checkout set "$subdir"
     )
   else
-    echo "Invalid PIPELINES_PATH format."
+    echo "Invalid PIPELINES_URLS format."
     exit 1
   fi
 }
@@ -66,13 +66,13 @@ install_frontmatter_requirements() {
 }
 
 
-# Check if PIPELINES_PATH environment variable is set and non-empty
-if [[ -n "$PIPELINES_PATH" ]]; then
+# Check if PIPELINES_URLS environment variable is set and non-empty
+if [[ -n "$PIPELINES_URLS" ]]; then
   pipelines_dir="./pipelines"
   mkdir -p "$pipelines_dir"
 
-  # Split PIPELINES_PATH by ';' and iterate over each path
-  IFS=';' read -ra ADDR <<< "$PIPELINES_PATH"
+  # Split PIPELINES_URLS by ';' and iterate over each path
+  IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
   for path in "${ADDR[@]}"; do
     download_pipelines "$path" "$pipelines_dir"
   done
@@ -83,7 +83,7 @@ if [[ -n "$PIPELINES_PATH" ]]; then
     fi
   done
 else
-  echo "PIPELINES_PATH not specified. Skipping pipelines download and installation."
+  echo "PIPELINES_URLS not specified. Skipping pipelines download and installation."
 fi
 
 

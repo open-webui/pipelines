@@ -65,3 +65,4 @@ beautifulsoup4
 APScheduler
 youtube_dl
 twilio
+streamlit
