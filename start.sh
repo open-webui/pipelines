@@ -61,9 +61,11 @@ install_frontmatter_requirements() {
   frontmatter=$(sed -n '/^---$/,/^---$/p' "$file")
 
   if echo "$frontmatter" | grep -q "requirements:"; then
-    requirements=$(echo "$frontmatter" | grep "requirements:" | cut -d ":" -f2- | tr -d ' ')
+    # Extract lines starting from "requirements:" to the end of the block or until another top-level key is found
+    requirements=$(echo "$frontmatter" | sed -n '/^requirements:/,/^[a-zA-Z\-]*:/p' | sed -e '1d' -e '$d' | tr -d ',\n')
+    requirements=$(echo "$requirements" | awk '{$1=$1};1')
     echo "Installing requirements: $requirements"
-    pip install $(echo $requirements | tr ',' ' ')
+    pip install $requirements
   else
     echo "No requirements found in frontmatter of $file."
   fi
