@@ -14,7 +14,7 @@ ENV ENV=prod \
 
 # Install GCC and build tools
 RUN apt-get update && \
-    apt-get install -y gcc build-essential pkg-config && \
+    apt-get install -y gcc build-essential pkg-config libhdf5-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -27,6 +27,7 @@ RUN pip3 install uv && \
     if [ "$USE_CUDA" = "true" ]; then \
     pip3 install --no-binary=h5py h5py --no-cache-dir && \
     pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/$USE_CUDA_DOCKER_VER --no-cache-dir && \
+    pip3 install tensorflow[and-cuda] --no-cache-dir && \
     uv pip install --system -r requirements.txt --no-cache-dir; \
     else \
     pip3 install --no-binary=h5py h5py --no-cache-dir && \
