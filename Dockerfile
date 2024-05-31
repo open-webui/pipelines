@@ -14,7 +14,7 @@ ENV ENV=prod \
 
 # Install GCC and build tools
 RUN apt-get update && \
-    apt-get install -y gcc build-essential pkg-config libhdf5-dev && \
+    apt-get install -y gcc build-essential pkg-config libhdf5-dev python3-h5py && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
