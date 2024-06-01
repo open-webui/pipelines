@@ -132,27 +132,30 @@ And answer according to the language of the user's question.""",
         pass
 
     async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
+        # If title generation is requested, skip the function calling filter
         if body.get("title", False):
             return body
 
         print(f"pipe:{__name__}")
         print(user)
 
+        # Get the last user message
         user_message = get_last_user_message(body["messages"])
+
+        # Get the function specs
         function_specs = get_function_specs(self.functions)
 
+        # System prompt for function calling
         fc_system_prompt = (
             f"Functions: {json.dumps(function_specs, indent=2)}"
             + """
-If a function doesn't match the query, return an empty string. Else, pick a function, fill in the parameters from the function's schema, and return it in the format { name: \"functionName\", parameters: { key: value } }. Only pick a function if the user asks."
+If a function doesn't match the query, return an empty string. Else, pick a function, fill in the parameters from the function's schema, and return it in the format { "name": \"functionName\", "parameters": { "key": "value" } }. Only pick a function if the user asks."
 """
         )
 
-        print(fc_system_prompt)
-
         r = None
-
         try:
+            # Call the OpenAI API to get the function response
             r = requests.post(
                 url=f"{self.valves.OPENAI_API_BASE_URL}/chat/completions",
                 json={
@@ -183,17 +186,17 @@ If a function doesn't match the query, return an empty string. Else, pick a func
                 },
                 stream=False,
             )
-
             r.raise_for_status()
 
             response = r.json()
             content = response["choices"][0]["message"]["content"]
 
+            # Parse the function response
             if content != "":
                 result = json.loads(content)
                 print(result)
 
-                #
+                # Call the function
                 if "name" in result:
                     function = getattr(self.functions, result["name"])
                     function_result = None
@@ -202,6 +205,7 @@ If a function doesn't match the query, return an empty string. Else, pick a func
                     except Exception as e:
                         print(e)
 
+                    # Add the function result to the system prompt
                     if function_result:
                         system_prompt = self.valves.TEMPLATE.replace(
                             "{{CONTEXT}}", function_result
@@ -212,6 +216,7 @@ If a function doesn't match the query, return an empty string. Else, pick a func
                             system_prompt, body["messages"]
                         )
 
+                        # Return the updated messages
                         return {**body, "messages": messages}
 
         except Exception as e:
