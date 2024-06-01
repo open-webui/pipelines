@@ -18,7 +18,7 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 - [**Real-Time Translation Filter with LibreTranslate**: Seamlessly integrate real-time translations into your LLM interactions.](/examples/filters/libretranslate_filter_pipeline.py)
 - [**Custom RAG Pipeline**: Implement sophisticated Retrieval-Augmented Generation pipelines tailored to your needs.](/examples/rag/llamaindex_pipeline.py)
 - [**Function Calling Filter**: Easily handle function calls and enhance your applications with custom logic.](/examples/function_calling/function_calling_filter_pipeline.py)
-- **And Much More!**: The sky is the limit for what you can accomplish with Pipelines and Python.
+- **And Much More!**: The sky is the limit for what you can accomplish with Pipelines and Python. [Check out our scaffolds to get a head start on your projects and see how you can streamline your development process!](/examples/scaffolds)
 
 ## 🔧 How It Works
 
