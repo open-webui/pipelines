@@ -77,12 +77,21 @@ And answer according to the language of the user's question.""",
                 print(location, unit)
                 return f"{location}: Sunny"
 
-            def get_user_name(self, user_id: str) -> str:
+            def calculator(self, equation: str) -> str:
                 """
-                Get the user's name from the user_id.
+                Calculate the result of an equation.
+
+                :param equation: The equation to calculate.
                 """
-                print(user_id)
-                return "John Doe"
+
+                # Avoid using eval in production code
+                # https://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
+                try:
+                    result = eval(equation)
+                    return f"{equation} = {result}"
+                except Exception as e:
+                    print(e)
+                    return "Invalid equation"
 
         self.functions = Functions()
 
