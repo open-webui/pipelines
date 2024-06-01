@@ -16,6 +16,17 @@ import os
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        # List target pipeline ids (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        # e.g. ["llama3:latest", "gpt-3.5-turbo"]
+        pipelines: List[str] = []
+
+        # Assign a priority level to the filter pipeline.
+        # The priority level determines the order in which the filter pipelines are executed.
+        # The lower the number, the higher the priority.
+        priority: int = 0
+
     def __init__(self):
         # Pipeline filters are only compatible with Open WebUI
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
@@ -28,19 +39,8 @@ class Pipeline:
         self.id = "detoxify_filter_pipeline"
         self.name = "Detoxify Filter"
 
-        class Valves(BaseModel):
-            # List target pipeline ids (models) that this filter will be connected to.
-            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-            # e.g. ["llama3:latest", "gpt-3.5-turbo"]
-            pipelines: List[str] = []
-
-            # Assign a priority level to the filter pipeline.
-            # The priority level determines the order in which the filter pipelines are executed.
-            # The lower the number, the higher the priority.
-            priority: int = 0
-
         # Initialize
-        self.valves = Valves(
+        self.valves = self.Valves(
             **{
                 "pipelines": ["*"],  # Connect to all pipelines
             }

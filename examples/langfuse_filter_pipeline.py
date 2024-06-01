@@ -18,6 +18,23 @@ from langfuse import Langfuse
 
 
 class Pipeline:
+
+    class Valves(BaseModel):
+        # List target pipeline ids (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        # e.g. ["llama3:latest", "gpt-3.5-turbo"]
+        pipelines: List[str] = []
+
+        # Assign a priority level to the filter pipeline.
+        # The priority level determines the order in which the filter pipelines are executed.
+        # The lower the number, the higher the priority.
+        priority: int = 0
+
+        # Valves
+        secret_key: str
+        public_key: str
+        host: str
+
     def __init__(self):
         # Pipeline filters are only compatible with Open WebUI
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
@@ -30,24 +47,8 @@ class Pipeline:
         self.id = "langfuse_filter_pipeline"
         self.name = "Langfuse Filter"
 
-        class Valves(BaseModel):
-            # List target pipeline ids (models) that this filter will be connected to.
-            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-            # e.g. ["llama3:latest", "gpt-3.5-turbo"]
-            pipelines: List[str] = []
-
-            # Assign a priority level to the filter pipeline.
-            # The priority level determines the order in which the filter pipelines are executed.
-            # The lower the number, the higher the priority.
-            priority: int = 0
-
-            # Valves
-            secret_key: str
-            public_key: str
-            host: str
-
         # Initialize
-        self.valves = Valves(
+        self.valves = self.Valves(
             **{
                 "pipelines": ["*"],  # Connect to all pipelines
                 "secret_key": os.getenv("LANGFUSE_SECRET_KEY"),
@@ -94,7 +95,7 @@ class Pipeline:
             input=body,
             user_id=user["id"],
             metadata={"name": user["name"]},
-            session_id=body["chat_id"]
+            session_id=body["chat_id"],
         )
 
         print(trace.get_trace_url())

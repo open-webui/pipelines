@@ -1,8 +1,12 @@
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
+from pydantic import BaseModel
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        pass
+
     def __init__(self):
         # Optionally, you can set the id and name of the pipeline.
         # Assign a unique identifier to the pipeline.

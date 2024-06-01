@@ -4,7 +4,24 @@ from pydantic import BaseModel
 from schemas import OpenAIChatMessage
 import time
 
+
 class Pipeline:
+    class Valves(BaseModel):
+        # List target pipeline ids (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        pipelines: List[str] = []
+
+        # Assign a priority level to the filter pipeline.
+        # The priority level determines the order in which the filter pipelines are executed.
+        # The lower the number, the higher the priority.
+        priority: int = 0
+
+        # Valves for rate limiting
+        requests_per_minute: Optional[int] = None
+        requests_per_hour: Optional[int] = None
+        sliding_window_limit: Optional[int] = None
+        sliding_window_minutes: Optional[int] = None
+
     def __init__(self):
         # Pipeline filters are only compatible with Open WebUI
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
@@ -16,36 +33,22 @@ class Pipeline:
         self.id = "rate_limit_filter_pipeline"
         self.name = "Rate Limit Filter"
 
-        class Valves(BaseModel):
-            # List target pipeline ids (models) that this filter will be connected to.
-            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-            pipelines: List[str] = []
-
-            # Assign a priority level to the filter pipeline.
-            # The priority level determines the order in which the filter pipelines are executed.
-            # The lower the number, the higher the priority.
-            priority: int = 0
-
-            # Valves for rate limiting
-            requests_per_minute: Optional[int] = None
-            requests_per_hour: Optional[int] = None
-            sliding_window_limit: Optional[int] = None
-            sliding_window_minutes: Optional[int] = None
-
         # Initialize rate limits
-        pipelines = os.getenv("RATE_LIMIT_PIPELINES", "*").split(",")
-        requests_per_minute = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", 10))
-        requests_per_hour = int(os.getenv("RATE_LIMIT_REQUESTS_PER_HOUR", 1000))
-        sliding_window_limit = int(os.getenv("RATE_LIMIT_SLIDING_WINDOW_LIMIT", 100))
-        sliding_window_minutes = int(os.getenv("RATE_LIMIT_SLIDING_WINDOW_MINUTES", 15))
-
-        self.valves = Valves(
+        self.valves = self.Valves(
             **{
-                "pipelines": pipelines,
-                "requests_per_minute": requests_per_minute,
-                "requests_per_hour": requests_per_hour,
-                "sliding_window_limit": sliding_window_limit,
-                "sliding_window_minutes": sliding_window_minutes,
+                "pipelines": os.getenv("RATE_LIMIT_PIPELINES", "*").split(","),
+                "requests_per_minute": int(
+                    os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", 10)
+                ),
+                "requests_per_hour": int(
+                    os.getenv("RATE_LIMIT_REQUESTS_PER_HOUR", 1000)
+                ),
+                "sliding_window_limit": int(
+                    os.getenv("RATE_LIMIT_SLIDING_WINDOW_LIMIT", 100)
+                ),
+                "sliding_window_minutes": int(
+                    os.getenv("RATE_LIMIT_SLIDING_WINDOW_MINUTES", 15)
+                ),
             }
         )
 

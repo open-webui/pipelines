@@ -14,6 +14,19 @@ from schemas import OpenAIChatMessage
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        # List target pipeline ids (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        pipelines: List[str] = []
+
+        # Assign a priority level to the filter pipeline.
+        # The priority level determines the order in which the filter pipelines are executed.
+        # The lower the number, the higher the priority.
+        priority: int = 0
+
+        # Add your custom parameters here
+        pass
+
     def __init__(self):
         # Pipeline filters are only compatible with Open WebUI
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
@@ -26,20 +39,7 @@ class Pipeline:
         self.id = "filter_pipeline"
         self.name = "Filter"
 
-        class Valves(BaseModel):
-            # List target pipeline ids (models) that this filter will be connected to.
-            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-            pipelines: List[str] = []
-
-            # Assign a priority level to the filter pipeline.
-            # The priority level determines the order in which the filter pipelines are executed.
-            # The lower the number, the higher the priority.
-            priority: int = 0
-
-            # Add your custom parameters here
-            pass
-
-        self.valves = Valves(**{"pipelines": ["llama3:latest"]})
+        self.valves = self.Valves(**{"pipelines": ["llama3:latest"]})
 
         pass
 

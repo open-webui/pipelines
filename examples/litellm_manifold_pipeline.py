@@ -14,6 +14,10 @@ import requests
 
 
 class Pipeline:
+
+    class Valves(BaseModel):
+        LITELLM_BASE_URL: str
+
     def __init__(self):
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
@@ -29,11 +33,8 @@ class Pipeline:
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "LiteLLM: "
 
-        class Valves(BaseModel):
-            LITELLM_BASE_URL: str
-
         # Initialize rate limits
-        self.valves = Valves(**{"LITELLM_BASE_URL": "http://localhost:4001"})
+        self.valves = self.Valves(**{"LITELLM_BASE_URL": "http://localhost:4001"})
         self.pipelines = []
         pass
 

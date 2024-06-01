@@ -19,15 +19,17 @@ import requests
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        ANTHROPIC_API_KEY: str = ""
+
     def __init__(self):
         self.type = "manifold"
         self.id = "anthropic"
         self.name = "anthropic/"
 
-        class Valves(BaseModel):
-            ANTHROPIC_API_KEY: str
-
-        self.valves = Valves(**{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY")})
+        self.valves = self.Valves(
+            **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY")}
+        )
         self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
 
     def get_anthropic_models(self):

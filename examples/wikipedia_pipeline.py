@@ -6,6 +6,9 @@ import os
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        pass
+
     def __init__(self):
         # Assign a unique identifier to the pipeline.
         # The identifier must be unique across all pipelines.
@@ -13,11 +16,8 @@ class Pipeline:
         self.id = "wiki_pipeline"
         self.name = "Wikipedia Pipeline"
 
-        class Valves(BaseModel):
-            pass
-
         # Initialize rate limits
-        self.valves = Valves(**{"OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "")})
+        self.valves = self.Valves(**{"OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "")})
 
     async def on_startup(self):
         # This function is called when the server is started.

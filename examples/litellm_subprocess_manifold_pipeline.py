@@ -21,6 +21,12 @@ import yaml
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        LITELLM_CONFIG_DIR: str = "./litellm/config.yaml"
+        LITELLM_PROXY_PORT: int = 4001
+        LITELLM_PROXY_HOST: str = "127.0.0.1"
+        litellm_config: dict = {}
+
     def __init__(self):
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
@@ -36,14 +42,8 @@ class Pipeline:
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "LiteLLM: "
 
-        class Valves(BaseModel):
-            LITELLM_CONFIG_DIR: str = "./litellm/config.yaml"
-            LITELLM_PROXY_PORT: int = 4001
-            LITELLM_PROXY_HOST: str = "127.0.0.1"
-            litellm_config: dict = {}
-
         # Initialize Valves
-        self.valves = Valves(**{"LITELLM_CONFIG_DIR": f"./litellm/config.yaml"})
+        self.valves = self.Valves(**{"LITELLM_CONFIG_DIR": f"./litellm/config.yaml"})
         self.background_process = None
         pass
 

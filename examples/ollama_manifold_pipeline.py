@@ -5,6 +5,10 @@ import requests
 
 
 class Pipeline:
+
+    class Valves(BaseModel):
+        OLLAMA_BASE_URL: str
+
     def __init__(self):
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
@@ -20,10 +24,7 @@ class Pipeline:
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "Ollama: "
 
-        class Valves(BaseModel):
-            OLLAMA_BASE_URL: str
-
-        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
+        self.valves = self.Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
         self.pipelines = []
         pass
 

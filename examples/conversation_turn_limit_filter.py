@@ -6,6 +6,20 @@ import time
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        # List target pipeline ids (models) that this filter will be connected to.
+        # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
+        pipelines: List[str] = []
+
+        # Assign a priority level to the filter pipeline.
+        # The priority level determines the order in which the filter pipelines are executed.
+        # The lower the number, the higher the priority.
+        priority: int = 0
+
+        # Valves for conversation turn limiting
+        target_user_roles: List[str] = ["user"]
+        max_turns: Optional[int] = None
+
     def __init__(self):
         # Pipeline filters are only compatible with Open WebUI
         # You can think of filter pipeline as a middleware that can be used to edit the form data before it is sent to the OpenAI API.
@@ -17,21 +31,7 @@ class Pipeline:
         self.id = "conversation_turn_limit_filter_pipeline"
         self.name = "Conversation Turn Limit Filter"
 
-        class Valves(BaseModel):
-            # List target pipeline ids (models) that this filter will be connected to.
-            # If you want to connect this filter to all pipelines, you can set pipelines to ["*"]
-            pipelines: List[str] = []
-
-            # Assign a priority level to the filter pipeline.
-            # The priority level determines the order in which the filter pipelines are executed.
-            # The lower the number, the higher the priority.
-            priority: int = 0
-
-            # Valves for conversation turn limiting
-            target_user_roles: List[str] = ["user"]
-            max_turns: Optional[int] = None
-
-        self.valves = Valves(
+        self.valves = self.Valves(
             **{
                 "pipelines": os.getenv("CONVERSATION_TURN_PIPELINES", "*").split(","),
                 "max_turns": 10,
