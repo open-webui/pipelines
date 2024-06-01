@@ -20,17 +20,39 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 
 Integrating Pipelines with any OpenAI API-compatible UI client is simple. Launch your Pipelines instance and set the OpenAI URL on your client to the Pipelines URL. That's it! You're ready to leverage any Python library for your needs.
 
-## 📂 Directory Structure and Examples
+## ⚡ Quick Start with Docker
 
-The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.
+For a streamlined setup using Docker:
 
-### Integration Examples
+1. **Run the Pipelines container:**
 
-Find various integration examples in the `/pipelines/examples` directory. These examples show how to integrate different functionalities, providing a foundation for building your own custom pipelines.
+   ```sh
+   docker run -d -p 9099:9099 -v pipelines:/app/pipelines --name pipelines --restart always ghcr.io/open-webui/pipelines:main
+   ```
+
+2. **Connect to Open WebUI:**
+
+   - Navigate to the **Settings > Connections > OpenAI API** section in Open WebUI.
+   - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your filter should now be active.
+
+3. **Manage Configurations:**
+
+   - In the admin panel, go to **Admin Settings > Pipelines tab**.
+   - Select your desired filter and modify the valve values directly from the WebUI.
+
+If you need to install a custom pipeline with additional dependencies:
+
+- **Run the following command:**
+
+  ```sh
+  docker run -d -p 9099:9099 -e PIPELINES_PATH="https://github.com/open-webui/pipelines/blob/main/examples/filters/detoxify_filter_pipeline.py" -v pipelines:/app/pipelines --name pipelines --restart always ghcr.io/open-webui/pipelines:main
+  ```
+
+That's it! You're now ready to build customizable AI integrations effortlessly with Pipelines. Enjoy!
 
 ## 📦 Installation and Setup
 
-Get started with Pipelines in a few steps:
+Get started with Pipelines in a few easy steps:
 
 1. **Ensure Python 3.11 is installed.**
 2. **Clone the Pipelines repository:**
@@ -54,20 +76,13 @@ Get started with Pipelines in a few steps:
 
 Once the server is running, set the OpenAI URL on your client to the Pipelines URL. This unlocks the full capabilities of Pipelines, integrating any Python library and creating custom workflows tailored to your needs.
 
-## ⚡ Quick Start Example
+## 📂 Directory Structure and Examples
 
-1. **Copy and paste `rate_limit_filter_pipeline.py` from `/pipelines/examples` to the `/pipelines` folder.**
-2. **Run the Pipelines server:** It will be hosted at `http://localhost:9099` by default.
-3. **Configure Open WebUI:**
+The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.
 
-   - In Open WebUI, go to **Settings > Connections > OpenAI API**.
-   - Set the API URL to `http://localhost:9099` and set the API key (default: `0p3n-w3bu!`). Your filter should now be active.
+### Integration Examples
 
-4. **Adjust Settings:**
-   - In the admin panel, go to **Admin Settings > Pipelines tab**.
-   - Select the filter and change the valve values directly from the WebUI.
-
-That's it! You're now set up with Pipelines. Enjoy building customizable AI integrations effortlessly!
+Find various integration examples in the `/pipelines/examples` directory. These examples show how to integrate different functionalities, providing a foundation for building your own custom pipelines.
 
 ## 🎉 Work in Progress
 
