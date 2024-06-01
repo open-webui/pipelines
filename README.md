@@ -22,6 +22,9 @@ Integrating Pipelines with any OpenAI API-compatible UI client is simple. Launch
 
 ## ⚡ Quick Start with Docker
 
+> [!WARNING]
+> Pipelines are a plugin system with arbitrary code execution — **don't fetch random pipelines from sources you don't trust**.
+
 For a streamlined setup using Docker:
 
 1. **Run the Pipelines container:**
@@ -33,12 +36,12 @@ For a streamlined setup using Docker:
 2. **Connect to Open WebUI:**
 
    - Navigate to the **Settings > Connections > OpenAI API** section in Open WebUI.
-   - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your filter should now be active.
+   - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your pipelines should now be active.
 
 3. **Manage Configurations:**
 
    - In the admin panel, go to **Admin Settings > Pipelines tab**.
-   - Select your desired filter and modify the valve values directly from the WebUI.
+   - Select your desired pipeline and modify the valve values directly from the WebUI.
 
 If you need to install a custom pipeline with additional dependencies:
 
@@ -47,6 +50,8 @@ If you need to install a custom pipeline with additional dependencies:
   ```sh
   docker run -d -p 9099:9099 -e PIPELINES_PATH="https://github.com/open-webui/pipelines/blob/main/examples/filters/detoxify_filter_pipeline.py" -v pipelines:/app/pipelines --name pipelines --restart always ghcr.io/open-webui/pipelines:main
   ```
+
+Alternatively, you can directly install pipelines from the admin settings by copying and pasting the pipeline URL, provided it doesn't have additional dependencies.
 
 That's it! You're now ready to build customizable AI integrations effortlessly with Pipelines. Enjoy!
 
