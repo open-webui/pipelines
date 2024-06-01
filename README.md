@@ -14,13 +14,13 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 
 ### Examples of What You Can Achieve:
 
-- [**Function Calling Pipeline**: Easily handle function calls and enhance your applications with custom logic.](/examples/function_calling/function_calling_filter_pipeline.py)
-- [**Custom RAG Pipeline**: Implement sophisticated Retrieval-Augmented Generation pipelines tailored to your needs.](/examples/rag/llamaindex_pipeline.py)
-- [**Message Monitoring Using Langfuse**: Monitor and analyze message interactions in real-time using Langfuse.](/examples/filters/langfuse_filter_pipeline.py)
-- [**Rate Limit Filter**: Control the flow of requests to prevent exceeding rate limits.](/examples/filters/rate_limit_filter_pipeline.py)
-- [**Real-Time Translation Filter with LibreTranslate**: Seamlessly integrate real-time translations into your LLM interactions.](/examples/filters/libretranslate_filter_pipeline.py)
-- [**Toxic Message Filter**: Implement filters to detect and handle toxic messages effectively.](/examples/filters/detoxify_filter_pipeline.py)
-- **And Much More!**: The sky is the limit for what you can accomplish with Pipelines and Python. [Check out our scaffolds to get a head start on your projects and see how you can streamline your development process!](/examples/scaffolds)
+- [**Function Calling Pipeline**](/examples/function_calling/function_calling_filter_pipeline.py): Easily handle function calls and enhance your applications with custom logic.
+- [**Custom RAG Pipeline**](/examples/rag/llamaindex_pipeline.py): Implement sophisticated Retrieval-Augmented Generation pipelines tailored to your needs.
+- [**Message Monitoring Using Langfuse**](/examples/filters/langfuse_filter_pipeline.py): Monitor and analyze message interactions in real-time using Langfuse.
+- [**Rate Limit Filter**](/examples/filters/rate_limit_filter_pipeline.py): Control the flow of requests to prevent exceeding rate limits.
+- [**Real-Time Translation Filter with LibreTranslate**](/examples/filters/libretranslate_filter_pipeline.py): Seamlessly integrate real-time translations into your LLM interactions.
+- [**Toxic Message Filter**](/examples/filters/detoxify_filter_pipeline.py): Implement filters to detect and handle toxic messages effectively.
+- **And Much More!**: The sky is the limit for what you can accomplish with Pipelines and Python. [Check out our scaffolds](/examples/scaffolds) to get a head start on your projects and see how you can streamline your development process!
 
 ## 🔧 How It Works
 
