@@ -144,16 +144,17 @@ async def load_modules_from_directory(directory):
                 if os.path.exists(valves_json_path):
                     with open(valves_json_path, "r") as f:
                         valves_json = json.load(f)
-                        ValvesModel = pipeline.valves.__class__
-                        # Create a ValvesModel instance using default values and overwrite with valves_json
-                        combined_valves = {
-                            **pipeline.valves.model_dump(),
-                            **valves_json,
-                        }
-                        valves = ValvesModel(**combined_valves)
-                        pipeline.valves = valves
+                        if hasattr(pipeline, "valves"):
+                            ValvesModel = pipeline.valves.__class__
+                            # Create a ValvesModel instance using default values and overwrite with valves_json
+                            combined_valves = {
+                                **pipeline.valves.model_dump(),
+                                **valves_json,
+                            }
+                            valves = ValvesModel(**combined_valves)
+                            pipeline.valves = valves
 
-                        logging.info(f"Updated valves for module: {module_name}")
+                            logging.info(f"Updated valves for module: {module_name}")
 
                 pipeline_id = pipeline.id if hasattr(pipeline, "id") else module_name
                 PIPELINE_MODULES[pipeline_id] = pipeline
