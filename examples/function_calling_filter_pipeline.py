@@ -41,12 +41,14 @@ class Pipeline:
             TASK_MODEL: str
             TEMPLATE: str
 
+            OPENWEATHERMAP_API_KEY: str = ""
+
         # Initialize valves
         self.valves = Valves(
             **{
                 "pipelines": ["*"],  # Connect to all pipelines
                 "OPENAI_API_BASE_URL": "https://api.openai.com/v1",
-                "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY"),
+                "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY"),
                 "TASK_MODEL": "gpt-3.5-turbo",
                 "TEMPLATE": """Use the following context as your learned knowledge, inside <context></context> XML tags.
 <context>
@@ -62,6 +64,9 @@ And answer according to the language of the user's question.""",
         )
 
         class Functions:
+            def __init__(self, pipeline) -> None:
+                self.pipeline = pipeline
+
             def get_current_weather(
                 self,
                 location: str,
@@ -74,8 +79,29 @@ And answer according to the language of the user's question.""",
                 :param unit: The unit to get the weather in. Default is fahrenheit.
                 :return: The current weather for the location.
                 """
-                print(location, unit)
-                return f"{location}: Sunny"
+
+                # https://openweathermap.org/api
+
+                if self.pipeline.valves.OPENWEATHERMAP_API_KEY == "":
+                    return "OpenWeatherMap API Key not set, ask the user to set it up."
+                else:
+                    units = "imperial" if unit == "fahrenheit" else "metric"
+                    params = {
+                        "q": location,
+                        "appid": self.pipeline.valves.OPENWEATHERMAP_API_KEY,
+                        "units": units,
+                    }
+
+                    response = requests.get(
+                        "http://api.openweathermap.org/data/2.5/weather", params=params
+                    )
+                    response.raise_for_status()  # Raises an HTTPError for bad responses
+                    data = response.json()
+
+                    weather_description = data["weather"][0]["description"]
+                    temperature = data["main"]["temp"]
+
+                    return f"{location}: {weather_description.capitalize()}, {temperature}°{unit.capitalize()[0]}"
 
             def calculator(self, equation: str) -> str:
                 """
@@ -93,7 +119,7 @@ And answer according to the language of the user's question.""",
                     print(e)
                     return "Invalid equation"
 
-        self.functions = Functions()
+        self.functions = Functions(self)
 
     async def on_startup(self):
         # This function is called when the server is started.
