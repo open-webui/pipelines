@@ -149,7 +149,7 @@ And answer according to the language of the user's question.""",
         fc_system_prompt = (
             f"Functions: {json.dumps(function_specs, indent=2)}"
             + """
-If a function doesn't match the query, return an empty string. Else, pick a function, fill in the parameters from the function's schema, and return it in the format { "name": \"functionName\", "parameters": { "key": "value" } }. Only pick a function if the user asks."
+If a function doesn't match the query, return an empty string. Else, pick a function, fill in the parameters from the function's schema, and return it in the format { "name": \"functionName\", "parameters": { "key": "value" } }. Only pick a function if the user asks.  Only return the object. Do not return any other text."
 """
         )
 
