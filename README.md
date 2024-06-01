@@ -23,7 +23,7 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 ## 🔧 How It Works
 
 <p align="center">
-  <a href="#"><img src="./docs/images/workflow.png" alt="Pipelines Workflow"></a>
+  <a href="./docs/images/workflow.png"><img src="./docs/images/workflow.png" alt="Pipelines Workflow"></a>
 </p>
 
 Integrating Pipelines with any OpenAI API-compatible UI client is simple. Launch your Pipelines instance and set the OpenAI URL on your client to the Pipelines URL. That's it! You're ready to leverage any Python library for your needs.
