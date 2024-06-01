@@ -10,9 +10,8 @@ class Pipeline(FunctionCallingBlueprint):
         def __init__(self, pipeline) -> None:
             self.pipeline = pipeline
 
-        # Add your custom tools here
+        # Add your custom tools using pure Python code here, make sure to add type hints
         # Please refer to function_calling_filter_pipeline.py for an example
-        # Pure Python code can be added here
         pass
 
     def __init__(self):
