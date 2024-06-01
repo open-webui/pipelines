@@ -203,7 +203,6 @@ async def get_models():
     Returns the available pipelines
     """
     app.state.PIPELINES = get_all_pipelines()
-
     return {
         "data": [
             {
