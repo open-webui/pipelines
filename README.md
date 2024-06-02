@@ -14,8 +14,8 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 
 ### Examples of What You Can Achieve:
 
-- [**Function Calling Pipeline**](/examples/function_calling/function_calling_filter_pipeline.py): Easily handle function calls and enhance your applications with custom logic.
-- [**Custom RAG Pipeline**](/examples/rag/llamaindex_pipeline.py): Implement sophisticated Retrieval-Augmented Generation pipelines tailored to your needs.
+- [**Function Calling Pipeline**](/examples/filters/function_calling_filter_pipeline.py): Easily handle function calls and enhance your applications with custom logic.
+- [**Custom RAG Pipeline**](/examples/pipelines/rag/llamaindex_pipeline.py): Implement sophisticated Retrieval-Augmented Generation pipelines tailored to your needs.
 - [**Message Monitoring Using Langfuse**](/examples/filters/langfuse_filter_pipeline.py): Monitor and analyze message interactions in real-time using Langfuse.
 - [**Rate Limit Filter**](/examples/filters/rate_limit_filter_pipeline.py): Control the flow of requests to prevent exceeding rate limits.
 - [**Real-Time Translation Filter with LibreTranslate**](/examples/filters/libretranslate_filter_pipeline.py): Seamlessly integrate real-time translations into your LLM interactions.
