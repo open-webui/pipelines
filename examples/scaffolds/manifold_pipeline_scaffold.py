@@ -17,6 +17,9 @@ class Pipeline:
 
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "Manifold: "
+
+        # Define pipelines that are available in this manifold pipeline.
+        # This is a list of dictionaries where each dictionary has an id and name.
         self.pipelines = [
             {
                 "id": "pipeline-1",  # This will turn into `manifold_pipeline.pipeline-1`
