@@ -51,8 +51,8 @@ class Pipeline:
         self.valves = self.Valves(
             **{
                 "pipelines": ["*"],  # Connect to all pipelines
-                "secret_key": os.getenv("LANGFUSE_SECRET_KEY"),
-                "public_key": os.getenv("LANGFUSE_PUBLIC_KEY"),
+                "secret_key": os.getenv("LANGFUSE_SECRET_KEY", "your-secret-key-here"),
+                "public_key": os.getenv("LANGFUSE_PUBLIC_KEY", "your-public-key-here"),
                 "host": os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com"),
             }
         )
