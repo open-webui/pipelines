@@ -116,11 +116,9 @@ async def load_module_from_path(module_name, module_path):
             return module.Pipeline()
         else:
             raise Exception("No Pipeline class found")
-
     except Exception as e:
         print(f"Error loading module: {module_name}")
         print(e)
-        os.remove(module_path)
     return None
 
 
