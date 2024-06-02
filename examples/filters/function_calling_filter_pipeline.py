@@ -84,7 +84,11 @@ class Pipeline(FunctionCallingBlueprint):
 
     def __init__(self):
         super().__init__()
-        self.id = "my_tools_pipeline"
+        # Optionally, you can set the id and name of the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
+        # The identifier must be unique across all pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
+        # self.id = "my_tools_pipeline"
         self.name = "My Tools Pipeline"
         self.valves = self.Valves(
             **{

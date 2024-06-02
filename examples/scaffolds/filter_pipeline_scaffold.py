@@ -33,10 +33,11 @@ class Pipeline:
         self.type = "filter"
 
         # Optionally, you can set the id and name of the pipeline.
-        # Assign a unique identifier to the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
         # The identifier must be unique across all pipelines.
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
-        self.id = "filter_pipeline"
+        # self.id = "filter_pipeline"
+
         self.name = "Filter"
 
         self.valves = self.Valves(**{"pipelines": ["llama3:latest"]})
