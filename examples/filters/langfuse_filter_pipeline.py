@@ -101,3 +101,18 @@ class Pipeline:
         print(trace.get_trace_url())
 
         return body
+
+    async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
+        print(f"outlet:{__name__}")
+
+        trace = self.langfuse.trace(
+            name=f"filter:{__name__}",
+            input=body,
+            user_id=user["id"],
+            metadata={"name": user["name"]},
+            session_id=body["chat_id"],
+        )
+
+        print(trace.get_trace_url())
+
+        return body
