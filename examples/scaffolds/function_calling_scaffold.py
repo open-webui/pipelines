@@ -3,7 +3,7 @@ from blueprints.function_calling_blueprint import Pipeline as FunctionCallingBlu
 
 class Pipeline(FunctionCallingBlueprint):
     class Valves(FunctionCallingBlueprint.Valves):
-        # Add your custom parameters here
+        # Add your custom valves here
         pass
 
     class Tools:
@@ -11,6 +11,7 @@ class Pipeline(FunctionCallingBlueprint):
             self.pipeline = pipeline
 
         # Add your custom tools using pure Python code here, make sure to add type hints
+        # Use Sphinx-style docstrings to document your tools, they will be used for generating tools specifications
         # Please refer to function_calling_filter_pipeline.py for an example
         pass
 
