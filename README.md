@@ -48,8 +48,8 @@ For a streamlined setup using Docker:
    - Navigate to the **Settings > Connections > OpenAI API** section in Open WebUI.
    - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your pipelines should now be active.
 
-   > [!NOTE]
-   > If your Open WebUI is running in a Docker container, replace `localhost` with `host.docker.internal` in the API URL.
+> [!NOTE]
+> If your Open WebUI is running in a Docker container, replace `localhost` with `host.docker.internal` in the API URL.
 
 3. **Manage Configurations:**
 
