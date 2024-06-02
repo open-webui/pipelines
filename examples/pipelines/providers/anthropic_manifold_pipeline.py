@@ -63,6 +63,13 @@ class Pipeline:
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         try:
+            if "user" in body:
+                del body["user"]
+            if "chat_id" in body:
+                del body["chat_id"]
+            if "title" in body:
+                del body["title"]
+
             if body.get("stream", False):
                 return self.stream_response(model_id, messages, body)
             else:
