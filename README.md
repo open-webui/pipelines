@@ -9,7 +9,7 @@ Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiat
 ## 🚀 Why Choose Pipelines?
 
 - **Limitless Possibilities:** Easily add custom logic and integrate Python libraries, from AI agents to home automation APIs.
-- **Seamless Integration:** Compatible with any UI/client supporting OpenAI API specs. Only pipe-type pipelines are supported; filter types require clients with Pipelines support.
+- **Seamless Integration:** Compatible with any UI/client supporting OpenAI API specs. (Only pipe-type pipelines are supported; filter types require clients with Pipelines support.)
 - **Custom Hooks:** Build and integrate custom pipelines.
 
 ### Examples of What You Can Achieve:
