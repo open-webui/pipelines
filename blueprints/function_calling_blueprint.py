@@ -5,7 +5,7 @@ import os
 import requests
 import json
 
-from utils.main import (
+from utils.pipelines.main import (
     get_last_user_message,
     add_or_update_system_message,
     get_tools_specs,

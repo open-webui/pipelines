@@ -8,9 +8,9 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Union, Generator, Iterator
 
 
-from utils.auth import bearer_security, get_current_user
-from utils.main import get_last_user_message, stream_message_template
-from utils.misc import convert_to_raw_url
+from utils.pipelines.auth import bearer_security, get_current_user
+from utils.pipelines.main import get_last_user_message, stream_message_template
+from utils.pipelines.misc import convert_to_raw_url
 
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
@@ -108,11 +108,19 @@ def get_all_pipelines():
 async def load_module_from_path(module_name, module_path):
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
 
-    print(f"Loaded module: {module.__name__}")
-    if hasattr(module, "Pipeline"):
-        return module.Pipeline()
+    try:
+        spec.loader.exec_module(module)
+        print(f"Loaded module: {module.__name__}")
+        if hasattr(module, "Pipeline"):
+            return module.Pipeline()
+        else:
+            raise Exception("No Pipeline class found")
+
+    except Exception as e:
+        print(f"Error loading module: {module_name}")
+        print(e)
+        os.remove(module_path)
     return None
 
 
