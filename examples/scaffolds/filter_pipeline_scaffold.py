@@ -58,6 +58,10 @@ class Pipeline:
         # This filter is applied to the form data before it is sent to the OpenAI API.
         print(f"inlet:{__name__}")
 
+        # If you'd like to check for title generation, you can add the following check
+        if body.get("title", False):
+            print("Title Generation Request")
+
         print(body)
         print(user)
 

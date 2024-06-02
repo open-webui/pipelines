@@ -48,6 +48,10 @@ class Pipeline:
         # This is where you can add your custom pipelines like RAG.
         print(f"pipe:{__name__}")
 
+        # If you'd like to check for title generation, you can add the following check
+        if body.get("title", False):
+            print("Title Generation Request")
+
         print(messages)
         print(user_message)
         print(body)
