@@ -506,6 +506,13 @@ async def filter_inlet(pipeline_id: str, form_data: FilterForm):
             detail=f"Filter {pipeline_id} not found",
         )
 
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
+
     pipeline = PIPELINE_MODULES[pipeline_id]
 
     try:
@@ -530,6 +537,13 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Filter {pipeline_id} not found",
         )
+
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
 
     pipeline = PIPELINE_MODULES[pipeline_id]
 
