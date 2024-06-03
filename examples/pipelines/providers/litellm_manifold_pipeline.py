@@ -70,7 +70,7 @@ class Pipeline:
                 print(f"Error: {e}")
                 return [
                     {
-                        "id": self.id,
+                        "id": "error",
                         "name": "Could not fetch models from LiteLLM, please update the URL in the valves.",
                     },
                 ]
