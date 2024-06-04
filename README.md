@@ -101,9 +101,11 @@ Once the server is running, set the OpenAI URL on your client to the Pipelines U
 
 The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.
 
+You can change this directory from `/pipelines` to another location using the `PIPELINES_DIR` env variable.
+
 ### Integration Examples
 
-Find various integration examples in the `/pipelines/examples` directory. These examples show how to integrate different functionalities, providing a foundation for building your own custom pipelines.
+Find various integration examples in the `/examples` directory. These examples show how to integrate different functionalities, providing a foundation for building your own custom pipelines.
 
 ## 🎉 Work in Progress
 
