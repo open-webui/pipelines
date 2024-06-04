@@ -28,7 +28,7 @@ class Pipeline:
         self.name = "anthropic/"
 
         self.valves = self.Valves(
-            **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY")}
+            **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "your-api-key-here")}
         )
         self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
 
