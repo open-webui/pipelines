@@ -34,7 +34,9 @@ class Pipeline:
 
         self.name = "cohere/"
 
-        self.valves = self.Valves(**{"COHERE_API_KEY": os.getenv("COHERE_API_KEY")})
+        self.valves = self.Valves(
+            **{"COHERE_API_KEY": os.getenv("COHERE_API_KEY", "your-api-key-here")}
+        )
 
         self.pipelines = self.get_cohere_models()
 
