@@ -197,7 +197,7 @@ class Pipeline:
         try:
             r = requests.post(
                 url=f"http://{self.valves.LITELLM_PROXY_HOST}:{self.valves.LITELLM_PROXY_PORT}/v1/chat/completions",
-                json={**body, "model": model_id, "user_id": body["user"]["id"]},
+                json={**body, "model": model_id, "user": body["user"]["id"]},
                 stream=True,
             )
 
