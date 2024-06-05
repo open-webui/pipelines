@@ -80,12 +80,11 @@ def doc_to_dict(docstring):
     return ret_dict
 
 
-def get_function_specs(functions) -> List[dict]:
-
+def get_tools_specs(tools) -> List[dict]:
     function_list = [
-        {"name": func, "function": getattr(functions, func)}
-        for func in dir(functions)
-        if callable(getattr(functions, func)) and not func.startswith("__")
+        {"name": func, "function": getattr(tools, func)}
+        for func in dir(tools)
+        if callable(getattr(tools, func)) and not func.startswith("__")
     ]
 
     specs = []

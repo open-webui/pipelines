@@ -43,6 +43,7 @@ sentence-transformers
 transformers
 tokenizers
 nltk
+tiktoken
 
 # Image processing
 Pillow

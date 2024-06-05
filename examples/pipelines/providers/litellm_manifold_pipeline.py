@@ -11,9 +11,16 @@ from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 import requests
+import os
 
 
 class Pipeline:
+
+    class Valves(BaseModel):
+        LITELLM_BASE_URL: str = ""
+        LITELLM_API_KEY: str = ""
+        LITELLM_PIPELINE_DEBUG: bool = False
+
     def __init__(self):
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
@@ -21,19 +28,24 @@ class Pipeline:
         self.type = "manifold"
 
         # Optionally, you can set the id and name of the pipeline.
-        # Assign a unique identifier to the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
         # The identifier must be unique across all pipelines.
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
-        self.id = "litellm_manifold"
+        # self.id = "litellm_manifold"
 
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "LiteLLM: "
 
-        class Valves(BaseModel):
-            LITELLM_BASE_URL: str
-
         # Initialize rate limits
-        self.valves = Valves(**{"LITELLM_BASE_URL": "http://localhost:4001"})
+        self.valves = self.Valves(
+            **{
+                "LITELLM_BASE_URL": os.getenv(
+                    "LITELLM_BASE_URL", "http://localhost:4001"
+                ),
+                "LITELLM_API_KEY": os.getenv("LITELLM_API_KEY", "your-api-key-here"),
+                "LITELLM_PIPELINE_DEBUG": os.getenv("LITELLM_PIPELINE_DEBUG", False),
+            }
+        )
         self.pipelines = []
         pass
 
@@ -54,9 +66,16 @@ class Pipeline:
         pass
 
     def get_litellm_models(self):
+
+        headers = {}
+        if self.valves.LITELLM_API_KEY:
+            headers["Authorization"] = f"Bearer {self.valves.LITELLM_API_KEY}"
+
         if self.valves.LITELLM_BASE_URL:
             try:
-                r = requests.get(f"{self.valves.LITELLM_BASE_URL}/v1/models")
+                r = requests.get(
+                    f"{self.valves.LITELLM_BASE_URL}/v1/models", headers=headers
+                )
                 models = r.json()
                 return [
                     {
@@ -69,7 +88,7 @@ class Pipeline:
                 print(f"Error: {e}")
                 return [
                     {
-                        "id": self.id,
+                        "id": "error",
                         "name": "Could not fetch models from LiteLLM, please update the URL in the valves.",
                     },
                 ]
@@ -85,10 +104,20 @@ class Pipeline:
             print(f"# Message: {user_message}")
             print("######################################")
 
+        headers = {}
+        if self.valves.LITELLM_API_KEY:
+            headers["Authorization"] = f"Bearer {self.valves.LITELLM_API_KEY}"
+
         try:
+            payload = {**body, "model": model_id, "user": body["user"]["id"]}
+            payload.pop("chat_id", None)
+            payload.pop("user", None)
+            payload.pop("title", None)
+
             r = requests.post(
                 url=f"{self.valves.LITELLM_BASE_URL}/v1/chat/completions",
-                json={**body, "model": model_id, "user_id": body["user"]["id"]},
+                json=payload,
+                headers=headers,
                 stream=True,
             )
 
