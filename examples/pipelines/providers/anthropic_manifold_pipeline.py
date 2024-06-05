@@ -19,15 +19,17 @@ import requests
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        ANTHROPIC_API_KEY: str = ""
+
     def __init__(self):
         self.type = "manifold"
         self.id = "anthropic"
         self.name = "anthropic/"
 
-        class Valves(BaseModel):
-            ANTHROPIC_API_KEY: str
-
-        self.valves = Valves(**{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY")})
+        self.valves = self.Valves(
+            **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "your-api-key-here")}
+        )
         self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
 
     def get_anthropic_models(self):
@@ -61,6 +63,13 @@ class Pipeline:
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         try:
+            if "user" in body:
+                del body["user"]
+            if "chat_id" in body:
+                del body["chat_id"]
+            if "title" in body:
+                del body["title"]
+
             if body.get("stream", False):
                 return self.stream_response(model_id, messages, body)
             else:

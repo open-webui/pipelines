@@ -6,11 +6,11 @@ import requests
 class Pipeline:
     def __init__(self):
         # Optionally, you can set the id and name of the pipeline.
-        # Assign a unique identifier to the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
         # The identifier must be unique across all pipelines.
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
-        self.id = "openai_pipeline"
-        self.name = "OpenAI Pipeline"
+        # self.id = "ollama_pipeline"
+        self.name = "Ollama Pipeline"
         pass
 
     async def on_startup(self):
@@ -29,21 +29,19 @@ class Pipeline:
         # This is where you can add your custom pipelines like RAG.
         print(f"pipe:{__name__}")
 
-        print(messages)
-        print(user_message)
+        OLLAMA_BASE_URL = "http://localhost:11434"
+        MODEL = "llama3"
 
-        OPENAI_API_KEY = "your-openai-api-key-here"
-        MODEL = "gpt-3.5-turbo"
-
-        headers = {}
-        headers["Authorization"] = f"Bearer {OPENAI_API_KEY}"
-        headers["Content-Type"] = "application/json"
+        if "user" in body:
+            print("######################################")
+            print(f'# User: {body["user"]["name"]} ({body["user"]["id"]})')
+            print(f"# Message: {user_message}")
+            print("######################################")
 
         try:
             r = requests.post(
-                url="https://api.openai.com/v1/chat/completions",
+                url=f"{OLLAMA_BASE_URL}/v1/chat/completions",
                 json={**body, "model": MODEL},
-                headers=headers,
                 stream=True,
             )
 

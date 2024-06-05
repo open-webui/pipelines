@@ -8,9 +8,9 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Union, Generator, Iterator
 
 
-from utils.auth import bearer_security, get_current_user
-from utils.main import get_last_user_message, stream_message_template
-from utils.misc import convert_to_raw_url
+from utils.pipelines.auth import bearer_security, get_current_user
+from utils.pipelines.main import get_last_user_message, stream_message_template
+from utils.pipelines.misc import convert_to_raw_url
 
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
@@ -108,11 +108,25 @@ def get_all_pipelines():
 async def load_module_from_path(module_name, module_path):
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
 
-    print(f"Loaded module: {module.__name__}")
-    if hasattr(module, "Pipeline"):
-        return module.Pipeline()
+    try:
+        spec.loader.exec_module(module)
+        print(f"Loaded module: {module.__name__}")
+        if hasattr(module, "Pipeline"):
+            return module.Pipeline()
+        else:
+            raise Exception("No Pipeline class found")
+    except Exception as e:
+        print(f"Error loading module: {module_name}")
+
+        # Move the file to the error folder
+        failed_pipelines_folder = os.path.join(PIPELINES_DIR, "failed")
+        if not os.path.exists(failed_pipelines_folder):
+            os.makedirs(failed_pipelines_folder)
+
+        failed_file_path = os.path.join(failed_pipelines_folder, f"{module_name}.py")
+        os.rename(module_path, failed_file_path)
+        print(e)
     return None
 
 
@@ -124,8 +138,38 @@ async def load_modules_from_directory(directory):
         if filename.endswith(".py"):
             module_name = filename[:-3]  # Remove the .py extension
             module_path = os.path.join(directory, filename)
+
+            # Create subfolder matching the filename without the .py extension
+            subfolder_path = os.path.join(directory, module_name)
+            if not os.path.exists(subfolder_path):
+                os.makedirs(subfolder_path)
+                logging.info(f"Created subfolder: {subfolder_path}")
+
+            # Create a valves.json file if it doesn't exist
+            valves_json_path = os.path.join(subfolder_path, "valves.json")
+            if not os.path.exists(valves_json_path):
+                with open(valves_json_path, "w") as f:
+                    json.dump({}, f)
+                logging.info(f"Created valves.json in: {subfolder_path}")
+
             pipeline = await load_module_from_path(module_name, module_path)
             if pipeline:
+                # Overwrite pipeline.valves with values from valves.json
+                if os.path.exists(valves_json_path):
+                    with open(valves_json_path, "r") as f:
+                        valves_json = json.load(f)
+                        if hasattr(pipeline, "valves"):
+                            ValvesModel = pipeline.valves.__class__
+                            # Create a ValvesModel instance using default values and overwrite with valves_json
+                            combined_valves = {
+                                **pipeline.valves.model_dump(),
+                                **valves_json,
+                            }
+                            valves = ValvesModel(**combined_valves)
+                            pipeline.valves = valves
+
+                            logging.info(f"Updated valves for module: {module_name}")
+
                 pipeline_id = pipeline.id if hasattr(pipeline, "id") else module_name
                 PIPELINE_MODULES[pipeline_id] = pipeline
                 PIPELINE_NAMES[pipeline_id] = module_name
@@ -203,7 +247,6 @@ async def get_models():
     Returns the available pipelines
     """
     app.state.PIPELINES = get_all_pipelines()
-
     return {
         "data": [
             {
@@ -442,6 +485,14 @@ async def update_valves(pipeline_id: str, form_data: dict):
         valves = ValvesModel(**form_data)
         pipeline.valves = valves
 
+        # Determine the directory path for the valves.json file
+        subfolder_path = os.path.join(PIPELINES_DIR, PIPELINE_NAMES[pipeline_id])
+        valves_json_path = os.path.join(subfolder_path, "valves.json")
+
+        # Save the updated valves data back to the valves.json file
+        with open(valves_json_path, "w") as f:
+            json.dump(valves.model_dump(), f)
+
         if hasattr(pipeline, "on_valves_updated"):
             await pipeline.on_valves_updated()
     except Exception as e:
@@ -462,6 +513,13 @@ async def filter_inlet(pipeline_id: str, form_data: FilterForm):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Filter {pipeline_id} not found",
         )
+
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
 
     pipeline = PIPELINE_MODULES[pipeline_id]
 
@@ -487,6 +545,13 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Filter {pipeline_id} not found",
         )
+
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
 
     pipeline = PIPELINE_MODULES[pipeline_id]
 

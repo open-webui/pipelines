@@ -1,6 +1,33 @@
 #!/usr/bin/env bash
 PORT="${PORT:-9099}"
 HOST="${HOST:-0.0.0.0}"
+# Default value for PIPELINES_DIR
+PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
+
+# Function to reset pipelines
+reset_pipelines_dir() {
+  if [ "$RESET_PIPELINES_DIR" = true ]; then
+    echo "Resetting pipelines directory: $PIPELINES_DIR"
+    
+    # Check if the directory exists
+    if [ -d "$PIPELINES_DIR" ]; then
+      # Remove all contents of the directory
+      rm -rf "${PIPELINES_DIR:?}"/*
+      echo "All contents in $PIPELINES_DIR have been removed."
+      
+      # Optionally recreate the directory if needed
+      mkdir -p "$PIPELINES_DIR"
+      echo "$PIPELINES_DIR has been recreated."
+    else
+      echo "Directory $PIPELINES_DIR does not exist. No action taken."
+    fi
+  else
+    echo "RESET_PIPELINES_DIR is not set to true. No action taken."
+  fi
+}
+
+# Example usage of the function
+reset_pipelines_dir
 
 # Function to install requirements if requirements.txt is provided
 install_requirements() {

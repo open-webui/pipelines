@@ -18,16 +18,25 @@ import requests
 
 
 class Pipeline:
+    class Valves(BaseModel):
+        COHERE_API_BASE_URL: str = "https://api.cohere.com/v1"
+        COHERE_API_KEY: str = ""
+
     def __init__(self):
         self.type = "manifold"
+
+        # Optionally, you can set the id and name of the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
+        # The identifier must be unique across all pipelines.
+        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
+
         self.id = "cohere"
+
         self.name = "cohere/"
 
-        class Valves(BaseModel):
-            COHERE_API_BASE_URL: str = "https://api.cohere.com/v1"
-            COHERE_API_KEY: str
-
-        self.valves = Valves(**{"COHERE_API_KEY": os.getenv("COHERE_API_KEY")})
+        self.valves = self.Valves(
+            **{"COHERE_API_KEY": os.getenv("COHERE_API_KEY", "your-api-key-here")}
+        )
 
         self.pipelines = self.get_cohere_models()
 

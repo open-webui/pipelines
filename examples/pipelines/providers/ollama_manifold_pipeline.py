@@ -5,6 +5,10 @@ import requests
 
 
 class Pipeline:
+
+    class Valves(BaseModel):
+        OLLAMA_BASE_URL: str
+
     def __init__(self):
         # You can also set the pipelines that are available in this pipeline.
         # Set manifold to True if you want to use this pipeline as a manifold.
@@ -12,18 +16,15 @@ class Pipeline:
         self.type = "manifold"
 
         # Optionally, you can set the id and name of the pipeline.
-        # Assign a unique identifier to the pipeline.
+        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
         # The identifier must be unique across all pipelines.
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
-        self.id = "ollama_manifold"
+        # self.id = "ollama_manifold"
 
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "Ollama: "
 
-        class Valves(BaseModel):
-            OLLAMA_BASE_URL: str
-
-        self.valves = Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
+        self.valves = self.Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
         self.pipelines = []
         pass
 
@@ -57,7 +58,7 @@ class Pipeline:
                 print(f"Error: {e}")
                 return [
                     {
-                        "id": self.id,
+                        "id": "error",
                         "name": "Could not fetch models from Ollama, please update the URL in the valves.",
                     },
                 ]
