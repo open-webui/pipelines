@@ -101,6 +101,7 @@ def get_all_pipelines():
                 "id": pipeline_id,
                 "name": (pipeline.name if hasattr(pipeline, "name") else pipeline_id),
                 "valves": pipeline.valves if hasattr(pipeline, "valves") else None,
+                "rag_replacement": pipeline.rag_replacement if hasattr(pipeline, "rag_replacement") else False,
             }
 
     return pipelines
@@ -271,6 +272,7 @@ async def get_models():
                         else {}
                     ),
                     "valves": pipeline["valves"] != None,
+                    "rag_replacement": pipeline.get("rag_replacement", False),
                 },
             }
             for pipeline in app.state.PIPELINES.values()
