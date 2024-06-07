@@ -1,5 +1,4 @@
 from typing import List, Union, Generator, Iterator
-from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 import requests
 
@@ -10,9 +9,7 @@ class Pipeline:
         AZURE_OPENAI_API_KEY: str = "your-azure-openai-api-key-here"
         AZURE_OPENAI_ENDPOINT: str = "your-azure-openai-endpoint-here"
         DEPLOYMENT_NAME: str = "your-deployment-name-here"
-        API_VERSION: str = "2023-10-01-preview"
-        MODEL: str = "gpt-3.5-turbo"
-        pass
+        API_VERSION: str = "2024-02-01"
 
     def __init__(self):
         # Optionally, you can set the id and name of the pipeline.
@@ -35,7 +32,7 @@ class Pipeline:
         pass
 
     def pipe(
-        self, user_message: str, model_id: str, messages: List[dict], body: dict
+            self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
         # This is where you can add your custom pipelines like RAG.
         print(f"pipe:{__name__}")
@@ -50,10 +47,22 @@ class Pipeline:
 
         url = f"{self.valves.AZURE_OPENAI_ENDPOINT}/openai/deployments/{self.valves.DEPLOYMENT_NAME}/chat/completions?api-version={self.valves.API_VERSION}"
 
+        allowed_params = {'messages', 'temperature', 'role', 'content', 'contentPart', 'contentPartImage',
+                          'enhancements', 'dataSources', 'n', 'stream', 'stop', 'max_tokens', 'presence_penalty',
+                          'frequency_penalty', 'logit_bias', 'user', 'function_call', 'funcions', 'tools',
+                          'tool_choice', 'top_p', 'log_probs', 'top_logprobs', 'response_format', 'seed'}
+        # remap user field
+        if "user" in body and not isinstance(body["user"], str):
+            body["user"] = body["user"]["id"] if "id" in body["user"] else str(body["user"])
+        filtered_body = {k: v for k, v in body.items() if k in allowed_params}
+        # log fields that were filtered out as a single line
+        if len(body) != len(filtered_body):
+            print(f"Dropped params: {', '.join(set(body.keys()) - set(filtered_body.keys()))}")
+
         try:
             r = requests.post(
                 url=url,
-                json={**body, "model": self.valves.MODEL},
+                json=filtered_body,
                 headers=headers,
                 stream=True,
             )
@@ -64,4 +73,8 @@ class Pipeline:
             else:
                 return r.json()
         except Exception as e:
-            return f"Error: {e}"
+            if r:
+                text = r.text
+                return f"Error: {e} ({text})"
+            else:
+                return f"Error: {e}"
