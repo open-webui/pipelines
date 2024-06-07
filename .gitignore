@@ -7,3 +7,5 @@ __pycache__
 pipelines/*
 !pipelines/.gitignore
 .DS_Store
+
+.venv
