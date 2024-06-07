@@ -9,3 +9,4 @@ pipelines/*
 .DS_Store
 
 .venv
+venv/
