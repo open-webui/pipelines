@@ -29,12 +29,13 @@ class Pipeline:
             }
         )
 
-        self.pipelines = self.get_openai_models()
+        self.pipelines = []
         pass
 
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
+        self.pipelines = self.get_openai_models()
         pass
 
     async def on_shutdown(self):

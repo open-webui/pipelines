@@ -30,7 +30,7 @@ class Pipeline:
         self.valves = self.Valves(
             **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "your-api-key-here")}
         )
-        self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
+        self.client = Anthropic()
 
     def get_anthropic_models(self):
         # In the future, this could fetch models dynamically from Anthropic
@@ -43,6 +43,7 @@ class Pipeline:
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
+        self.client = Anthropic(api_key=self.valves.ANTHROPIC_API_KEY)
         pass
 
     async def on_shutdown(self):

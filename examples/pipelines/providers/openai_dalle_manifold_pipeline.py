@@ -19,19 +19,21 @@ class Pipeline:
 
     def __init__(self):
         self.type = "manifold"
-        self.name = "ImageGen: "
+        self.name = "OpenAI: "
 
         self.valves = self.Valves()
-        self.client = OpenAI(
-            base_url=self.valves.OPENAI_API_BASE_URL,
-            api_key=self.valves.OPENAI_API_KEY,
-        )
+        self.client = OpenAI()
 
-        self.pipelines = self.get_openai_assistants()
+        self.pipelines = []
 
     async def on_startup(self) -> None:
         """This function is called when the server is started."""
         print(f"on_startup:{__name__}")
+        self.client = OpenAI(
+            base_url=self.valves.OPENAI_API_BASE_URL,
+            api_key=self.valves.OPENAI_API_KEY,
+        )
+        self.pipelines = self.get_openai_assistants()
 
     async def on_shutdown(self):
         """This function is called when the server is stopped."""

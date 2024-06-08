@@ -38,10 +38,11 @@ class Pipeline:
             **{"COHERE_API_KEY": os.getenv("COHERE_API_KEY", "your-api-key-here")}
         )
 
-        self.pipelines = self.get_cohere_models()
+        self.pipelines = []
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
+        self.pipelines = self.get_cohere_models()
         pass
 
     async def on_shutdown(self):
