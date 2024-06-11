@@ -13,8 +13,7 @@ from utils.pipelines.main import get_last_user_message, stream_message_template
 from utils.pipelines.misc import convert_to_raw_url
 
 from contextlib import asynccontextmanager
-from concurrent.futures import ThreadPoolExecutor
-from schemas import FilterForm, OpenAIChatCompletionForm
+from schemas import FilterForm, OpenAIChatCompletionForm, EmbedForm, DeleteForm
 from urllib.parse import urlparse
 
 import shutil
@@ -607,6 +606,72 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
             return body
         else:
             return form_data.body
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{str(e)}",
+        )
+
+@app.post("/v1/{pipeline_id}/embedding")
+@app.post("/{pipeline_id}/embedding")
+async def embedding(pipeline_id: str, form_data: EmbedForm):
+    if pipeline_id not in app.state.PIPELINES:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Pipeline {pipeline_id} not found",
+        )
+
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
+
+    pipeline = PIPELINE_MODULES[pipeline_id]
+
+    try:
+        if hasattr(pipeline, "embed"):
+            await run_in_threadpool(pipeline.embed, form_data.body)
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{str(e)}",
+        )
+
+
+@app.delete("/v1/{pipeline_id}/nodes")
+@app.delete("/{pipeline_id}/nodes")
+async def delete_nodes(pipeline_id: str, form_data: DeleteForm):
+    if pipeline_id not in app.state.PIPELINES:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Pipeline {pipeline_id} not found",
+        )
+
+    try:
+        pipeline = app.state.PIPELINES[form_data.body["model"]]
+        if pipeline["type"] == "manifold":
+            pipeline_id = pipeline_id.split(".")[0]
+    except:
+        pass
+
+    pipeline = PIPELINE_MODULES[pipeline_id]
+
+    try:
+        if hasattr(pipeline, "delete_nodes"):
+            await run_in_threadpool(pipeline.delete_nodes,
+                                    form_data.body,
+                                    form_data.metadata_key,
+                                    form_data.metadata_value)
+            return True
+        else:
+            return False
     except Exception as e:
         print(e)
         raise HTTPException(

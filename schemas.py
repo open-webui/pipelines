@@ -21,3 +21,13 @@ class FilterForm(BaseModel):
     body: dict
     user: Optional[dict] = None
     model_config = ConfigDict(extra="allow")
+
+
+class EmbedForm(BaseModel):
+    body: dict
+
+
+class DeleteForm(BaseModel):
+    body: dict | None
+    metadata_key: str | None
+    metadata_value: str | None
