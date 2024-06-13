@@ -18,6 +18,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Install Rust 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Set up the Rust environment
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default stable
 
 WORKDIR /app
 

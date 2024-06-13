@@ -27,8 +27,9 @@ redis
 sqlmodel
 chromadb
 
-# Deployment
+# Observability
 langfuse
+git+https://github.com/DataDog/dd-trace-py.git@main
 
 # ML libraries
 torch
