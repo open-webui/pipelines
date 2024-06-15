@@ -1,6 +1,6 @@
 """
 title: HomeAssistant Filter Pipeline
-author: open-webui
+author: Andrew Tait Gehrhardt
 date: 2024-06-15
 version: 1.0
 license: MIT
