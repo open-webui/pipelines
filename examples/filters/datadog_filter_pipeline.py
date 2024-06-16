@@ -5,7 +5,7 @@ date: 2024-06-06
 version: 1.0
 license: MIT
 description: A filter pipeline that sends traces to DataDog.
-requirements: git+https://github.com/DataDog/dd-trace-py.git@main
+requirements: ddtrace
 environment_variables: DD_LLMOBS_AGENTLESS_ENABLED, DD_LLMOBS_ENABLED, DD_LLMOBS_APP_NAME, DD_API_KEY, DD_SITE 
 """
 
@@ -104,9 +104,6 @@ class Pipeline:
             input_data = get_last_user_message(body["messages"]),
         )
 
-        print("SPAN: ")
-        print(self.llm_span)
-
         return body
 
 
@@ -114,9 +111,7 @@ class Pipeline:
         print(f"outlet:{__name__}")
         if body["chat_id"] not in self.chat_generations:
             return body
-        print("SELF LLM SPAN")
-        print(self.llm_span)
-        #self.set_dd()
+
         self.LLMObs.annotate(
             span = self.llm_span,
             output_data = get_last_assistant_message(body["messages"]),
