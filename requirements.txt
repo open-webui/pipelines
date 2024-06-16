@@ -29,7 +29,6 @@ chromadb
 
 # Observability
 langfuse
-#git+https://github.com/DataDog/dd-trace-py.git@main
 ddtrace
 
 # ML libraries

@@ -109,8 +109,6 @@ class Pipeline:
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"outlet:{__name__}")
-        if body["chat_id"] not in self.chat_generations:
-            return body
 
         self.LLMObs.annotate(
             span = self.llm_span,
