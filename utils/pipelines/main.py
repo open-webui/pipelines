@@ -5,7 +5,7 @@ from typing import List
 from schemas import OpenAIChatMessage
 
 import inspect
-from typing import get_type_hints, Literal
+from typing import get_type_hints, Literal, Tuple
 
 
 def stream_message_template(model: str, message: str):
@@ -45,6 +45,21 @@ def get_last_assistant_message(messages: List[dict]) -> str:
                         return item["text"]
             return message["content"]
     return None
+
+
+def get_system_message(messages: List[dict]) -> dict:
+    for message in messages:
+        if message["role"] == "system":
+            return message
+    return None
+
+
+def remove_system_message(messages: List[dict]) -> List[dict]:
+    return [message for message in messages if message["role"] != "system"]
+
+
+def pop_system_message(messages: List[dict]) -> Tuple[dict, List[dict]]:
+    return get_system_message(messages), remove_system_message(messages)
 
 
 def add_or_update_system_message(content: str, messages: List[dict]):
