@@ -53,6 +53,9 @@ download_pipelines() {
   local path=$1
   local destination=$2
 
+  # Remove any surrounding quotes from the path
+  path=$(echo "$path" | sed 's/^"//;s/"$//')
+
   echo "Downloading pipeline files from $path to $destination..."
 
   if [[ "$path" =~ ^https://github.com/.*/.*/blob/.* ]]; then
