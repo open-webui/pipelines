@@ -1,3 +1,13 @@
+"""
+title: HomeAssistant Filter Pipeline
+author: Andrew Tait Gehrhardt
+date: 2024-06-15
+version: 1.0
+license: MIT
+description: A pipeline for controlling Home Assistant entities based on their easy names. Only supports lights at the moment.
+requirements: pydantic, aiohttp
+"""
+
 from typing import List, Optional
 from pydantic import BaseModel
 import json
