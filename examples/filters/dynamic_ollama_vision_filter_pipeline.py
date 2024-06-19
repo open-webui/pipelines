@@ -74,28 +74,18 @@ class Pipeline:
             body = json.loads(body)
         
         model = body.get("model", "")
-        print(f"MODEL NAME: {model}")
 
         # Get the content of the most recent message
         user_message = get_last_user_message(body["messages"])
-        print("CURRENT MESSAGE:", user_message)
 
         if model in self.valves.model_to_override:
             messages = body.get("messages", [])
             for message in messages:
                 if "images" in message:
                     images.extend(message["images"])
-                    print("IMAGES: True")
-                    llava_response = await self.process_images_with_llava(images, user_message, self.valves.vision_model,self.valves.ollama_base_url)
+                    raw_llava_response = await self.process_images_with_llava(images, user_message, self.valves.vision_model,self.valves.ollama_base_url)
+                    llava_response = f"REPEAT THIS BACK: {raw_llava_response}"
                     message["content"] = llava_response
-                    print("LLAVA RESPONSE:", llava_response)
                     message.pop("images", None)  # This will safely remove the 'images' key if it exists
-                else:
-                    print("IMAGES: False")
-        
-        print(f"""
-            THIS IS THE BODY OBJECT:
-            {body}
-            """)
         
         return body
