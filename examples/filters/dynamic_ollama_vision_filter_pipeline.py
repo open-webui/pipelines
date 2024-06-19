@@ -1,10 +1,10 @@
 """
-title: HomeAssistant Filter Pipeline
+title: Ollama Dynamic Vision Pipeline
 author: Andrew Tait Gehrhardt
-date: 2024-06-15
+date: 2024-06-18
 version: 1.0
 license: MIT
-description: A pipeline for controlling Home Assistant entities based on their easy names. Only supports lights at the moment.
+description: A pipeline for dynamically processing images when current model is a text only model
 requirements: pydantic, aiohttp
 """
 
@@ -12,15 +12,15 @@ from typing import List, Optional
 from pydantic import BaseModel
 import json
 import aiohttp
-from utils.pipelines.main import get_last_user_message, get_last_assistant_message
+from utils.pipelines.main import get_last_user_message
 
 class Pipeline:
     class Valves(BaseModel):
         pipelines: List[str] = []
         priority: int = 0
-        target_user_roles: List[str] = ["admin", "user"]
         vision_model: str = "llava"
-        ollama_base_url: str = "http://host.docker.interal:11434"
+        ollama_base_url: str = ""
+        model_to_override: str = ""
 
     def __init__(self):
         self.type = "filter"
@@ -72,31 +72,26 @@ class Pipeline:
         # Ensure the body is a dictionary
         if isinstance(body, str):
             body = json.loads(body)
+        
+        model = body.get("model", "")
+        print(f"MODEL NAME: {model}")
 
-        if user and user.get("role", "admin") in self.valves.target_user_roles:
+        # Get the content of the most recent message
+        user_message = get_last_user_message(body["messages"])
+        print("CURRENT MESSAGE:", user_message)
+
+        if model in self.valves.model_to_override:
             messages = body.get("messages", [])
             for message in messages:
                 if "images" in message:
                     images.extend(message["images"])
-
-            # Get the content of the most recent message
-            if messages:
-                user_message = get_last_user_message(body["messages"])
-                print("CURRENT MESSAGE:", user_message)
-
-            # Process the images with LLava
-            if images:
-                print("IMAGES: True")
-                llava_response = await self.process_images_with_llava(images, user_message, self.valves.vision_model,self.valves.ollama_base_url)
-                print("LLAVA RESPONSE:", llava_response)
-                
-                # Override the content for the user role
-                for message in messages:
-                    if message.get("role") == "user":
-                        message["content"] = llava_response
-
-        else:
-            print("IMAGES: False")
+                    print("IMAGES: True")
+                    llava_response = await self.process_images_with_llava(images, user_message, self.valves.vision_model,self.valves.ollama_base_url)
+                    message["content"] = llava_response
+                    print("LLAVA RESPONSE:", llava_response)
+                    message.pop("images", None)  # This will safely remove the 'images' key if it exists
+                else:
+                    print("IMAGES: False")
         
         print(f"""
             THIS IS THE BODY OBJECT:
