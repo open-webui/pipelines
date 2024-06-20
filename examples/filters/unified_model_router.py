@@ -125,5 +125,13 @@ class Pipeline:
                 print("Using current user-selected model")
 
         # Example usage - We will constrain task llm to this output - Don't know how yet
+        # TODO: Determine best 1-3b param model to determine intent
+        # TODO: Determine best way to constrain model output (thinking langchain OllamaFunctions? Will this work with openai endpoints?)
+        #       Instruct models may just be able to be constrained reliably by the prompt
+        # TODO: Implement mechanism (likely before inlet) to allow the LLM to make decision. Likely this will look like a function that
+        #       takes a string and given a matching string executes correcsponding function based on model_functions dictionary
         await model_router('process an image using Ollama', body, user_message)
+
+        # TODO: Decision - Do we want to leave state as is for ollama functions or do we want to always reload the original submittin
+        #                  model? Not sure yet, but probs leave state as is.
         return body
