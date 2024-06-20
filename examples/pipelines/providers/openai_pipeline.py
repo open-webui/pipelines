@@ -45,7 +45,7 @@ class Pipeline:
         print(messages)
         print(user_message)
 
-        OPENAI_API_KEY = "your-openai-api-key-here"
+        OPENAI_API_KEY = self.valves.OPENAI_API_KEY
         MODEL = "gpt-3.5-turbo"
 
         headers = {}
