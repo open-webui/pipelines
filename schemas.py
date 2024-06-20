@@ -1,13 +1,22 @@
-from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
+from typing import List, Union, Optional
+from pydantic import BaseModel, RootModel, ConfigDict
 
+class ImageContent(BaseModel):
+    type: str
+    image_url: dict
+
+class TextContent(BaseModel):
+    type: str
+    text: str
+
+class MessageContent(RootModel):
+    root: Union[TextContent, ImageContent]
 
 class OpenAIChatMessage(BaseModel):
     role: str
-    content: str | List
+    content: Union[str, List[MessageContent]]
 
     model_config = ConfigDict(extra="allow")
-
 
 class OpenAIChatCompletionForm(BaseModel):
     stream: bool = True
@@ -15,7 +24,6 @@ class OpenAIChatCompletionForm(BaseModel):
     messages: List[OpenAIChatMessage]
 
     model_config = ConfigDict(extra="allow")
-
 
 class FilterForm(BaseModel):
     body: dict
