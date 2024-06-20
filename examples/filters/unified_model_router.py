@@ -35,8 +35,7 @@ class Pipeline:
             if "images" in message:
                 print('RUNNING PROCESS IMAGE')
                 images.extend(message["images"])
-                #url = f"{self.valves.openai_base_url}/chat/completions"
-                url = "http://host.docker.internal:11434/api/chat" # Using ollama endpoint here because the openai ollama api doesn't yet support vision
+                url = "http://host.docker.internal:11434/api/chat"
 
                 payload = {
                     "model": "llava:latest",
@@ -62,6 +61,7 @@ class Pipeline:
                             print(llava_response)
                             message["content"] = llava_response
                             message.pop("images", None)  # This will safely remove the 'images' key if it exists
+                            # TODO: *IMPORTANT* Image is not being removed properly, so router is seeing the image every time.
     
     async def process_image_openai(self, body: dict, content: str):
         messages = body.get("messages", [])
@@ -71,8 +71,7 @@ class Pipeline:
                 print('RUNNING PROCESS IMAGE')
                 images.extend(message["images"])
                 print(images)
-                # url = f"{self.valves.openai_base_url}/chat/completions"
-                url = "http://host.docker.internal:11434/api/chat" # Using ollama endpoint here because the openai ollama api doesn't yet support vision
+                url = f"{self.valves.openai_base_url}/chat/completions"
                 payload = {
                     "model": "llava:latest",
                     "messages": [
