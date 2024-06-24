@@ -99,7 +99,7 @@ class Pipeline:
             **{
                 "model": model_id,
                 **(
-                    {"system": system_message} if system_message else {}
+                    {"system": system_message["content"]} if system_message else {}
                 ),  # Add system message if it exists (optional
                 "messages": messages,
                 "max_tokens": max_tokens,
@@ -134,7 +134,7 @@ class Pipeline:
             **{
                 "model": model_id,
                 **(
-                    {"system": system_message} if system_message else {}
+                    {"system": system_message["content"]} if system_message else {}
                 ),  # Add system message if it exists (optional
                 "messages": messages,
                 "max_tokens": max_tokens,
