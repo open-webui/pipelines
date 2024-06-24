@@ -100,10 +100,10 @@ class Pipeline:
 def _extract_context(chroma_client, body, messages, user_message):
     context = ""
     citations = None
-    if "docs" in body:
+    if "files" in body:
         rag_context, citations = _get_rag_context(
             chroma_client,
-            docs=body["docs"],
+            docs=body["files"],
             messages=messages,
             embedding_function=_get_embedding_function(),
             k=5,
@@ -113,7 +113,7 @@ def _extract_context(chroma_client, body, messages, user_message):
         if rag_context:
             context += ("\n" if context != "" else "") + rag_context
 
-        del body["docs"]
+        del body["files"]
 
         log.debug(f"rag_context: {rag_context}, citations: {citations}")
     return context, citations
