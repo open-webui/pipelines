@@ -1,5 +1,7 @@
 from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
+import os
+
 from pydantic import BaseModel
 import requests
 
@@ -24,7 +26,11 @@ class Pipeline:
         # Optionally, you can set the name of the manifold pipeline.
         self.name = "Ollama: "
 
-        self.valves = self.Valves(**{"OLLAMA_BASE_URL": "http://localhost:11435"})
+        self.valves = self.Valves(
+            **{
+                "OLLAMA_BASE_URL": os.getenv("OLLAMA_BASE_URL", "http://localhost:11435"),
+            }
+        )
         self.pipelines = []
         pass
 
