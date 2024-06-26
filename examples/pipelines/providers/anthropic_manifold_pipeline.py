@@ -1,6 +1,6 @@
 """
 title: Anthropic Manifold Pipeline
-author: justinh-rahb (updated)
+author: justinh-rahb
 date: 2024-06-20
 version: 1.2
 license: MIT
