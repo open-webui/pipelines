@@ -2,7 +2,7 @@
 title: Anthropic Manifold Pipeline
 author: justinh-rahb
 date: 2024-06-20
-version: 1.2
+version: 1.3
 license: MIT
 description: A pipeline for generating text and processing images using the Anthropic API.
 requirements: requests, anthropic
@@ -58,8 +58,8 @@ class Pipeline:
         return self.get_anthropic_models()
 
     def process_image(self, image_data):
-        if image_data["image_url"]["url"].startswith("data:image"):
-            mime_type, base64_data = image_data["image_url"]["url"].split(",", 1)
+        if image_data["url"].startswith("data:image"):
+            mime_type, base64_data = image_data["url"].split(",", 1)
             media_type = mime_type.split(":")[1].split(";")[0]
             return {
                 "type": "image",
@@ -72,7 +72,7 @@ class Pipeline:
         else:
             return {
                 "type": "image",
-                "source": {"type": "url", "url": image_data["image_url"]["url"]},
+                "source": {"type": "url", "url": image_data["url"]},
             }
 
     def pipe(
@@ -99,7 +99,7 @@ class Pipeline:
                             if image_count >= 5:
                                 raise ValueError("Maximum of 5 images per API call exceeded")
 
-                            processed_image = self.process_image(item)
+                            processed_image = self.process_image(item["image_url"])
                             processed_content.append(processed_image)
 
                             if processed_image["source"]["type"] == "base64":
