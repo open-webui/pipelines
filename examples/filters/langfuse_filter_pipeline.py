@@ -15,6 +15,7 @@ import os
 from utils.pipelines.main import get_last_user_message, get_last_assistant_message
 from pydantic import BaseModel
 from langfuse import Langfuse
+from langfuse.api.resources.commons.errors.unauthorized_error import UnauthorizedError
 
 
 class Pipeline:
@@ -79,13 +80,20 @@ class Pipeline:
         pass
 
     def set_langfuse(self):
-        self.langfuse = Langfuse(
-            secret_key=self.valves.secret_key,
-            public_key=self.valves.public_key,
-            host=self.valves.host,
-            debug=False,
-        )
-        self.langfuse.auth_check()
+        try:
+            self.langfuse = Langfuse(
+                secret_key=self.valves.secret_key,
+                public_key=self.valves.public_key,
+                host=self.valves.host,
+                debug=False,
+            )
+            self.langfuse.auth_check()
+        except UnauthorizedError:
+            print(
+                "Langfuse credentials incorrect. Please re-enter your Langfuse credentials in the pipeline settings."
+            )
+        except Exception as e:
+            print(f"Langfuse error: {e} Please re-enter your Langfuse credentials in the pipeline settings.")
 
     async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"inlet:{__name__}")
