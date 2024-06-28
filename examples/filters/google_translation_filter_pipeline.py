@@ -8,6 +8,7 @@ description: This pipeline integrates Google Translate for automatic translation
 without requiring an API key. It supports multilingual communication by translating based on specified source 
 and target languages.
 """
+
 import re
 from typing import List, Optional
 from schemas import OpenAIChatMessage
@@ -27,7 +28,7 @@ class Pipeline:
         source_user: Optional[str] = "auto"
         target_user: Optional[str] = "en"
         source_assistant: Optional[str] = "en"
-        target_assistant: Optional[str] = "es"
+        target_assistant: Optional[str] = "uk"
 
     def __init__(self):
         self.type = "filter"
@@ -86,6 +87,10 @@ class Pipeline:
         else:
             return [text, ""]
 
+    def clean_table_delimiters(self, text: str) -> str:
+        # Remove extra spaces from table delimiters
+        return re.sub(r'(\|\s*-+\s*)+', lambda m: m.group(0).replace(' ', ''), text)
+
     async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"inlet:{__name__}")
 
@@ -108,6 +113,9 @@ class Pipeline:
             self.translation_cache[text_before_table] = translated_before_table
 
         translated_user_message = translated_before_table + table_text
+
+        # Clean table delimiters
+        translated_user_message = self.clean_table_delimiters(translated_user_message)
 
         print(f"Translated user message: {translated_user_message}")
 
@@ -141,6 +149,9 @@ class Pipeline:
             self.translation_cache[text_before_table] = translated_before_table
 
         translated_assistant_message = translated_before_table + table_text
+
+        # Clean table delimiters
+        translated_assistant_message = self.clean_table_delimiters(translated_assistant_message)
 
         print(f"Translated assistant message: {translated_assistant_message}")
 
