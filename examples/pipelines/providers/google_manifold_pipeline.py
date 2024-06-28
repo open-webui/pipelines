@@ -2,10 +2,14 @@
 
 from typing import List, Union, Iterator
 import os
+import logging
 
 from pydantic import BaseModel
 
 import google.generativeai as genai
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -72,7 +76,8 @@ class Pipeline:
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Iterator]:
-        print(f"pipe:{__name__}")
+        logger.info(f"Pipe function called for model: {model_id}")
+        logger.info(f"Stream mode: {body['stream']}")
 
         system_prompt = None
         google_messages = []
@@ -87,12 +92,10 @@ class Pipeline:
             try:
                 content = message.get("content", "")
                 if isinstance(content, list):
-                    # Handle potential multi-modal content
                     parts = []
                     for item in content:
                         if item["type"] == "text":
                             parts.append({"text": item["text"]})
-                        # Add handling for other content types if necessary
                 else:
                     parts = [{"text": content}]
 
@@ -101,9 +104,8 @@ class Pipeline:
                     "parts": parts
                 })
             except Exception as e:
-                print(f"Error processing message: {e}")
-                print(f"Problematic message: {message}")
-                # You might want to skip this message or handle the error differently
+                logger.error(f"Error processing message: {e}")
+                logger.error(f"Problematic message: {message}")
 
         try:
             model = genai.GenerativeModel(
@@ -112,7 +114,7 @@ class Pipeline:
                     temperature=body.get("temperature", 0.7),
                     top_p=body.get("top_p", 1.0),
                     top_k=body.get("top_k", 1),
-                    max_output_tokens=body.get("max_tokens", 8192),
+                    max_output_tokens=body.get("max_tokens", 1024),
                 )
             )
 
@@ -122,12 +124,16 @@ class Pipeline:
             )
 
             if body["stream"]:
+                logger.info("Streaming response")
                 for chunk in response:
                     yield chunk.text
                 return ""
-
-            return response.text
+            else:
+                logger.info("Non-streaming response")
+                result = response.text
+                logger.info(f"Generated content: {result}")
+                return result
 
         except Exception as e:
-            print(f"Error generating content: {e}")
+            logger.error(f"Error generating content: {e}")
             return f"An error occurred: {str(e)}"
