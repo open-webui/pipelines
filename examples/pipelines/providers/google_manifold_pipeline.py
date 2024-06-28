@@ -1,6 +1,6 @@
 """
 title: Google GenAI Manifold Pipeline
-author: Marc Lopez
+author: Marc Lopez (refactor by justinh-rahb)
 date: 2024-06-06
 version: 1.1
 license: MIT
