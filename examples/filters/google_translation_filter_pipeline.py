@@ -1,3 +1,14 @@
+"""
+title: Google Translate Filter
+author: SimonOriginal
+date: 2024-06-28
+version: 1.0
+license: MIT
+description: This pipeline integrates Google Translate for automatic translation of user and assistant messages 
+without requiring an API key. It supports multilingual communication by translating based on specified source 
+and target languages.
+"""
+
 from typing import List, Optional
 from schemas import OpenAIChatMessage
 from pydantic import BaseModel
