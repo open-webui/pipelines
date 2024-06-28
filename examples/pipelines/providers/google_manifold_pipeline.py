@@ -1,4 +1,13 @@
-"""A manifold to integrate Google's GenAI models into Open-WebUI"""
+"""
+title: Google GenAI Manifold Pipeline
+author: Marc Lopez
+date: 2024-06-06
+version: 1.1
+license: MIT
+description: A pipeline for generating text using Google's GenAI models in Open-WebUI.
+requirements: google-generativeai
+environment_variables: GOOGLE_API_KEY
+"""
 
 from typing import List, Union, Iterator
 import os
