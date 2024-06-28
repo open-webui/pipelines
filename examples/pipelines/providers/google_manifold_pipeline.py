@@ -2,14 +2,10 @@
 
 from typing import List, Union, Iterator
 import os
-import logging
 
 from pydantic import BaseModel
 
 import google.generativeai as genai
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 
 class Pipeline:
@@ -76,8 +72,8 @@ class Pipeline:
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Iterator]:
-        logger.info(f"Pipe function called for model: {model_id}")
-        logger.info(f"Stream mode: {body['stream']}")
+        print(f"Pipe function called for model: {model_id}")
+        print(f"Stream mode: {body['stream']}")
 
         system_prompt = None
         google_messages = []
@@ -104,8 +100,8 @@ class Pipeline:
                     "parts": parts
                 })
             except Exception as e:
-                logger.error(f"Error processing message: {e}")
-                logger.error(f"Problematic message: {message}")
+                print(f"Error processing message: {e}")
+                print(f"Problematic message: {message}")
 
         try:
             model = genai.GenerativeModel(
@@ -124,16 +120,19 @@ class Pipeline:
             )
 
             if body["stream"]:
-                logger.info("Streaming response")
+                print("Streaming response")
                 for chunk in response:
                     yield chunk.text
                 return ""
             else:
-                logger.info("Non-streaming response")
+                print("Non-streaming response")
                 result = response.text
-                logger.info(f"Generated content: {result}")
+                print(f"Generated content: {result}")
                 return result
 
         except Exception as e:
-            logger.error(f"Error generating content: {e}")
+            print(f"Error generating content: {e}")
             return f"An error occurred: {str(e)}"
+
+        finally:
+            print("Pipe function completed")
