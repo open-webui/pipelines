@@ -121,9 +121,7 @@ class Pipeline:
 
             if body["stream"]:
                 print("Streaming response")
-                for chunk in response:
-                    yield chunk.text
-                return ""
+                return (chunk.text for chunk in response)
             else:
                 print("Non-streaming response")
                 result = response.text
