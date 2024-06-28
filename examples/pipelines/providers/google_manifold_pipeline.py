@@ -112,7 +112,7 @@ class Pipeline:
                     temperature=body.get("temperature", 0.7),
                     top_p=body.get("top_p", 1.0),
                     top_k=body.get("top_k", 1),
-                    max_output_tokens=body.get("max_tokens", 1024),
+                    max_output_tokens=body.get("max_tokens", 8192),
                 )
             )
 
