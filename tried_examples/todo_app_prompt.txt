@@ -1,0 +1,74 @@
+Below is the list of todo list available in the users database in the jsonl format.
+
+{"title": "inbox", "description": "Unsorted todo items falls into the inbox", "todo_list_id": "1"}
+{"title": "habit", "description": "Todo items that is to improve my habits", "todo_list_id": "2"}
+{"title": "E-Commerce", "description": "Todo items related to my e-commerce business", "todo_list_id": "3"}
+{"title": "Fun Stuff", "description": "Todo items to plan for fun activities", "todo_list_id": "4"}
+
+The following is the list of todo items available in the todo_items database in the jsonl format.
+
+{"title": "Read books", "description": "Read 100 pages per week", "todo_item_id": "1", "todo_list_id": "2"}
+{"title": "Clean my fridge", "description": "Cleanliness", "todo_item_id": "2", "todo_list_id": "2"}
+{"title": "Register Certificate", "description": "", "todo_item_id": "3", "todo_list_id": "3"}
+
+Following are the curl request for accessing todo list. The values given are just examples, which needs to replaced by real values.
+
+1) Creates a todo item under a specific todo list
+curl -X 'POST' \
+  'http://localhost:3000/todo_lists/{todo_list_id}/todo_items' \
+  -d '{
+  "todo_item": {
+    "title": "string",
+    "description": "string",
+    "flagged": true,
+    "parent_id": null,
+    "schedule_id": null
+  }
+}'
+
+2) Creates a todo item under a specific todo item. Not more than 1 level is supported
+curl -X 'POST' \
+  'http://localhost:3000/todo_lists/{todo_list_id}/todo_items' \
+  -d '{
+  "todo_item": {
+    "title": "string",
+    "description": "string",
+    "flagged": true,
+    "parent_id": 1, # Parent todo item id, for subtask. Else null.
+    "schedule_id": null
+  }
+}'
+
+3) Flag a todo list
+curl -X 'PATCH' \
+  'http://localhost:3000/todo_lists/{todo_list_id}/todo_items/{todo_item_id}' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "todo_item": {
+    "flagged": true # false to unflag it
+  }
+}'
+
+4) Completes a todo item
+curl -X 'PATCH' \
+  'http://localhost:3000/todo_lists/{todo_list_id}/todo_items/{todo_item_id}' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "todo_item": {
+    "completed": "true" # false to make the item incomplete
+  }
+}'
+
+Using the below user instruction within three quotes form the right curl request with right params. Also identify right todo list id as well. 
+
+If the user input is not an instruction, but a statement that is related to the todo item or todo list database, ask user if you can perform any related actions.
+
+Only print the curl request. If the instruction is not about todo list, then print the text 'FALSE'
+
+Domain name: https://mytodoitems.com/
+
+"""
+What are you doing?
+"""
