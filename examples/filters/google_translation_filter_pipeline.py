@@ -54,7 +54,7 @@ class Pipeline:
     async def on_valves_updated(self):
         pass
 
-    @lru_cache(maxsize=128)  # LRU cache to store translation results
+    # @lru_cache(maxsize=128)  # LRU cache to store translation results
     def translate(self, text: str, source: str, target: str) -> str:
         url = "https://translate.googleapis.com/translate_a/single"
         params = {
@@ -90,7 +90,7 @@ class Pipeline:
 
     def clean_table_delimiters(self, text: str) -> str:
         # Remove extra spaces from table delimiters
-        return re.sub(r'(\|\s*-+\s*)+', lambda m: m.group(0).replace(' ', ''), text)
+        return re.sub(r'(\|\s*-+\s*)+', lambda m: m.group(0).replace(' ', '-'), text)
 
     async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"inlet:{__name__}")
