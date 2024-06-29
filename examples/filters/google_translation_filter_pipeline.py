@@ -41,6 +41,7 @@ class Pipeline:
 
         # Initialize translation cache
         self.translation_cache = {}
+        self.code_blocks = []  # List to store code blocks
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
@@ -99,7 +100,13 @@ class Pipeline:
 
         print(f"User message: {user_message}")
 
-        parts = self.split_text_around_table(user_message)
+        # Find and store code blocks
+        code_block_regex = r'```[\s\S]+?```'
+        self.code_blocks = re.findall(code_block_regex, user_message)
+        # Replace code blocks with placeholders
+        user_message_no_code = re.sub(code_block_regex, '__CODE_BLOCK__', user_message)
+
+        parts = self.split_text_around_table(user_message_no_code)
         text_before_table, table_text = parts
 
         # Check translation cache for text before table
@@ -116,6 +123,10 @@ class Pipeline:
 
         # Clean table delimiters
         translated_user_message = self.clean_table_delimiters(translated_user_message)
+
+        # Restore code blocks
+        for code_block in self.code_blocks:
+            translated_user_message = translated_user_message.replace('__CODE_BLOCK__', code_block, 1)
 
         print(f"Translated user message: {translated_user_message}")
 
@@ -135,7 +146,13 @@ class Pipeline:
 
         print(f"Assistant message: {assistant_message}")
 
-        parts = self.split_text_around_table(assistant_message)
+        # Find and store code blocks
+        code_block_regex = r'```[\s\S]+?```'
+        self.code_blocks = re.findall(code_block_regex, assistant_message)
+        # Replace code blocks with placeholders
+        assistant_message_no_code = re.sub(code_block_regex, '__CODE_BLOCK__', assistant_message)
+
+        parts = self.split_text_around_table(assistant_message_no_code)
         text_before_table, table_text = parts
 
         # Check translation cache for text before table
@@ -152,6 +169,10 @@ class Pipeline:
 
         # Clean table delimiters
         translated_assistant_message = self.clean_table_delimiters(translated_assistant_message)
+
+        # Restore code blocks
+        for code_block in self.code_blocks:
+            translated_assistant_message = translated_assistant_message.replace('__CODE_BLOCK__', code_block, 1)
 
         print(f"Translated assistant message: {translated_assistant_message}")
 
