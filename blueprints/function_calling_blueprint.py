@@ -50,16 +50,19 @@ class Pipeline:
                 ),
                 "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY"),
                 "TASK_MODEL": os.getenv("TASK_MODEL", "gpt-3.5-turbo"),
-                "TEMPLATE": """Use the following context as your learned knowledge, inside <context></context> XML tags.
-<context>
-    {{CONTEXT}}
-</context>
+                "TEMPLATE": """
+                    Use the following documentation as your knowledge about API endpoint, inside <documentation></documentation> XML tags.
+                    <documentation>
+                        {{CONTEXT}}
+                    </documentation>
 
-When answer to user:
-- If you don't know, just say that you don't know.
-- If you don't know when you are not sure, ask for clarification.
-Avoid mentioning that you obtained the information from the context.
-And answer according to the language of the user's question.""",
+                    When answer to user:
+                    - If you don't know how to perform, just say that you don't know to perform it.
+                    - If you don't know when you are not sure, ask for clarification.
+                    - Don't provide any information that you don't know.
+                    Avoid mentioning that you obtained the information from the context.
+                    And answer according to the language of the user's question.
+                """,
             }
         )
 

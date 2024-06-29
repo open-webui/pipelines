@@ -46,6 +46,11 @@ def get_last_assistant_message(messages: List[dict]) -> str:
             return message["content"]
     return None
 
+def get_system_messages(messages: List[dict]) -> str:
+    for message in messages:
+        if message["role"] == "system":
+            return message["content"]
+    return None
 
 def add_or_update_system_message(content: str, messages: List[dict]):
     """
