@@ -12,13 +12,11 @@ from typing import List, Union, Generator, Iterator
 from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 import requests
-import os
 import subprocess
 import logging
 from huggingface_hub import login
 import time
 import psutil
-import json
 
 class Pipeline:
     class Valves(BaseModel):
