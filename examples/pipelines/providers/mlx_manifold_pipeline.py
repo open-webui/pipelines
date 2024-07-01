@@ -22,8 +22,8 @@ class Pipeline:
     class Valves(BaseModel):
         MLX_STOP: str = "<|start_header_id|>,<|end_header_id|>,<|eot_id|>"
         HUGGINGFACE_TOKEN: str = ""
-        MLX_MODEL_PATTERN: str = "meta-llama"
-        MLX_DEFAULT_MODEL: str = "meta-llama/Meta-Llama-3-8B-Instruct"
+        MLX_MODEL_PATTERN: str = "mlx-community"
+        MLX_DEFAULT_MODEL: str = "mlx-community/Meta-Llama-3-8B-Instruct-8bit"
         MLX_CHAT_TEMPLATE: str = ""
         MLX_USE_DEFAULT_CHAT_TEMPLATE: bool = False
 
