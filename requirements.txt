@@ -26,6 +26,7 @@ boto3
 redis
 sqlmodel
 chromadb
+psycopg2-binary
 
 # Observability
 langfuse
@@ -58,3 +59,7 @@ seaborn
 selenium
 playwright
 beautifulsoup4
+
+# Test RAG
+llama-index
+llama-index-llms-ollama
