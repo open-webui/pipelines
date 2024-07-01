@@ -60,6 +60,6 @@ selenium
 playwright
 beautifulsoup4
 
-# Test RAG
+# Llama Index for RAG
 llama-index
 llama-index-llms-ollama
