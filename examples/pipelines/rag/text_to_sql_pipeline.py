@@ -14,7 +14,6 @@ from llama_index.llms.ollama import Ollama
 from llama_index.core.query_engine import NLSQLTableQueryEngine
 from llama_index.core import SQLDatabase, PromptTemplate
 from sqlalchemy import create_engine
-)
 
 
 class Pipeline:
