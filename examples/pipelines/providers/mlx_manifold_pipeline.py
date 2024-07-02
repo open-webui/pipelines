@@ -20,12 +20,12 @@ import psutil
 
 class Pipeline:
     class Valves(BaseModel):
-        MLX_STOP: str = "<|start_header_id|>,<|end_header_id|>,<|eot_id|>"
-        HUGGINGFACE_TOKEN: str = ""
-        MLX_MODEL_PATTERN: str = "mlx-community"
+        MLX_MODEL_FILTER: str = "mlx-community"
         MLX_DEFAULT_MODEL: str = "mlx-community/Meta-Llama-3-8B-Instruct-8bit"
+        MLX_STOP: str = "<|start_header_id|>,<|end_header_id|>,<|eot_id|>"
         MLX_CHAT_TEMPLATE: str = ""
         MLX_USE_DEFAULT_CHAT_TEMPLATE: bool = False
+        HUGGINGFACE_TOKEN: str = ""
 
     def __init__(self):
         # Pipeline identification
@@ -61,7 +61,7 @@ class Pipeline:
             cmd = [
                 'mlx_lm.manage',
                 '--scan',
-                '--pattern', self.valves.MLX_MODEL_PATTERN,
+                '--pattern', self.valves.MLX_MODEL_FILTER,
             ]
             result = subprocess.run(cmd, capture_output=True, text=True)
             lines = result.stdout.strip().split('\n')
