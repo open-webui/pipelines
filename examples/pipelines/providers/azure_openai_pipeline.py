@@ -1,6 +1,7 @@
 from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
 import requests
+import os
 
 
 class Pipeline:
@@ -52,7 +53,7 @@ class Pipeline:
             "Content-Type": "application/json",
         }
 
-        url = f"{self.valves.AZURE_OPENAI_ENDPOINT}/openai/deployments/{self.valves.DEPLOYMENT_NAME}/chat/completions?api-version={self.valves.API_VERSION}"
+        url = f"{self.valves.AZURE_OPENAI_ENDPOINT}/openai/deployments/{self.valves.AZURE_OPENAI_DEPLOYMENT_NAME}/chat/completions?api-version={self.valves.AZURE_OPENAI_API_VERSION}"
 
         allowed_params = {'messages', 'temperature', 'role', 'content', 'contentPart', 'contentPartImage',
                           'enhancements', 'dataSources', 'n', 'stream', 'stop', 'max_tokens', 'presence_penalty',
