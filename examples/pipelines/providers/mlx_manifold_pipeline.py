@@ -20,8 +20,8 @@ import psutil
 
 class Pipeline:
     class Valves(BaseModel):
-        MLX_MODEL_FILTER: str = "mlx-community"
         MLX_DEFAULT_MODEL: str = "mlx-community/Meta-Llama-3-8B-Instruct-8bit"
+        MLX_MODEL_FILTER: str = "mlx-community"
         MLX_STOP: str = "<|start_header_id|>,<|end_header_id|>,<|eot_id|>"
         MLX_CHAT_TEMPLATE: str = ""
         MLX_USE_DEFAULT_CHAT_TEMPLATE: bool = False
