@@ -23,9 +23,9 @@ class Pipeline:
         MLX_DEFAULT_MODEL: str = "mlx-community/Meta-Llama-3-8B-Instruct-8bit"
         MLX_MODEL_FILTER: str = "mlx-community"
         MLX_STOP: str = "<|start_header_id|>,<|end_header_id|>,<|eot_id|>"
-        MLX_CHAT_TEMPLATE: str = ""
-        MLX_USE_DEFAULT_CHAT_TEMPLATE: bool = False
-        HUGGINGFACE_TOKEN: str = ""
+        MLX_CHAT_TEMPLATE: str | None = None
+        MLX_USE_DEFAULT_CHAT_TEMPLATE: bool | None = None
+        HUGGINGFACE_TOKEN: str | None = None
 
     def __init__(self):
         # Pipeline identification
