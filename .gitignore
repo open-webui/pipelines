@@ -11,3 +11,5 @@ pipelines/*
 
 .venv
 venv/
+
+.idea
