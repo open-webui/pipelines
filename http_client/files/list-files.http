@@ -1,0 +1,9 @@
+###
+GET http://localhost:9099/v1/files?purpose=fine-tune
+Authorization: Bearer 0p3n-w3bu!
+
+###
+GET http://localhost:9099/v1/files
+Authorization: Bearer 0p3n-w3bu!
+
+

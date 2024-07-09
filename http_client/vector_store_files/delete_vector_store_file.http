@@ -1,0 +1,3 @@
+DELETE http://localhost:9099/v1/vector_stores/34277d46-887a-4d3e-9658-40fe1057ae1e/files/d665f01e-dfaa-485d-a8b7-dcd4804b5dd2
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json

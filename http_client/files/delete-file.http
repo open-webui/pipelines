@@ -1,0 +1,3 @@
+###
+DELETE http://localhost:9099/v1/files/571bde56-1361-455f-a40c-53e384809c6b
+Authorization: Bearer 0p3n-w3bu!

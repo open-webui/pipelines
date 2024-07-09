@@ -1,0 +1,3 @@
+GET http://localhost:9099/v1/vector_stores/c122155c-087b-4377-b121-5ce94a8fa482/files/094217cc-2fcc-4615-8d03-46782f1e00fb
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json

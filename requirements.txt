@@ -63,3 +63,15 @@ beautifulsoup4
 # Llama Index for RAG
 llama-index
 llama-index-llms-ollama
+
+# Database
+sqlalchemy==2.0.30
+alembic==1.13.1
+pytest
+docker
+pytest-docker
+pytest-mock
+
+#
+qdrant-client
+llama-index-vector-stores-qdrant

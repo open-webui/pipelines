@@ -1,0 +1,34 @@
+POST http://localhost:9099/v1/vector_stores
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json
+
+{
+  "file_ids": ["464b2db0-7c0c-4d05-9f1e-9e8912324f3c"],
+  "name": "my-vector-store",
+  "metadata": {
+    "application": "open-web-ui"
+  },
+  "expires_after": {
+    "anchor": "last_active_at",
+    "days": "4"
+  }
+}
+
+### include pipeline id
+
+POST http://localhost:9099/v1/vector_stores
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json
+
+{
+  "file_ids": ["65cfbed5-b748-4d6f-b582-1986b46066c7"],
+  "name": "my-vector-store",
+  "metadata": {
+    "application": "open-web-ui",
+    "pipeline_id": "openai_vector_store_pipeline"
+  },
+  "expires_after": {
+    "anchor": "last_active_at",
+    "days": "4"
+  }
+}

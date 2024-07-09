@@ -1,0 +1,14 @@
+###
+POST http://localhost:9099/v1/files
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="purpose"
+
+fine-tune
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="Tagesschau.txt"
+
+< /Users/arbeit/Testdateien/Tagesschau.txt
+--WebAppBoundary--
