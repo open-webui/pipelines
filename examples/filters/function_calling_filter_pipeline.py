@@ -1,6 +1,6 @@
 import os
 import requests
-from typing import Literal, List, Optional
+from typing import Literal
 from datetime import datetime
 
 
