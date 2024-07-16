@@ -26,6 +26,9 @@ import time
 import json
 import uuid
 import sys
+import ast
+import re
+import subprocess
 
 
 from config import API_KEY, PIPELINES_DIR
@@ -106,7 +109,31 @@ def get_all_pipelines():
     return pipelines
 
 
+def get_docstring(module_path):
+    with open(module_path, "r") as file:
+        tree = ast.parse(file.read())
+        return ast.get_docstring(tree)
+
+
+def find_requirements(docstring):
+    result = re.search(r"requirements:(.*)", docstring)
+    if result is None:
+        return ""
+    return result.group(1)
+
+
+def pip_install_requirements(requirements):
+    requirements = requirements.strip()
+    if len(requirements) <= 0:
+        return
+    proc = subprocess.Popen(f"pip install {requirements}", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    _, _ = proc.communicate()
+
+
 async def load_module_from_path(module_name, module_path):
+    docstring = get_docstring(module_path)
+    requirements = find_requirements(docstring)
+    pip_install_requirements(requirements)
     spec = importlib.util.spec_from_file_location(module_name, module_path)
     module = importlib.util.module_from_spec(spec)
 
