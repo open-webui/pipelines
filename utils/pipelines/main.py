@@ -62,7 +62,7 @@ def pop_system_message(messages: List[dict]) -> Tuple[dict, List[dict]]:
     return get_system_message(messages), remove_system_message(messages)
 
 
-def add_or_update_system_message(content: str, messages: List[dict]):
+def add_or_update_system_message(content: str, messages: List[dict]) -> List[dict]:
     """
     Adds a new system message at the beginning of the messages list
     or updates the existing system message at the beginning.

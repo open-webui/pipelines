@@ -12,7 +12,7 @@ from utils.pipelines.main import (
 )
 
 # System prompt for function calling
-DEFAULT_SYSTEM_RPOMPT = (
+DEFAULT_SYSTEM_PROMPT = (
             """Tools: {}
 
 If a function tool doesn't match the query, return an empty string. Else, pick a
@@ -50,7 +50,8 @@ class Pipeline:
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
         # self.id = "function_calling_blueprint"
         self.name = "Function Calling Blueprint"
-        self.prompt = prompt or DEFAULT_SYSTEM_RPOMPT
+        self.prompt = prompt or DEFAULT_SYSTEM_PROMPT
+        self.tools: object = None
 
         # Initialize valves
         self.valves = self.Valves(
