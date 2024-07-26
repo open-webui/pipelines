@@ -9,25 +9,50 @@ requirements: routellm, pydantic, requests
 """
 
 from typing import List, Union, Generator, Iterator
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import logging
 from routellm.controller import Controller
 
 class Pipeline:
     class Valves(BaseModel):
-        ROUTELLM_ROUTER: str = "mf"
-        ROUTELLM_STRONG_MODEL: str = "gpt-4o"
-        ROUTELLM_WEAK_MODEL: str = "gpt-4o-mini"
-        ROUTELLM_STRONG_API_KEY: str = "sk-your-api-key"
-        ROUTELLM_WEAK_API_KEY: str = "sk-your-api-key"
-        ROUTELLM_STRONG_BASE_URL: str = "https://api.openai.com/v1"
-        ROUTELLM_WEAK_BASE_URL: str = "https://api.openai.com/v1"
-        ROUTELLM_THRESHOLD: float = 0.11593
+        ROUTELLM_ROUTER: str = Field(
+            default="mf", description="Identifier for the RouteLLM router."
+        )
+        ROUTELLM_STRONG_MODEL: str = Field(
+            default="gpt-4o", description="Identifier for the strong model."
+        )
+        ROUTELLM_WEAK_MODEL: str = Field(
+            default="gpt-4o-mini", description="Identifier for the weak model."
+        )
+        ROUTELLM_STRONG_API_KEY: str = Field(
+            default="sk-your-api-key",
+            description="API key for accessing the strong model."
+        )
+        ROUTELLM_WEAK_API_KEY: str = Field(
+            default="sk-your-api-key",
+            description="API key for accessing the weak model."
+        )
+        ROUTELLM_STRONG_BASE_URL: str = Field(
+            default="https://api.openai.com/v1",
+            description="Base URL for the strong model's API."
+        )
+        ROUTELLM_WEAK_BASE_URL: str = Field(
+            default="https://api.openai.com/v1",
+            description="Base URL for the weak model's API."
+        )
+        ROUTELLM_THRESHOLD: float = Field(
+            default=0.11593,
+            description="Threshold value for determining when to use the strong model."
+        )
+        ROUTELLM_SUFFIX: str = Field(
+            default="OpenAI",
+            description="Suffix to use for model identifier and name."
+        )
 
     def __init__(self):
-        self.id = "routellm"
-        self.name = "RouteLLM"
         self.valves = self.Valves()
+        self.id = f"routellm-{self.valves.ROUTELLM_SUFFIX.lower()}"
+        self.name = f"RouteLLM/{self.valves.ROUTELLM_SUFFIX}"
         self.controller = None
         
         self._initialize_controller()
@@ -75,10 +100,6 @@ class Pipeline:
             
             # Prepare parameters, excluding 'model' and 'messages' if they're in body
             params = {k: v for k, v in body.items() if k not in ['model', 'messages'] and v is not None}
-            
-            # Ensure 'user' is a string if present
-            if 'user' in params and not isinstance(params['user'], str):
-                params['user'] = str(params['user'])
 
             response = self.controller.completion(
                 model=model_name,
