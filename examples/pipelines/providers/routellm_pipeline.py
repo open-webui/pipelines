@@ -2,7 +2,7 @@
 title: RouteLLM Pipeline
 author: justinh-rahb
 date: 2024-07-25
-version: 0.1.0
+version: 0.2.0
 license: MIT
 description: A pipeline for routing LLM requests using RouteLLM framework, compatible with OpenAI API.
 requirements: routellm, pydantic, requests
@@ -10,7 +10,6 @@ requirements: routellm, pydantic, requests
 
 from typing import List, Union, Generator, Iterator
 from pydantic import BaseModel
-import os
 import logging
 from routellm.controller import Controller
 
@@ -31,38 +30,19 @@ class Pipeline:
         self.valves = self.Valves()
         self.controller = None
         
-        # Set the environment variables for API keys and base URLs
-        self._set_environment_variables()
-        
         self._initialize_controller()
-
-    def _set_environment_variables(self):
-        os.environ["OPENAI_API_KEY"] = self.valves.ROUTELLM_STRONG_API_KEY
-        logging.info(f"Setting OPENAI_API_KEY to: {os.environ['OPENAI_API_KEY']}")
-        
-        os.environ["WEAK_MODEL_API_KEY"] = self.valves.ROUTELLM_WEAK_API_KEY
-        logging.info(f"Setting WEAK_MODEL_API_KEY to: {os.environ['WEAK_MODEL_API_KEY']}")
-
-        if self.valves.ROUTELLM_STRONG_BASE_URL:
-            os.environ['OPENAI_BASE_URL'] = self.valves.ROUTELLM_STRONG_BASE_URL
-            logging.info(f"Setting OPENAI_BASE_URL to: {os.environ['OPENAI_BASE_URL']}")
-
-        if self.valves.ROUTELLM_WEAK_BASE_URL:
-            os.environ['WEAK_MODEL_BASE_URL'] = self.valves.ROUTELLM_WEAK_BASE_URL
-            logging.info(f"Setting WEAK_MODEL_BASE_URL to: {os.environ['WEAK_MODEL_BASE_URL']}")
 
     def pipelines(self) -> List[dict]:
         return [{"id": f"routellm.{self.valves.ROUTELLM_ROUTER}", "name": f"RouteLLM/{self.valves.ROUTELLM_ROUTER}"}]
 
     async def on_startup(self):
-        logging.info(f"on_startup:{__name__}")
+        logging.info(f"on_startup: {__name__}")
 
     async def on_shutdown(self):
-        logging.info(f"on_shutdown:{__name__}")
+        logging.info(f"on_shutdown: {__name__}")
 
     async def on_valves_updated(self):
-        logging.info(f"on_valves_updated:{__name__}")
-        self._set_environment_variables()
+        logging.info(f"on_valves_updated: {__name__}")
         self._initialize_controller()
 
     def _initialize_controller(self):
@@ -70,12 +50,10 @@ class Pipeline:
             strong_model = self.valves.ROUTELLM_STRONG_MODEL
             weak_model = self.valves.ROUTELLM_WEAK_MODEL
 
-            # Adjust model names if base URLs are provided
-            if self.valves.ROUTELLM_STRONG_BASE_URL:
-                strong_model = f"openai/{strong_model}"
-            if self.valves.ROUTELLM_WEAK_BASE_URL:
-                weak_model = f"openai/{weak_model}"
-            
+            # Set the API keys as environment variables
+            import os
+            os.environ["OPENAI_API_KEY"] = self.valves.ROUTELLM_STRONG_API_KEY
+
             self.controller = Controller(
                 routers=[self.valves.ROUTELLM_ROUTER],
                 strong_model=strong_model,
@@ -93,12 +71,19 @@ class Pipeline:
             return "Error: RouteLLM controller not initialized. Please update valves with valid API keys and configuration."
 
         try:
-            response = self.controller.chat.completions.create(
-                model=f"router-{self.valves.ROUTELLM_ROUTER}-{self.valves.ROUTELLM_THRESHOLD}",
+            model_name = f"router-{self.valves.ROUTELLM_ROUTER}-{self.valves.ROUTELLM_THRESHOLD}"
+            
+            # Prepare parameters, excluding 'model' and 'messages' if they're in body
+            params = {k: v for k, v in body.items() if k not in ['model', 'messages'] and v is not None}
+            
+            # Ensure 'user' is a string if present
+            if 'user' in params and not isinstance(params['user'], str):
+                params['user'] = str(params['user'])
+
+            response = self.controller.completion(
+                model=model_name,
                 messages=messages,
-                max_tokens=body.get("max_tokens", 4096),
-                temperature=body.get("temperature", 0.8),
-                stream=body.get("stream", False),
+                **params
             )
             
             if body.get("stream", False):
