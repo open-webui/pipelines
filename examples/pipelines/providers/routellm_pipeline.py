@@ -2,7 +2,7 @@
 title: RouteLLM Pipeline
 author: justinh-rahb
 date: 2024-07-25
-version: 0.2.0
+version: 0.2.1
 license: MIT
 description: A pipeline for routing LLM requests using RouteLLM framework, compatible with OpenAI API.
 requirements: routellm, pydantic, requests
