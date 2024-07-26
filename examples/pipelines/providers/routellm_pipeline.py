@@ -50,15 +50,16 @@ class Pipeline:
         )
 
     def __init__(self):
+        self.type = "manifold"
         self.valves = self.Valves()
-        self.id = f"routellm-{self.valves.ROUTELLM_SUFFIX.lower()}"
-        self.name = f"RouteLLM/{self.valves.ROUTELLM_SUFFIX}"
+        self.id = "routellm"
+        self.name = f"RouteLLM/"
         self.controller = None
         
         self._initialize_controller()
 
     def pipelines(self) -> List[dict]:
-        return [{"id": f"routellm.{self.valves.ROUTELLM_ROUTER}", "name": f"RouteLLM/{self.valves.ROUTELLM_ROUTER}"}]
+        return [{"id": f"{self.valves.ROUTELLM_SUFFIX.lower()}", "name": f"{self.valves.ROUTELLM_SUFFIX}"}]
 
     async def on_startup(self):
         logging.info(f"on_startup: {__name__}")
