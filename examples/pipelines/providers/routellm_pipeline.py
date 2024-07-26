@@ -2,7 +2,7 @@
 title: RouteLLM Pipeline
 author: justinh-rahb
 date: 2024-07-25
-version: 0.2.1
+version: 0.2.2
 license: MIT
 description: A pipeline for routing LLM requests using RouteLLM framework, compatible with OpenAI API.
 requirements: routellm, pydantic, requests
@@ -55,7 +55,7 @@ class Pipeline:
         self.id = "routellm"
         self.name = f"RouteLLM/"
         self.controller = None
-        
+
         self._initialize_controller()
 
     def pipelines(self) -> List[dict]:
@@ -102,12 +102,16 @@ class Pipeline:
             # Prepare parameters, excluding 'model' and 'messages' if they're in body
             params = {k: v for k, v in body.items() if k not in ['model', 'messages'] and v is not None}
 
+            # Ensure 'user' is a string if present
+            if 'user' in params and not isinstance(params['user'], str):
+                params['user'] = str(params['user'])
+
             response = self.controller.completion(
                 model=model_name,
                 messages=messages,
                 **params
             )
-            
+
             if body.get("stream", False):
                 return (chunk for chunk in response)
             else:
