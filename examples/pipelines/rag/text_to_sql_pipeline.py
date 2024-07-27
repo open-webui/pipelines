@@ -38,15 +38,15 @@ class Pipeline:
         # Initialize
         self.valves = self.Valves(
             **{
-                "pipelines": ["*"],                                 # Connect to all pipelines
-                "DB_HOST": os.environ["PG_HOST"],                   # Database hostname
-                "DB_PORT": os.environ["PG_PORT"],                   # Database port 
-                "DB_USER": os.environ["PG_USER"],                   # User to connect to the database with
-                "DB_PASSWORD": os.environ["PG_PASSWORD"],           # Password to connect to the database with
-                "DB_DATABASE": os.environ["PG_DB"],                 # Database to select on the DB instance
-                "DB_TABLES": ["albums"],                            # Table(s) to run queries against 
-                "OLLAMA_HOST": "http://host.docker.internal:11434", # Make sure to update with the URL of your Ollama host, such as http://localhost:11434 or remote server address
-                "TEXT_TO_SQL_MODEL": "phi3:latest"                  # Model to use for text-to-SQL generation      
+                "pipelines": ["*"],                                                           # Connect to all pipelines
+                "DB_HOST": os.getenv("PG_HOST", "http://localhost:5432"),                     # Database hostname
+                "DB_PORT": os.getenv("PG_PORT", 5432),                                        # Database port 
+                "DB_USER": os.getenv("PG_USER", "postgres"),                                  # User to connect to the database with
+                "DB_PASSWORD": os.getenv("PG_PASSWORD", "password"),                          # Password to connect to the database with
+                "DB_DATABASE": os.getenv("PG_DB", "postgres"),                                # Database to select on the DB instance
+                "DB_TABLES": ["albums"],                                                      # Table(s) to run queries against 
+                "OLLAMA_HOST": os.getenv("OLLAMA_HOST", "http://host.docker.internal:11434"), # Make sure to update with the URL of your Ollama host, such as http://localhost:11434 or remote server address
+                "TEXT_TO_SQL_MODEL": "phi3:latest"                                            # Model to use for text-to-SQL generation      
             }
         )
 
