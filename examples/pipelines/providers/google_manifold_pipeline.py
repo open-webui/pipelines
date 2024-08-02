@@ -125,11 +125,14 @@ class Pipeline:
                             "role": "user" if message["role"] == "user" else "model",
                             "parts": [{"text": message["content"]}]
                         })
-
-            if system_message:
-                contents.insert(0, {"role": "user", "parts": [{"text": f"System: {system_message}"}]})
-
-            model = genai.GenerativeModel(model_name=model_id)
+            
+            if "gemini-1.5" in model_id:
+                model = genai.GenerativeModel(model_name=model_id, system_instruction=system_message)
+            else:
+                if system_message:
+                    contents.insert(0, {"role": "user", "parts": [{"text": f"System: {system_message}"}]})
+                
+                model = genai.GenerativeModel(model_name=model_id)
 
             generation_config = GenerationConfig(
                 temperature=body.get("temperature", 0.7),
