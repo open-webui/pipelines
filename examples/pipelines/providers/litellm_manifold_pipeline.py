@@ -53,6 +53,8 @@ class Pipeline:
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
+        # Get models on startup
+        self.pipelines = self.get_litellm_models()
         pass
 
     async def on_shutdown(self):
