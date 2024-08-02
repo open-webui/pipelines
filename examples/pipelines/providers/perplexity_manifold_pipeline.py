@@ -31,19 +31,19 @@ class Pipeline:
         self.pipelines = [
             {
                 "id": "llama-3.1-sonar-large-128k-online",
-                "name": "Llama 3 Sonar Large 128k Online"
+                "name": "Llama 3.1 Sonar Large 128k Online"
             },
             {
                 "id": "llama-3.1-sonar-small-128k-online",
-                "name": "Llama 3 Sonar Small 128k Online"
+                "name": "Llama 3.1 Sonar Small 128k Online"
             },
             {
                 "id": "llama-3.1-sonar-large-128k-chat",
-                "name": "Llama 3 Sonar Large 128k Chat"
+                "name": "Llama 3.1 Sonar Large 128k Chat"
             },
             {
                 "id": "llama-3.1-sonar-small-128k-chat",
-                "name": "Llama 3 Sonar Small 128k Chat"
+                "name": "Llama 3.1 Sonar Small 128k Chat"
             },
             {
                 "id": "llama-3.1-8b-instruct", "name": "Llama 3.1 8B Instruct"
