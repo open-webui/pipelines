@@ -45,16 +45,24 @@ For a streamlined setup using Docker:
 
 2. **Connect to Open WebUI:**
 
-   - Navigate to the **Settings > Connections > OpenAI API** section in Open WebUI.
-   - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your pipelines should now be active.
+   - Navigate to the **Admin Panel > Settings > Connections > OpenAI API** section in Open WebUI.
+   - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!` (you can modify the API key in the `config.py` file). Your pipelines should now be active.
+
+<p align="center">
+  <a href="./docs/images/connections.png"><img src="./docs/images/connections.png" alt="Pipelines Connections"></a>
+</p>
 
 > [!NOTE]
 > If your Open WebUI is running in a Docker container, replace `localhost` with `host.docker.internal` in the API URL.
 
 3. **Manage Configurations:**
 
-   - In the admin panel, go to **Admin Settings > Pipelines tab**.
-   - Select your desired pipeline and modify the valve values directly from the WebUI.
+   - In the admin panel, go to **Admin Panel > Settings > Pipelines tab**.
+   - Select your desired pipeline and modify the valve values directly from the WebUI. You can upload manually your pipeline python file, load it from Github or select an existing pipeline (your existing pipelines must be located in the `/pipelines` directory before the server launches). 
+
+<p align="center">
+  <a href="./docs/images/pipelines_admin.png"><img src="./docs/images/pipelines_admin.png" alt="Managing Pipelines"></a>
+</p>
 
 > [!TIP]
 > If you are unable to connect, it is most likely a Docker networking issue. We encourage you to troubleshoot on your own and share your methods and solutions in the discussions forum.
