@@ -26,6 +26,7 @@ import time
 import json
 import uuid
 import sys
+import subprocess
 
 
 from config import API_KEY, PIPELINES_DIR
