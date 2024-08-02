@@ -105,12 +105,45 @@ def get_all_pipelines():
 
     return pipelines
 
+def parse_frontmatter(content):
+    frontmatter = {}
+    for line in content.split('\n'):
+        if ':' in line:
+            key, value = line.split(':', 1)
+            frontmatter[key.strip().lower()] = value.strip()
+    return frontmatter
+
+def install_frontmatter_requirements(requirements):
+    if requirements:
+        req_list = [req.strip() for req in requirements.split(',')]
+        for req in req_list:
+            print(f"Installing requirement: {req}")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", req])
+    else:
+        print("No requirements found in frontmatter.")
 
 async def load_module_from_path(module_name, module_path):
-    spec = importlib.util.spec_from_file_location(module_name, module_path)
-    module = importlib.util.module_from_spec(spec)
 
     try:
+        # Read the module content
+        with open(module_path, 'r') as file:
+            content = file.read()
+
+        # Parse frontmatter
+        frontmatter = {}
+        if content.startswith('"""'):
+            end = content.find('"""', 3)
+            if end != -1:
+                frontmatter_content = content[3:end]
+                frontmatter = parse_frontmatter(frontmatter_content)
+
+        # Install requirements if specified
+        if 'requirements' in frontmatter:
+            install_frontmatter_requirements(frontmatter['requirements'])
+
+        # Load the module
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
+        module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         print(f"Loaded module: {module.__name__}")
         if hasattr(module, "Pipeline"):
