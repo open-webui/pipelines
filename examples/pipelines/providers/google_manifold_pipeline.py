@@ -45,6 +45,8 @@ class Pipeline:
         """This function is called when the server is started."""
 
         print(f"on_startup:{__name__}")
+        genai.configure(api_key=self.valves.GOOGLE_API_KEY)
+        self.update_pipelines()
 
     async def on_shutdown(self) -> None:
         """This function is called when the server is stopped."""
