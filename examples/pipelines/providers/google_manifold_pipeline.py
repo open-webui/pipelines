@@ -2,7 +2,7 @@
 title: Google GenAI Manifold Pipeline
 author: Marc Lopez (refactor by justinh-rahb)
 date: 2024-06-06
-version: 1.1
+version: 1.2
 license: MIT
 description: A pipeline for generating text using Google's GenAI models in Open-WebUI.
 requirements: google-generativeai
@@ -12,7 +12,7 @@ environment_variables: GOOGLE_API_KEY
 from typing import List, Union, Iterator
 import os
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import google.generativeai as genai
 from google.generativeai.types import GenerationConfig
@@ -25,13 +25,17 @@ class Pipeline:
         """Options to change from the WebUI"""
 
         GOOGLE_API_KEY: str = ""
+        USE_PERMISSIVE_SAFETY: bool = Field(default=False)
 
     def __init__(self):
         self.type = "manifold"
         self.id = "google_genai"
         self.name = "Google: "
 
-        self.valves = self.Valves(**{"GOOGLE_API_KEY": os.getenv("GOOGLE_API_KEY", "")})
+        self.valves = self.Valves(**{
+            "GOOGLE_API_KEY": os.getenv("GOOGLE_API_KEY", ""),
+            "USE_PERMISSIVE_SAFETY": False
+        })
         self.pipelines = []
 
         genai.configure(api_key=self.valves.GOOGLE_API_KEY)
@@ -41,6 +45,8 @@ class Pipeline:
         """This function is called when the server is started."""
 
         print(f"on_startup:{__name__}")
+        genai.configure(api_key=self.valves.GOOGLE_API_KEY)
+        self.update_pipelines()
 
     async def on_shutdown(self) -> None:
         """This function is called when the server is stopped."""
@@ -135,7 +141,15 @@ class Pipeline:
                 stop_sequences=body.get("stop", []),
             )
 
-            safety_settings = body.get("safety_settings")
+            if self.valves.USE_PERMISSIVE_SAFETY:
+                safety_settings = {
+                    genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                    genai.types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
+                }
+            else:
+                safety_settings = body.get("safety_settings")
 
             response = model.generate_content(
                 contents,
