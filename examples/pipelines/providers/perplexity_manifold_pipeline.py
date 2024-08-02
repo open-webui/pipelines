@@ -29,18 +29,28 @@ class Pipeline:
 
         # List of models
         self.pipelines = [
-            {"id": "llama-3-sonar-large-32k-online",
-                "name": "Llama 3 Sonar Large 32K Online"},
-            {"id": "llama-3-sonar-small-32k-online",
-                "name": "Llama 3 Sonar Small 32K Online"},
-            {"id": "llama-3-sonar-large-32k-chat",
-                "name": "Llama 3 Sonar Large 32K Chat"},
-            {"id": "llama-3-sonar-small-32k-chat",
-                "name": "Llama 3 Sonar Small 32K Chat"},
-            {"id": "llama-3-8b-instruct", "name": "Llama 3 8B Instruct"},
-            {"id": "llama-3-70b-instruct", "name": "Llama 3 70B Instruct"},
-            {"id": "mixtral-8x7b-instruct", "name": "Mixtral 8x7B Instruct"},
-            {"id": "related", "name": "Related"}
+            {
+                "id": "llama-3.1-sonar-large-128k-online",
+                "name": "Llama 3.1 Sonar Large 128k Online"
+            },
+            {
+                "id": "llama-3.1-sonar-small-128k-online",
+                "name": "Llama 3.1 Sonar Small 128k Online"
+            },
+            {
+                "id": "llama-3.1-sonar-large-128k-chat",
+                "name": "Llama 3.1 Sonar Large 128k Chat"
+            },
+            {
+                "id": "llama-3.1-sonar-small-128k-chat",
+                "name": "Llama 3.1 Sonar Small 128k Chat"
+            },
+            {
+                "id": "llama-3.1-8b-instruct", "name": "Llama 3.1 8B Instruct"
+            },
+            {
+                "id": "llama-3.1-70b-instruct", "name": "Llama 3.1 70B Instruct"
+            }
         ]
         pass
 
