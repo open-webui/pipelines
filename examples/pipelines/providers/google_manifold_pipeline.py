@@ -2,7 +2,7 @@
 title: Google GenAI Manifold Pipeline
 author: Marc Lopez (refactor by justinh-rahb)
 date: 2024-06-06
-version: 1.2
+version: 1.3
 license: MIT
 description: A pipeline for generating text using Google's GenAI models in Open-WebUI.
 requirements: google-generativeai
