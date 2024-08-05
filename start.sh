@@ -81,30 +81,6 @@ download_pipelines() {
   fi
 }
 
-# Function to parse and install requirements from frontmatter
-install_frontmatter_requirements() {
-  local file=$1
-  local file_content=$(cat "$1")
-  # Extract the first triple-quoted block
-  local first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag' )
-  
-  # Check if the block contains requirements
-  local requirements=$(echo "$first_block" | grep -i 'requirements:')
-  
-  if [ -n "$requirements" ]; then
-    # Extract the requirements list
-    requirements=$(echo "$requirements" | awk -F': ' '{print $2}' | tr ',' ' ' | tr -d '\r')
-    
-    # Construct and echo the pip install command
-    local pip_command="pip install $requirements"
-    echo "$pip_command"
-    pip install $requirements
-  else
-    echo "No requirements found in frontmatter of $file."
-  fi
-}
-
-
 
 # Check if PIPELINES_URLS environment variable is set and non-empty
 if [[ -n "$PIPELINES_URLS" ]]; then
@@ -115,12 +91,6 @@ if [[ -n "$PIPELINES_URLS" ]]; then
   IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
   for path in "${ADDR[@]}"; do
     download_pipelines "$path" "$pipelines_dir"
-  done
-
-  for file in "$pipelines_dir"/*; do
-    if [[ -f "$file" ]]; then
-      install_frontmatter_requirements "$file"
-    fi
   done
 else
   echo "PIPELINES_URLS not specified. Skipping pipelines download and installation."
