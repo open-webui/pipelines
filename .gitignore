@@ -1,5 +1,6 @@
 __pycache__
 .env
+.env.custom
 
 /litellm
 
@@ -10,3 +11,5 @@ pipelines/*
 
 .venv
 venv/
+
+.idea

@@ -1,7 +1,10 @@
+import subprocess
+
 from fastapi import FastAPI, Request, Depends, status, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
-
+from apps.files.main import app as files_app
+from apps.vector_store.main import app as vector_stores_app
 
 from starlette.responses import StreamingResponse, Response
 from pydantic import BaseModel, ConfigDict
@@ -28,7 +31,7 @@ import uuid
 import sys
 
 
-from config import API_KEY, PIPELINES_DIR
+from config import API_KEY, PIPELINES_DIR, DATABASE_URL
 
 if not os.path.exists(PIPELINES_DIR):
     os.makedirs(PIPELINES_DIR)
@@ -180,9 +183,22 @@ async def load_modules_from_directory(directory):
 
     global PIPELINES
     PIPELINES = get_all_pipelines()
+    vector_stores_app.state.PIPELINES = PIPELINES
+    vector_stores_app.state.PIPELINE_MODULES = PIPELINE_MODULES
+
+
+def run_migrations():
+    env = os.environ.copy()
+    env["DATABASE_URL"] = DATABASE_URL
+    migration_task = subprocess.run(
+        ["alembic", f"-calembic.ini", "upgrade", "head"], env=env
+    )
+    if migration_task.returncode > 0:
+        raise ValueError("Error running migrations")
 
 
 async def on_startup():
+    run_migrations()
     await load_modules_from_directory(PIPELINES_DIR)
 
     for module in PIPELINE_MODULES.values():
@@ -215,8 +231,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(docs_url="/docs", redoc_url=None, lifespan=lifespan)
 
-app.state.PIPELINES = PIPELINES
+app.mount("/v1/files", files_app)
+app.mount("/v1/vector_stores", vector_stores_app)
 
+app.state.PIPELINES = PIPELINES
 
 origins = ["*"]
 
