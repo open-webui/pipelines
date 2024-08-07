@@ -20,7 +20,7 @@ import requests
 class Pipeline:
     class Valves(BaseModel):
         COHERE_API_BASE_URL: str = "https://api.cohere.com/v1"
-        COHERE_API_KEY: str = "6ZLvkVqejxzfbYB7oZE2TsIfFhdXbuc6fuk3G0cq"
+        COHERE_API_KEY: str = ""
 
     def __init__(self):
         self.type = "manifold"
@@ -35,7 +35,7 @@ class Pipeline:
         self.name = "cohere/"
 
         self.valves = self.Valves(
-            **{"COHERE_API_KEY": os.getenv("COHERE_API_KEY", "6ZLvkVqejxzfbYB7oZE2TsIfFhdXbuc6fuk3G0cq")}
+            **{"COHERE_API_KEY": os.getenv("COHERE_API_KEY", "your-api-key-here")}
         )
 
         self.pipelines = self.get_cohere_models()
