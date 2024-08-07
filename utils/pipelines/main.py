@@ -80,6 +80,7 @@ def add_or_update_system_message(content: str, messages: List[dict]):
 
     return messages
 
+
 def doc_to_dict(docstring):
     lines = docstring.split("\n")
     description = lines[1].strip()
