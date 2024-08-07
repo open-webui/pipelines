@@ -1,3 +1,4 @@
+import re
 from typing import List, Optional
 from pydantic import BaseModel
 from schemas import OpenAIChatMessage
@@ -86,15 +87,16 @@ And answer according to the language of the user's question.""",
 
         # Get the tools specs
         tools_specs = get_tools_specs(self.tools)
-
         # System prompt for function calling
         fc_system_prompt = (
             f"Tools: {json.dumps(tools_specs, indent=2)}"
             + """
-If a function tool doesn't match the query, return an empty string. Else, pick a function tool, fill in the parameters from the function tool's schema, and return it in the format { "name": \"functionName\", "parameters": { "key": "value" } }. Only pick a function if the user asks.  Only return the object. Do not return any other text."
+If a function tool doesn't match the query, return an empty string. Else, pick a function tool, fill in the parameters from the function tool's schema, and return it in the format { "name": "functionName", "parameters": { "key": "value" } }. Only pick a function if the user asks. Only return the object. 
+Do not return any other text.
+Ensure that the model returns the correct function format regardless of the user's language.
 """
         )
-
+        #print(fc_system_prompt)
         r = None
         try:
             # Call the OpenAI API to get the function response
@@ -135,8 +137,11 @@ If a function tool doesn't match the query, return an empty string. Else, pick a
 
             # Parse the function response
             if content != "":
+                print(content)
+                content = re.sub(r"```json", "", content)
+                content = re.sub(r"```", "", content)
                 result = json.loads(content)
-                print(result)
+                #print(result)
 
                 # Call the function
                 if "name" in result:
@@ -153,7 +158,7 @@ If a function tool doesn't match the query, return an empty string. Else, pick a
                             "{{CONTEXT}}", function_result
                         )
 
-                        print(system_prompt)
+                        #print(system_prompt)
                         messages = add_or_update_system_message(
                             system_prompt, body["messages"]
                         )
