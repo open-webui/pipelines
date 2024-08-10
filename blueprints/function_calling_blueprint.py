@@ -102,6 +102,7 @@ If a function tool doesn't match the query, return an empty string. Else, pick a
                 url=f"{self.valves.OPENAI_API_BASE_URL}/chat/completions",
                 json={
                     "model": self.valves.TASK_MODEL,
+                    "user": user.get('name') if user else None,
                     "messages": [
                         {
                             "role": "system",
