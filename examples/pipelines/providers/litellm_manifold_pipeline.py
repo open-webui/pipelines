@@ -2,7 +2,7 @@
 title: LiteLLM Manifold Pipeline
 author: open-webui
 date: 2024-05-30
-version: 1.0
+version: 1.0.1
 license: MIT
 description: A manifold pipeline that uses LiteLLM.
 """
@@ -46,12 +46,15 @@ class Pipeline:
                 "LITELLM_PIPELINE_DEBUG": os.getenv("LITELLM_PIPELINE_DEBUG", False),
             }
         )
-        self.pipelines = []
+        # Get models on initialization
+        self.pipelines = self.get_litellm_models()
         pass
 
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
+        # Get models on startup
+        self.pipelines = self.get_litellm_models()
         pass
 
     async def on_shutdown(self):
@@ -85,7 +88,7 @@ class Pipeline:
                     for model in models["data"]
                 ]
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error fetching models from LiteLLM: {e}")
                 return [
                     {
                         "id": "error",
@@ -93,6 +96,7 @@ class Pipeline:
                     },
                 ]
         else:
+            print("LITELLM_BASE_URL not set. Please configure it in the valves.")
             return []
 
     def pipe(

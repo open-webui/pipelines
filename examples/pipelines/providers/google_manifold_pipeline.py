@@ -2,7 +2,7 @@
 title: Google GenAI Manifold Pipeline
 author: Marc Lopez (refactor by justinh-rahb)
 date: 2024-06-06
-version: 1.2
+version: 1.3
 license: MIT
 description: A pipeline for generating text using Google's GenAI models in Open-WebUI.
 requirements: google-generativeai
@@ -127,11 +127,14 @@ class Pipeline:
                             "role": "user" if message["role"] == "user" else "model",
                             "parts": [{"text": message["content"]}]
                         })
-
-            if system_message:
-                contents.insert(0, {"role": "user", "parts": [{"text": f"System: {system_message}"}]})
-
-            model = genai.GenerativeModel(model_name=model_id)
+            
+            if "gemini-1.5" in model_id:
+                model = genai.GenerativeModel(model_name=model_id, system_instruction=system_message)
+            else:
+                if system_message:
+                    contents.insert(0, {"role": "user", "parts": [{"text": f"System: {system_message}"}]})
+                
+                model = genai.GenerativeModel(model_name=model_id)
 
             generation_config = GenerationConfig(
                 temperature=body.get("temperature", 0.7),
