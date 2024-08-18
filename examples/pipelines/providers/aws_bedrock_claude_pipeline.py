@@ -1,3 +1,13 @@
+"""
+title: AWS Bedrock Claude Pipeline
+author: G-mario
+date: 2024-08-18
+version: 1.0
+license: MIT
+description: A pipeline for generating text and processing images using the AWS Bedrock API(By Anthropic claude).
+requirements: requests, boto3
+environment_variables: AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION_NAME
+"""
 import base64
 import json
 import logging
@@ -6,7 +16,6 @@ from typing import List, Union, Generator, Iterator
 
 import boto3
 
-from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 
 import os
@@ -28,7 +37,7 @@ class Pipeline:
         # The identifier must be unique across all pipelines.
         # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
         # self.id = "openai_pipeline"
-        self.name = "Bedrock Claude: "
+        self.name = "Bedrock: "
 
         self.valves = self.Valves(
             **{
@@ -79,7 +88,7 @@ class Pipeline:
     def get_models(self):
         if self.valves.AWS_ACCESS_KEY and self.valves.AWS_SECRET_KEY:
             try:
-                response = self.bedrock.list_foundation_models(byProvider='Anthropic')
+                response = self.bedrock.list_foundation_models(byProvider='Anthropic', byInferenceType='ON_DEMAND')
                 return [
                     {
                         "id": model["modelId"],
@@ -131,8 +140,8 @@ class Pipeline:
             payload = {"modelId": model_id,
                        "messages": processed_messages,
                        "system": [{'text': system_message if system_message else 'you are an intelligent ai assistant'}],
-                       "inferenceConfig": {"temperature": 0.5},
-                       "additionalModelRequestFields": {"top_k": 200}
+                       "inferenceConfig": {"temperature": body.get("temperature", 0.5)},
+                       "additionalModelRequestFields": {"top_k": body.get("top_k", 200), "top_p": body.get("top_p", 0.9)}
                        }
             if body.get("stream", False):
                 return self.stream_response(model_id, payload)
