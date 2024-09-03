@@ -56,8 +56,8 @@ class Pipeline:
         url = f"{self.valves.AZURE_OPENAI_ENDPOINT}/openai/deployments/{self.valves.AZURE_OPENAI_DEPLOYMENT_NAME}/chat/completions?api-version={self.valves.AZURE_OPENAI_API_VERSION}"
 
         allowed_params = {'messages', 'temperature', 'role', 'content', 'contentPart', 'contentPartImage',
-                          'enhancements', 'dataSources', 'n', 'stream', 'stop', 'max_tokens', 'presence_penalty',
-                          'frequency_penalty', 'logit_bias', 'user', 'function_call', 'funcions', 'tools',
+                          'enhancements', 'data_sources', 'n', 'stream', 'stop', 'max_tokens', 'presence_penalty',
+                          'frequency_penalty', 'logit_bias', 'user', 'function_call', 'functions', 'tools',
                           'tool_choice', 'top_p', 'log_probs', 'top_logprobs', 'response_format', 'seed'}
         # remap user field
         if "user" in body and not isinstance(body["user"], str):
@@ -67,6 +67,8 @@ class Pipeline:
         if len(body) != len(filtered_body):
             print(f"Dropped params: {', '.join(set(body.keys()) - set(filtered_body.keys()))}")
 
+        # Initialize the response variable to None.
+        r = None
         try:
             r = requests.post(
                 url=url,
