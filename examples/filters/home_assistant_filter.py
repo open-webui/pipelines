@@ -5,7 +5,7 @@ date: 2024-06-15
 version: 1.0
 license: MIT
 description: A pipeline for controlling Home Assistant entities based on their easy names. Only supports lights at the moment.
-requirements: pytz, difflab
+requirements: pytz, difflib
 """
 import requests
 from typing import Literal, Dict, Any
