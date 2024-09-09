@@ -2,7 +2,7 @@
 title: Langfuse Filter Pipeline
 author: open-webui
 date: 2024-05-30
-version: 1.1
+version: 1.2
 license: MIT
 description: A filter pipeline that uses Langfuse.
 requirements: langfuse
@@ -90,8 +90,8 @@ class Pipeline:
         trace = self.langfuse.trace(
             name=f"filter:{__name__}",
             input=body,
-            user_id=user["id"],
-            metadata={"name": user["name"]},
+            user_id=user["email"],
+            metadata={"user_name": user["name"], "user_id": user["id"]},
             session_id=body["chat_id"],
         )
 
@@ -119,10 +119,6 @@ class Pipeline:
 
         generation.end(
             output=generated_message,
-            usage={
-                "totalCost": (len(user_message) + len(generated_message)) / 1000,
-                "unit": "CHARACTERS",
-            },
             metadata={"interface": "open-webui"},
         )
 
