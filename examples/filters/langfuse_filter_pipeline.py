@@ -113,13 +113,26 @@ class Pipeline:
             return body
 
         generation = self.chat_generations[body["chat_id"]]
+        assistant_message = get_last_assistant_message(body["messages"])
 
-        user_message = get_last_user_message(body["messages"])
-        generated_message = get_last_assistant_message(body["messages"])
+        # Extract usage information
+        info = assistant_message.get("info", {})
+        usage = None
+        if "prompt_tokens" in info and "completion_tokens" in info:
+            usage = {
+                "input": info["prompt_tokens"],
+                "output": info["completion_tokens"],
+                "unit": "TOKENS",
+            }
 
+        # Update generation
         generation.end(
-            output=generated_message,
+            output=assistant_message,
             metadata={"interface": "open-webui"},
+            usage=usage,
         )
+
+        # Clean up the chat_generations dictionary
+        del self.chat_generations[body["chat_id"]]
 
         return body
