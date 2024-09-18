@@ -2,7 +2,7 @@
 title: Langfuse Filter Pipeline
 author: open-webui
 date: 2024-05-30
-version: 1.2
+version: 1.3
 license: MIT
 description: A filter pipeline that uses Langfuse.
 requirements: langfuse
