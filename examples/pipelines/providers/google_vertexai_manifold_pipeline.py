@@ -99,7 +99,7 @@ class Pipeline:
             if body.get("title", False):  # If chat title generation is requested
                 contents = [Content(role="user", parts=[Part.from_text(user_message)])]
             else:
-                contents = self._build_conversation_history(messages)
+                contents = self.build_conversation_history(messages)
 
             generation_config = GenerationConfig(
                 temperature=body.get("temperature", 0.7),
