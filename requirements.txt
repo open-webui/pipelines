@@ -17,6 +17,7 @@ httpx
 openai
 anthropic
 google-generativeai
+vertexai
 
 # Database
 pymongo
