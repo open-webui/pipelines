@@ -128,12 +128,12 @@ class Pipeline:
         if assistant_message_obj:
             info = assistant_message_obj.get("info", {})
             if isinstance(info, dict):
-                prompt_eval_count = info.get("prompt_eval_count")
-                eval_count = info.get("eval_count")
-                if prompt_eval_count is not None and eval_count is not None:
+                input_tokens = info.get("prompt_eval_count") or info.get("prompt_tokens")
+                output_tokens = info.get("eval_count") or info.get("completion_tokens")
+                if input_tokens is not None and output_tokens is not None:
                     usage = {
-                        "input": prompt_eval_count,
-                        "output": eval_count,
+                        "input": input_tokens,
+                        "output": output_tokens,
                         "unit": "TOKENS",
                     }
 
