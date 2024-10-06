@@ -145,6 +145,7 @@ async def load_module_from_path(module_name, module_path):
         # Load the module
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
         spec.loader.exec_module(module)
         print(f"Loaded module: {module.__name__}")
         if hasattr(module, "Pipeline"):
