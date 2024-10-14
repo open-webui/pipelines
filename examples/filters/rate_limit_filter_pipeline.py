@@ -115,8 +115,6 @@ class Pipeline:
 
     async def inlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"pipe:{__name__}")
-        print(body)
-        print(user)
 
         if user.get("role", "admin") == "user":
             user_id = user["id"] if user and "id" in user else "default_user"
