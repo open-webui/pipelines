@@ -156,12 +156,4 @@ else
   echo "PIPELINES_URLS not specified. Skipping pipelines download and installation."
 fi
 
-# Trap SIGTERM signal and define cleanup function
-trap 'echo "SIGTERM received, shutting down..."; pkill -TERM -P $$; wait' SIGTERM
-
-# Start the server
-uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' &
-uvicorn_pid=$!
-
-# Wait for uvicorn to finish
-wait "$uvicorn_pid"
+exec uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'

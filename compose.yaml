@@ -31,12 +31,11 @@ services:
         ports:
             - 9099:9099
         env_file:
-            - pipelines.env
+            - .env
         volumes:
             - ./pipelines:/app/pipelines
         environment:
             - PIPELINES_URLS=https://github.com/jedwards1230/lilbro-pipelines;
-            - RESET_PIPELINES_DIR=true
         extra_hosts:
             - host.docker.internal:host-gateway
         restart: unless-stopped
