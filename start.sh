@@ -9,6 +9,8 @@ PORT="${PORT:-9099}"
 HOST="${HOST:-0.0.0.0}"
 # Default value for PIPELINES_DIR
 PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
+# Default value for DEBUG_PIP
+DEBUG_PIP=${DEBUG_PIP:-false}
 
 # Function to reset pipelines
 reset_pipelines_dir() {
@@ -45,7 +47,11 @@ reset_pipelines_dir
 install_requirements() {
   if [[ -f "$1" ]]; then
     echo "requirements.txt found at $1. Installing requirements..."
-    pip install -r "$1" || { echo "Failed to install requirements from $1"; exit 1; }
+    if [ "$DEBUG_PIP" = true ]; then
+      pip install -r "$1" || { echo "Failed to install requirements from $1"; exit 1; }
+    else
+      pip install -r "$1" >/dev/null 2>&1 || { echo "Failed to install requirements from $1"; exit 1; }
+    fi
   else
     echo "requirements.txt not found at $1. Skipping installation of requirements."
   fi
@@ -132,7 +138,11 @@ install_frontmatter_requirements() {
     # Install each requirement individually
     for requirement in "${requirements_array[@]}"; do
       echo "Installing $requirement"
-      pip install "$requirement" || { echo "Failed to install requirement: $requirement"; exit 1; }
+      if [ "$DEBUG_PIP" = true ]; then
+        pip install "$requirement" || { echo "Failed to install requirement: $requirement"; exit 1; }
+      else
+        pip install "$requirement" >/dev/null 2>&1 || { echo "Failed to install requirement: $requirement"; exit 1; }
+      fi
     done
   else
     echo "No requirements found in frontmatter of $file."
