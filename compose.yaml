@@ -34,8 +34,6 @@ services:
             - .env
         volumes:
             - ./pipelines:/app/pipelines
-        environment:
-            - PIPELINES_URLS=https://github.com/jedwards1230/lilbro-pipelines;
         extra_hosts:
             - host.docker.internal:host-gateway
         restart: unless-stopped
