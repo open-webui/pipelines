@@ -70,8 +70,13 @@ download_pipelines() {
   echo "Downloading pipeline files from '$path' to '$destination'..."
 
   if [ -d "$destination" ] && [ "$(ls -A "$destination")" ]; then
-    echo "Destination path '$destination' already exists and is not empty. Removing..."
-    rm -rf "${destination:?}"/*
+    if [ "$RESET_PIPELINES_DIR" = true ]; then
+      echo "Destination path '$destination' already exists and is not empty. Removing..."
+      rm -rf "${destination:?}"/*
+    else
+      echo "RESET_PIPELINES_DIR is not set to true. No action taken."
+      return
+    fi
   fi
 
   if [[ "$path" =~ ^https://github.com/.*/.*/blob/.* ]]; then
@@ -82,7 +87,6 @@ download_pipelines() {
     # It's a folder
     git_repo=$(echo "$path" | awk -F '/tree/' '{print $1}')
     subdir=$(echo "$path" | awk -F '/tree/' '{print $2}')
-    rm -rf "$destination"  # Ensure the destination directory is empty
     git clone --depth 1 --filter=blob:none --sparse "$git_repo" "$destination" || { echo "Failed to clone $git_repo"; exit 1; }
     (
       cd "$destination" || exit
@@ -98,7 +102,6 @@ download_pipelines() {
     curl -L "$path" -o "$destination/$dest_file" || { echo "Failed to download $path"; exit 1; }
   elif [[ "$path" =~ ^https://github.com/.*/.*$ ]]; then
     # Handle general GitHub repository URL
-    rm -rf "$destination"  # Ensure the destination directory is empty
     git clone "$path" "$destination" || { echo "Failed to clone $path"; exit 1; }
   else
       echo "Invalid URL format: $path"
