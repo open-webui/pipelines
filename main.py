@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Union, Generator, Iterator
 
 
-from utils.pipelines.auth import bearer_security, get_current_user
+from utils.pipelines.auth import get_current_user_or_abort
 from utils.pipelines.main import get_last_user_message, stream_message_template
 from utils.pipelines.misc import convert_to_raw_url
 
@@ -29,7 +29,7 @@ import sys
 import subprocess
 
 
-from config import API_KEY, PIPELINES_DIR
+from config import PIPELINES_DIR
 
 if not os.path.exists(PIPELINES_DIR):
     os.makedirs(PIPELINES_DIR)
@@ -277,7 +277,7 @@ async def check_url(request: Request, call_next):
 
 @app.get("/v1/models")
 @app.get("/models")
-async def get_models():
+async def get_models(user: str = Depends(get_current_user_or_abort)):
     """
     Returns the available pipelines
     """
@@ -322,32 +322,26 @@ async def get_status():
 
 @app.get("/v1/pipelines")
 @app.get("/pipelines")
-async def list_pipelines(user: str = Depends(get_current_user)):
-    if user == API_KEY:
-        return {
-            "data": [
-                {
-                    "id": pipeline_id,
-                    "name": PIPELINE_NAMES[pipeline_id],
-                    "type": (
-                        PIPELINE_MODULES[pipeline_id].type
-                        if hasattr(PIPELINE_MODULES[pipeline_id], "type")
-                        else "pipe"
-                    ),
-                    "valves": (
-                        True
-                        if hasattr(PIPELINE_MODULES[pipeline_id], "valves")
-                        else False
-                    ),
-                }
-                for pipeline_id in list(PIPELINE_MODULES.keys())
-            ]
-        }
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
+async def list_pipelines(user: str = Depends(get_current_user_or_abort)):
+    return {
+        "data": [
+            {
+                "id": pipeline_id,
+                "name": PIPELINE_NAMES[pipeline_id],
+                "type": (
+                    PIPELINE_MODULES[pipeline_id].type
+                    if hasattr(PIPELINE_MODULES[pipeline_id], "type")
+                    else "pipe"
+                ),
+                "valves": (
+                    True
+                    if hasattr(PIPELINE_MODULES[pipeline_id], "valves")
+                    else False
+                ),
+            }
+            for pipeline_id in list(PIPELINE_MODULES.keys())
+        ]
+    }
 
 
 class AddPipelineForm(BaseModel):
@@ -380,14 +374,8 @@ async def download_file(url: str, dest_folder: str):
 @app.post("/v1/pipelines/add")
 @app.post("/pipelines/add")
 async def add_pipeline(
-    form_data: AddPipelineForm, user: str = Depends(get_current_user)
+    form_data: AddPipelineForm, user: str = Depends(get_current_user_or_abort)
 ):
-    if user != API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
-
     try:
         url = convert_to_raw_url(form_data.url)
 
@@ -410,14 +398,8 @@ async def add_pipeline(
 @app.post("/v1/pipelines/upload")
 @app.post("/pipelines/upload")
 async def upload_pipeline(
-    file: UploadFile = File(...), user: str = Depends(get_current_user)
+    file: UploadFile = File(...), user: str = Depends(get_current_user_or_abort)
 ):
-    if user != API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
-
     file_ext = os.path.splitext(file.filename)[1]
     if file_ext != ".py":
         raise HTTPException(
@@ -459,14 +441,8 @@ class DeletePipelineForm(BaseModel):
 @app.delete("/v1/pipelines/delete")
 @app.delete("/pipelines/delete")
 async def delete_pipeline(
-    form_data: DeletePipelineForm, user: str = Depends(get_current_user)
+    form_data: DeletePipelineForm, user: str = Depends(get_current_user_or_abort)
 ):
-    if user != API_KEY:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
-
     pipeline_id = form_data.id
     pipeline_name = PIPELINE_NAMES.get(pipeline_id.split(".")[0], None)
 
@@ -491,20 +467,14 @@ async def delete_pipeline(
 
 @app.post("/v1/pipelines/reload")
 @app.post("/pipelines/reload")
-async def reload_pipelines(user: str = Depends(get_current_user)):
-    if user == API_KEY:
-        await reload()
-        return {"message": "Pipelines reloaded successfully."}
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key",
-        )
+async def reload_pipelines(user: str = Depends(get_current_user_or_abort)):
+    await reload()
+    return {"message": "Pipelines reloaded successfully."}
 
 
 @app.get("/v1/{pipeline_id}/valves")
 @app.get("/{pipeline_id}/valves")
-async def get_valves(pipeline_id: str):
+async def get_valves(pipeline_id: str, user: str = Depends(get_current_user_or_abort)):
     if pipeline_id not in PIPELINE_MODULES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -524,7 +494,7 @@ async def get_valves(pipeline_id: str):
 
 @app.get("/v1/{pipeline_id}/valves/spec")
 @app.get("/{pipeline_id}/valves/spec")
-async def get_valves_spec(pipeline_id: str):
+async def get_valves_spec(pipeline_id: str, user: str = Depends(get_current_user_or_abort)):
     if pipeline_id not in PIPELINE_MODULES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -544,7 +514,7 @@ async def get_valves_spec(pipeline_id: str):
 
 @app.post("/v1/{pipeline_id}/valves/update")
 @app.post("/{pipeline_id}/valves/update")
-async def update_valves(pipeline_id: str, form_data: dict):
+async def update_valves(pipeline_id: str, form_data: dict, user: str = Depends(get_current_user_or_abort)):
 
     if pipeline_id not in PIPELINE_MODULES:
         raise HTTPException(
@@ -587,7 +557,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
 
 @app.post("/v1/{pipeline_id}/filter/inlet")
 @app.post("/{pipeline_id}/filter/inlet")
-async def filter_inlet(pipeline_id: str, form_data: FilterForm):
+async def filter_inlet(pipeline_id: str, form_data: FilterForm, user: str = Depends(get_current_user_or_abort)):
     if pipeline_id not in app.state.PIPELINES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -619,7 +589,7 @@ async def filter_inlet(pipeline_id: str, form_data: FilterForm):
 
 @app.post("/v1/{pipeline_id}/filter/outlet")
 @app.post("/{pipeline_id}/filter/outlet")
-async def filter_outlet(pipeline_id: str, form_data: FilterForm):
+async def filter_outlet(pipeline_id: str, form_data: FilterForm, user: str = Depends(get_current_user_or_abort)):
     if pipeline_id not in app.state.PIPELINES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -651,7 +621,7 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
 
 @app.post("/v1/chat/completions")
 @app.post("/chat/completions")
-async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
+async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm, user: str = Depends(get_current_user_or_abort)):
     messages = [message.model_dump() for message in form_data.messages]
     user_message = get_last_user_message(messages)
 
