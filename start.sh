@@ -99,27 +99,21 @@ install_frontmatter_requirements() {
   local file="$1"
   local file_content=$(cat "$file")
   # Extract the first triple-quoted block
-  local first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag' )
+  local first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag')
 
-  # Check if the block contains requirements
-  local requirements=$(echo "$first_block" | grep -i 'requirements:')
+  # Find the line containing 'requirements:'
+  local requirements_line=$(echo "$first_block" | grep -i 'requirements:')
 
-  if [ -n "$requirements" ]; then
-    # Extract the requirements list
-    requirements=$(echo "$requirements" | awk -F': ' '{print $2}' | tr ',' ' ' | tr -d '\r')
+  if [ -n "$requirements_line" ]; then
+    # Extract and process the requirements list
+    local requirements=$(echo "$requirements_line" | awk -F': ' '{print $2}' | tr ',' ' ' | tr -d '\r' | xargs)
 
-    # Split the requirements into an array
-    IFS=' ' read -r -a requirements_array <<< "$requirements"
-
-    # Install each requirement individually
-    for requirement in "${requirements_array[@]}"; do
-      echo "Installing $requirement"
-      if [ "$DEBUG_PIP" = true ]; then
-        pip install "$requirement" || { echo "Failed to install requirement: $requirement"; exit 1; }
-      else
-        pip install "$requirement" >/dev/null 2>&1 || { echo "Failed to install requirement: $requirement"; exit 1; }
-      fi
-    done
+    echo "Installing requirements: $requirements"
+    if [ "$DEBUG_PIP" = true ]; then
+      pip install $requirements || { echo "Failed to install requirements: $requirements"; exit 1; }
+    else
+      pip install $requirements >/dev/null 2>&1 || { echo "Failed to install requirements: $requirements"; exit 1; }
+    fi
   else
     echo "No requirements found in frontmatter of $file."
   fi
