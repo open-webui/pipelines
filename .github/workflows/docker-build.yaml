@@ -9,13 +9,13 @@ on:
 
 env:
     REGISTRY: ghcr.io
-    IMAGE_NAME: ${{ github.repository }}
     FULL_IMAGE_NAME: ghcr.io/${{ github.repository }}
 
 jobs:
     build-main-image:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
+            image_name: ${{ github.repository }}
             image_tag: |
                 type=ref,event=branch
                 type=ref,event=tag
@@ -29,6 +29,7 @@ jobs:
     build-cuda-image:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
+            image_name: ${{ github.repository }}
             image_tag: |
                 type=ref,event=branch
                 type=ref,event=tag

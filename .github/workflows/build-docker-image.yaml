@@ -3,6 +3,9 @@ name: Build Docker Image
 on:
     workflow_call:
         inputs:
+            image_name:
+                required: true
+                type: string
             image_tag:
                 required: true
                 type: string
@@ -11,6 +14,10 @@ on:
                 type: string
             build_args:
                 required: true
+                type: string
+            registry:
+                required: false
+                default: ghcr.io
                 type: string
 
 jobs:
@@ -44,7 +51,7 @@ jobs:
             - name: Log in to the Container registry
               uses: docker/login-action@v3
               with:
-                  registry: ${{ env.REGISTRY }}
+                  registry: ${{ inputs.registry }}
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
 
