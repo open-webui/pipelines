@@ -2,15 +2,9 @@ from fastapi import FastAPI, Request, Depends, status, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.concurrency import run_in_threadpool
 
-
 from starlette.responses import StreamingResponse, Response
 from pydantic import BaseModel, ConfigDict
 from typing import List, Union, Generator, Iterator
-
-
-from utils.pipelines.auth import bearer_security, get_current_user
-from utils.pipelines.main import get_last_user_message, stream_message_template
-from utils.pipelines.misc import convert_to_raw_url
 
 from contextlib import asynccontextmanager
 from concurrent.futures import ThreadPoolExecutor
@@ -29,11 +23,17 @@ import sys
 import subprocess
 
 
+from utils.pipelines.auth import bearer_security, get_current_user
+from utils.pipelines.main import get_last_user_message, stream_message_template
+from utils.pipelines.misc import convert_to_raw_url
+
 from config import API_KEY, PIPELINES_DIR
+
 
 if not os.path.exists(PIPELINES_DIR):
     os.makedirs(PIPELINES_DIR)
 
+DEBUG_PIP = os.getenv("DEBUG_PIP", "false").lower() == "true"
 
 PIPELINES = {}
 PIPELINE_MODULES = {}
@@ -106,28 +106,37 @@ def get_all_pipelines():
 
     return pipelines
 
+
 def parse_frontmatter(content):
     frontmatter = {}
-    for line in content.split('\n'):
-        if ':' in line:
-            key, value = line.split(':', 1)
+    for line in content.split("\n"):
+        if ":" in line:
+            key, value = line.split(":", 1)
             frontmatter[key.strip().lower()] = value.strip()
     return frontmatter
 
+
 def install_frontmatter_requirements(requirements):
     if requirements:
-        req_list = [req.strip() for req in requirements.split(',')]
+        req_list = [req.strip() for req in requirements.split(",")]
         for req in req_list:
-            print(f"Installing requirement: {req}")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", req])
+            logging.info(f"Installing requirement: {req}")
+            if DEBUG_PIP:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", req])
+            else:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", req],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
     else:
-        print("No requirements found in frontmatter.")
+        logging.info("No requirements found in frontmatter.")
+
 
 async def load_module_from_path(module_name, module_path):
-
     try:
         # Read the module content
-        with open(module_path, 'r') as file:
+        with open(module_path, "r") as file:
             content = file.read()
 
         # Parse frontmatter
@@ -139,20 +148,32 @@ async def load_module_from_path(module_name, module_path):
                 frontmatter = parse_frontmatter(frontmatter_content)
 
         # Install requirements if specified
-        if 'requirements' in frontmatter:
-            install_frontmatter_requirements(frontmatter['requirements'])
+        if "requirements" in frontmatter:
+            install_frontmatter_requirements(frontmatter["requirements"])
+
+        # Check and execute __init__.py if it exists
+        module_dir = os.path.dirname(module_path)
+        init_file_path = os.path.join(module_dir, "__init__.py")
+        if os.path.exists(init_file_path):
+            init_spec = importlib.util.spec_from_file_location(
+                f"{module_name}.__init__", init_file_path
+            )
+            init_module = importlib.util.module_from_spec(init_spec)
+            init_spec.loader.exec_module(init_module)
 
         # Load the module
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        print(f"Loaded module: {module.__name__}")
-        if hasattr(module, "Pipeline"):
+        logging.info(f"Loaded module: {module.__name__}")
+        if module_path.endswith("__init__.py"):
+            return None
+        elif hasattr(module, "Pipeline"):
             return module.Pipeline()
         else:
             raise Exception("No Pipeline class found")
     except Exception as e:
-        print(f"Error loading module: {module_name}")
+        logging.error(f"Error loading module: {module_name}")
 
         # Move the file to the error folder
         failed_pipelines_folder = os.path.join(PIPELINES_DIR, "failed")
@@ -161,7 +182,7 @@ async def load_module_from_path(module_name, module_path):
 
         failed_file_path = os.path.join(failed_pipelines_folder, f"{module_name}.py")
         os.rename(module_path, failed_file_path)
-        print(e)
+        logging.error(e)
     return None
 
 
@@ -174,18 +195,19 @@ async def load_modules_from_directory(directory):
             module_name = filename[:-3]  # Remove the .py extension
             module_path = os.path.join(directory, filename)
 
-            # Create subfolder matching the filename without the .py extension
-            subfolder_path = os.path.join(directory, module_name)
-            if not os.path.exists(subfolder_path):
-                os.makedirs(subfolder_path)
-                logging.info(f"Created subfolder: {subfolder_path}")
+            if not module_path.endswith("__init__.py"):
+                # Create subfolder matching the filename without the .py extension
+                subfolder_path = os.path.join(directory, module_name)
+                if not os.path.exists(subfolder_path):
+                    os.makedirs(subfolder_path)
+                    logging.info(f"Created subfolder: {subfolder_path}")
 
-            # Create a valves.json file if it doesn't exist
-            valves_json_path = os.path.join(subfolder_path, "valves.json")
-            if not os.path.exists(valves_json_path):
-                with open(valves_json_path, "w") as f:
-                    json.dump({}, f)
-                logging.info(f"Created valves.json in: {subfolder_path}")
+                # Create a valves.json file if it doesn't exist
+                valves_json_path = os.path.join(subfolder_path, "valves.json")
+                if not os.path.exists(valves_json_path):
+                    with open(valves_json_path, "w") as f:
+                        json.dump({}, f)
+                    logging.info(f"Created valves.json in: {subfolder_path}")
 
             pipeline = await load_module_from_path(module_name, module_path)
             if pipeline:
@@ -209,6 +231,8 @@ async def load_modules_from_directory(directory):
                 PIPELINE_MODULES[pipeline_id] = pipeline
                 PIPELINE_NAMES[pipeline_id] = module_name
                 logging.info(f"Loaded module: {module_name}")
+            elif module_path.endswith("__init__.py"):
+                logging.info(f"Skipping __init__.py script: {module_path}")
             else:
                 logging.warning(f"No Pipeline class found in {module_name}")
 
@@ -391,7 +415,7 @@ async def add_pipeline(
     try:
         url = convert_to_raw_url(form_data.url)
 
-        print(url)
+        logging.debug(url)
         file_path = await download_file(url, dest_folder=PIPELINES_DIR)
         await reload()
         return {
@@ -576,7 +600,7 @@ async def update_valves(pipeline_id: str, form_data: dict):
         if hasattr(pipeline, "on_valves_updated"):
             await pipeline.on_valves_updated()
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"{str(e)}",
@@ -610,7 +634,7 @@ async def filter_inlet(pipeline_id: str, form_data: FilterForm):
         else:
             return form_data.body
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"{str(e)}",
@@ -642,7 +666,7 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
         else:
             return form_data.body
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"{str(e)}",
@@ -665,12 +689,12 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         )
 
     def job():
-        print(form_data.model)
+        logging.debug(form_data.model)
 
         pipeline = app.state.PIPELINES[form_data.model]
         pipeline_id = form_data.model
 
-        print(pipeline_id)
+        logging.debug(pipeline_id)
 
         if pipeline["type"] == "manifold":
             manifold_id, pipeline_id = pipeline_id.split(".", 1)

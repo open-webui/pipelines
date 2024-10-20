@@ -12,6 +12,18 @@ PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
 # Default value for DEBUG_PIP
 DEBUG_PIP=${DEBUG_PIP:-false}
 
+echo "Starting Open WebUI Pipelines..."
+echo ""
+echo "Host: $HOST"
+echo "Port: $PORT"
+echo "Pipelines directory: $PIPELINES_DIR"
+echo ""
+echo "DEBUG_PIP: $DEBUG_PIP"
+echo "PIPELINES_URLS: $PIPELINES_URLS"
+echo "PIPELINES_REQUIREMENTS_PATH: $PIPELINES_REQUIREMENTS_PATH"
+echo "RESET_PIPELINES_DIR: $RESET_PIPELINES_DIR"
+echo ""
+
 # Function to reset pipelines
 reset_pipelines_dir() {
   if [ "$RESET_PIPELINES_DIR" = true ]; then
@@ -47,7 +59,7 @@ install_requirements() {
     if [ "$DEBUG_PIP" = true ]; then
       pip install -r "$1" || { echo "Failed to install requirements from $1"; exit 1; }
     else
-      pip install -r "$1" >/dev/null 2>&1 || { echo "Failed to install requirements from $1"; exit 1; }
+      pip install -r "$1" --quiet >/dev/null 2>&1 || { echo "Failed to install requirements from $1"; exit 1; }
     fi
   else
     echo "requirements.txt not found at $1. Skipping installation of requirements."
@@ -90,7 +102,7 @@ download_pipelines() {
     git clone "$path" "$destination" || { echo "Failed to clone $path"; exit 1; }
   else
     echo "Invalid URL format: $path"
-    exit 
+    exit 1
   fi
 }
 
@@ -109,11 +121,11 @@ install_frontmatter_requirements() {
     local requirements=$(echo "$requirements_line" | awk -F': ' '{print $2}' | tr ',' ' ' | tr -d '\r' | xargs)
 
     echo "Installing requirements: $requirements"
-    if [ "$DEBUG_PIP" = true ]; then
-      pip install $requirements || { echo "Failed to install requirements: $requirements"; exit 1; }
-    else
-      pip install $requirements >/dev/null 2>&1 || { echo "Failed to install requirements: $requirements"; exit 1; }
-    fi
+    # Create a temporary requirements.txt file
+    local temp_requirements_file=$(mktemp)
+    echo "$requirements" | tr ' ' '\n' > "$temp_requirements_file"
+    install_requirements "$temp_requirements_file"
+    rm "$temp_requirements_file"
   else
     echo "No requirements found in frontmatter of $file."
   fi
@@ -152,4 +164,6 @@ else
   echo "PIPELINES_URLS not specified. Skipping pipelines download and installation."
 fi
 
+echo "start.sh script completed successfully."
+echo ""
 exec uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
