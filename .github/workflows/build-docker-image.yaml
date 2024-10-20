@@ -20,6 +20,9 @@ on:
                 default: ghcr.io
                 type: string
 
+env:
+    FULL_IMAGE_NAME: ${{ inputs.registry }}/${{ inputs.image_name }}
+
 jobs:
     build-image:
         runs-on: ubuntu-latest
