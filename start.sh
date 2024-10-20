@@ -25,8 +25,8 @@ reset_pipelines_dir() {
 
     # Check if the directory exists
     if [ -d "$PIPELINES_DIR" ]; then
-      # Remove all contents of the directory
-      rm -rf "${PIPELINES_DIR:?}"/*
+      # Remove the directory completely
+      rm -rf "$PIPELINES_DIR"
       echo "All contents in $PIPELINES_DIR have been removed."
 
       # Optionally recreate the directory if needed
@@ -39,9 +39,6 @@ reset_pipelines_dir() {
     echo "RESET_PIPELINES_DIR is not set to true. No action taken."
   fi
 }
-
-# Example usage of the function
-reset_pipelines_dir
 
 # Function to install requirements if requirements.txt is provided
 install_requirements() {
@@ -57,14 +54,6 @@ install_requirements() {
   fi
 }
 
-# Check if the PIPELINES_REQUIREMENTS_PATH environment variable is set and non-empty
-if [[ -n "$PIPELINES_REQUIREMENTS_PATH" ]]; then
-  # Install requirements from the specified requirements.txt
-  install_requirements "$PIPELINES_REQUIREMENTS_PATH"
-else
-  echo "PIPELINES_REQUIREMENTS_PATH not specified. Skipping installation of requirements."
-fi
-
 # Function to download the pipeline files
 download_pipelines() {
   local path="$1"
@@ -74,16 +63,6 @@ download_pipelines() {
   path=$(echo "$path" | sed 's/^"//;s/"$//')
 
   echo "Downloading pipeline files from '$path' to '$destination'..."
-
-  if [ -d "$destination" ] && [ "$(ls -A "$destination")" ]; then
-    if [ "$RESET_PIPELINES_DIR" = true ]; then
-      echo "Destination path '$destination' already exists and is not empty. Removing..."
-      rm -rf "${destination:?}"/*
-    else
-      echo "RESET_PIPELINES_DIR is not set to true. No action taken."
-      return
-    fi
-  fi
 
   if [[ "$path" =~ ^https://github.com/.*/.*/blob/.* ]]; then
     # It's a single file
@@ -146,18 +125,31 @@ install_frontmatter_requirements() {
   fi
 }
 
-# Check if PIPELINES_URLS environment variable is set and non-empty
+# Check if the PIPELINES_REQUIREMENTS_PATH environment variable is set and non-empty
+if [[ -n "$PIPELINES_REQUIREMENTS_PATH" ]]; then
+  # Install requirements from the specified requirements.txt
+  install_requirements "$PIPELINES_REQUIREMENTS_PATH"
+else
+  echo "PIPELINES_REQUIREMENTS_PATH not specified. Skipping installation of requirements."
+fi
+
+# Reset pipelines directory before any download or cloning operations
+reset_pipelines_dir
+
+# Check if the PIPELINES_URLS environment variable is set and non-empty
 if [[ -n "$PIPELINES_URLS" ]]; then
-  pipelines_dir="./pipelines"
-  mkdir -p "$pipelines_dir"
+  # Check if RESET_PIPELINES_DIR is not true and pipelines directory exists and is not empty
+  if [ "$RESET_PIPELINES_DIR" != true ] && [ -d "$PIPELINES_DIR" ] && [ "$(ls -A "$PIPELINES_DIR")" ]; then
+    echo "Pipelines directory $PIPELINES_DIR already exists and is not empty. Skipping download."
+  else
+    # Split PIPELINES_URLS by ';' and iterate over each path
+    IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
+    for path in "${ADDR[@]}"; do
+      download_pipelines "$path" "$PIPELINES_DIR"
+    done
+  fi
 
-  # Split PIPELINES_URLS by ';' and iterate over each path
-  IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
-  for path in "${ADDR[@]}"; do
-    download_pipelines "$path" "$pipelines_dir"
-  done
-
-  for file in "$pipelines_dir"/*; do
+  for file in "$PIPELINES_DIR"/*; do
     if [[ -f "$file" ]]; then
       install_frontmatter_requirements "$file"
     fi
