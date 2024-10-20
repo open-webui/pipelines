@@ -21,7 +21,7 @@ on:
                 required: false
                 default: ghcr.io
                 type: string
-            docker_flavor:
+            extract_flavor:
                 required: false
                 default: ""
                 type: string
@@ -78,7 +78,7 @@ jobs:
                       ${{ inputs.image_tag }}
                   flavor: |
                       latest=${{ github.ref == 'refs/heads/main' }}
-                      ${{ inputs.docker_flavor }}
+                      ${{ inputs.extract_flavor }}
 
             - name: Extract metadata for Docker cache
               id: cache-meta
