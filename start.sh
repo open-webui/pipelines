@@ -110,23 +110,20 @@ download_pipelines() {
     # Handle general GitHub repository URL
     git clone "$path" "$destination" || { echo "Failed to clone $path"; exit 1; }
   else
-      echo "Invalid URL format: $path"
-      exit 1
+    echo "Invalid URL format: $path"
+    exit 
   fi
 }
 
 # Function to parse and install requirements from frontmatter
 install_frontmatter_requirements() {
   local file="$1"
-  local file_content
-  file_content=$(cat "$file")
+  local file_content=$(cat "$file")
   # Extract the first triple-quoted block
-  local first_block
-  first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag' )
+  local first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag' )
 
   # Check if the block contains requirements
-  local requirements
-  requirements=$(echo "$first_block" | grep -i 'requirements:')
+  local requirements=$(echo "$first_block" | grep -i 'requirements:')
 
   if [ -n "$requirements" ]; then
     # Extract the requirements list
