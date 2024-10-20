@@ -16,30 +16,18 @@ jobs:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
             image_name: ${{ github.repository }}
-            image_tag: |
-                type=ref,event=branch
-                type=ref,event=tag
-                type=sha,prefix=git-
-                type=semver,pattern={{version}}
-                type=semver,pattern={{major}}.{{minor}}
-            cache_prefix: cache
-            build_args: |
-                BUILD_HASH=${{ github.sha }}
+            cache_id: main
 
     build-cuda-image:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
             image_name: ${{ github.repository }}
             image_tag: |
-                type=ref,event=branch
-                type=ref,event=tag
-                type=sha,prefix=git-
-                type=semver,pattern={{version}}
-                type=semver,pattern={{major}}.{{minor}}
                 type=raw,enable=${{ github.ref == 'refs/heads/main' }},prefix=,suffix=,value=cuda
-            cache_prefix: cache-cuda
+            cache_id: cuda
+            docker_flavor: |
+                suffix=-cuda,onlatest=true
             build_args: |
-                BUILD_HASH=${{ github.sha }}
                 USE_CUDA=true
 
     merge-main-images:

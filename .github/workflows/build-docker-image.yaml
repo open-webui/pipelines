@@ -7,17 +7,23 @@ on:
                 required: true
                 type: string
             image_tag:
-                required: true
+                required: false
+                default: ""
                 type: string
-            cache_prefix:
+            cache_id:
                 required: true
                 type: string
             build_args:
-                required: true
+                required: false
+                default: ""
                 type: string
             registry:
                 required: false
                 default: ghcr.io
+                type: string
+            docker_flavor:
+                required: false
+                default: ""
                 type: string
 
 env:
@@ -63,9 +69,16 @@ jobs:
               uses: docker/metadata-action@v5
               with:
                   images: ${{ env.FULL_IMAGE_NAME }}
-                  tags: ${{ inputs.image_tag }}
+                  tags: |
+                      type=ref,event=branch
+                      type=ref,event=tag
+                      type=sha,prefix=git-
+                      type=semver,pattern={{version}}
+                      type=semver,pattern={{major}}.{{minor}}
+                      ${{ inputs.image_tag }}
                   flavor: |
                       latest=${{ github.ref == 'refs/heads/main' }}
+                      ${{ inputs.docker_flavor }}
 
             - name: Extract metadata for Docker cache
               id: cache-meta
@@ -75,7 +88,7 @@ jobs:
                   tags: |
                       type=ref,event=branch
                   flavor: |
-                      prefix=${{ inputs.cache_prefix }}-${{ matrix.platform }}-
+                      prefix=cache-${{ inputs.cache_id }}-${{ matrix.platform }}-
 
             - name: Build Docker image
               uses: docker/build-push-action@v5
@@ -88,7 +101,9 @@ jobs:
                   outputs: type=image,name=${{ env.FULL_IMAGE_NAME }},push-by-digest=true,name-canonical=true,push=true
                   cache-from: type=registry,ref=${{ steps.cache-meta.outputs.tags }}
                   cache-to: type=registry,ref=${{ steps.cache-meta.outputs.tags }},mode=max
-                  build-args: ${{ inputs.build_args }}
+                  build-args: |
+                      BUILD_HASH=${{ github.sha }}
+                      ${{ inputs.build_args }}
 
             - name: Export digest
               run: |
@@ -99,7 +114,7 @@ jobs:
             - name: Upload digest
               uses: actions/upload-artifact@v4
               with:
-                  name: digests-${{ inputs.cache_prefix }}-${{ env.PLATFORM_PAIR }}
+                  name: digests-${{ inputs.cache_id }}-${{ env.PLATFORM_PAIR }}
                   path: /tmp/digests/*
                   if-no-files-found: error
                   retention-days: 1
