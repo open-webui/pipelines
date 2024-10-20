@@ -20,6 +20,7 @@ jobs:
 
     build-cuda-image:
         uses: ./.github/workflows/build-docker-image.yaml
+        if: false
         with:
             image_name: ${{ github.repository }}
             image_tag: |
