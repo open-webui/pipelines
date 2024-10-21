@@ -115,7 +115,7 @@ if [[ -n "$PIPELINES_URLS" ]]; then
   # Split PIPELINES_URLS by ';' and iterate over each path
   IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
   for path in "${ADDR[@]}"; do
-    download_pipelines "$path" "$pipelines_dir"
+    download_pipelines "$path" "$PIPELINES_DIR"
   done
 
   for file in "$pipelines_dir"/*; do
