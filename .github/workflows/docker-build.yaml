@@ -7,25 +7,20 @@ on:
             - main
             - dev
 
-env:
-    CUDA_IMAGE_TAG: type=raw,enable=${{ github.ref == 'refs/heads/main' }},prefix=,suffix=,value=cuda
-    CUDA_IMAGE_FLAVOR: suffix=-cuda,onlatest=true
-    IMAGE_NAME: ${{ github.repository }}
-
 jobs:
     build-main-image:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
-            image_name: ${{ env.IMAGE_NAME }}
+            image_name: ${{ github.repository }}
             cache_id: main
 
     build-cuda-image:
         uses: ./.github/workflows/build-docker-image.yaml
         with:
-            image_name: ${{ env.IMAGE_NAME }}
+            image_name: ${{ github.repository }}
             cache_id: cuda
-            image_tag: ${{ env.CUDA_IMAGE_TAG }}
-            extract_flavor: ${{ env.CUDA_IMAGE_FLAVOR }}
+            image_tag: type=raw,enable=${{ github.ref == 'refs/heads/main' }},prefix=,suffix=,value=cuda
+            extract_flavor: suffix=-cuda,onlatest=true
             build_args: |
                 USE_CUDA=true
 
@@ -33,14 +28,14 @@ jobs:
         uses: ./.github/workflows/merge-docker-images.yaml
         needs: [build-main-image]
         with:
-            image_name: ${{ env.IMAGE_NAME }}
+            image_name: ${{ github.repository }}
             cache_id: main
 
     merge-cuda-images:
         uses: ./.github/workflows/merge-docker-images.yaml
         needs: [build-cuda-image]
         with:
-            image_name: ${{ env.IMAGE_NAME }}
+            image_name: ${{ github.repository }}
             cache_id: cuda
-            extract_flavor: ${{ env.CUDA_IMAGE_FLAVOR }}
-            extract_tags: ${{ env.CUDA_IMAGE_TAG }}
+            extract_flavor: suffix=-cuda,onlatest=true
+            extract_tags: type=raw,enable=${{ github.ref == 'refs/heads/main' }},prefix=,suffix=,value=cuda
