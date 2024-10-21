@@ -1,0 +1,15 @@
+fastapi==0.111.0
+uvicorn[standard]==0.22.0
+pydantic==2.7.1
+python-multipart==0.0.9
+python-socketio
+grpcio
+
+passlib==1.7.4
+passlib[bcrypt]
+PyJWT[crypto]
+
+requests==2.32.2
+aiohttp==3.9.5
+httpx
+

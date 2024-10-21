@@ -1,2 +1,11 @@
 .venv
 .env
+.git
+.gitignore
+.github
+Dockerfile
+examples
+docs
+*.md
+dev.sh
+dev-docker.sh
