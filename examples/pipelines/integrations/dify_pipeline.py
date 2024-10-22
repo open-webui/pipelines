@@ -2,7 +2,7 @@ from typing import List, Union, Generator, Iterator, Optional
 from pprint import pprint
 import requests, json, warnings
 
-# Unhash to disable SSL verification warnings if needed
+# Uncomment to disable SSL verification warnings if needed.
 # warnings.filterwarnings('ignore', message='Unverified HTTPS request')
 
 class Pipeline:
