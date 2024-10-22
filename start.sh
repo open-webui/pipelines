@@ -8,13 +8,13 @@ PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
 reset_pipelines_dir() {
   if [ "$RESET_PIPELINES_DIR" = true ]; then
     echo "Resetting pipelines directory: $PIPELINES_DIR"
-    
+
     # Check if the directory exists
     if [ -d "$PIPELINES_DIR" ]; then
       # Remove all contents of the directory
       rm -rf "${PIPELINES_DIR:?}"/*
       echo "All contents in $PIPELINES_DIR have been removed."
-      
+
       # Optionally recreate the directory if needed
       mkdir -p "$PIPELINES_DIR"
       echo "$PIPELINES_DIR has been recreated."
@@ -87,14 +87,14 @@ install_frontmatter_requirements() {
   local file_content=$(cat "$1")
   # Extract the first triple-quoted block
   local first_block=$(echo "$file_content" | awk '/"""/{flag=!flag; if(flag) count++; if(count == 2) {exit}} flag' )
-  
+
   # Check if the block contains requirements
   local requirements=$(echo "$first_block" | grep -i 'requirements:')
-  
+
   if [ -n "$requirements" ]; then
     # Extract the requirements list
     requirements=$(echo "$requirements" | awk -F': ' '{print $2}' | tr ',' ' ' | tr -d '\r')
-    
+
     # Construct and echo the pip install command
     local pip_command="pip install $requirements"
     echo "$pip_command"
@@ -108,13 +108,14 @@ install_frontmatter_requirements() {
 
 # Check if PIPELINES_URLS environment variable is set and non-empty
 if [[ -n "$PIPELINES_URLS" ]]; then
-  pipelines_dir="./pipelines"
-  mkdir -p "$pipelines_dir"
+  if [ ! -d "$PIPELINES_DIR" ]; then
+    mkdir -p "$PIPELINES_DIR"
+  fi
 
   # Split PIPELINES_URLS by ';' and iterate over each path
   IFS=';' read -ra ADDR <<< "$PIPELINES_URLS"
   for path in "${ADDR[@]}"; do
-    download_pipelines "$path" "$pipelines_dir"
+    download_pipelines "$path" "$PIPELINES_DIR"
   done
 
   for file in "$pipelines_dir"/*; do
