@@ -43,10 +43,11 @@ class Pipeline:
 
     def get_anthropic_models(self):
         return [
+            {"id": "claude-3-5-sonnet-20241022", "name": "claude-3-5-sonnet"},
+            {"id": "claude-3-5-sonnet-20240620", "name": "claude-3.5-sonnet-20240620"},
             {"id": "claude-3-haiku-20240307", "name": "claude-3-haiku"},
             {"id": "claude-3-opus-20240229", "name": "claude-3-opus"},
             {"id": "claude-3-sonnet-20240229", "name": "claude-3-sonnet"},
-            {"id": "claude-3-5-sonnet-20240620", "name": "claude-3.5-sonnet"},
         ]
 
     async def on_startup(self):
