@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="#"><img src="./header.png" alt="Pipelines Logo"></a>
+  <a href="#"><img src="./docs/images/header.png" alt="Pipelines Logo"></a>
 </p>
 
 # Pipelines: UI-Agnostic OpenAI API Plugin Framework
