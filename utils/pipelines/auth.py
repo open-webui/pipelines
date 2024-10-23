@@ -4,7 +4,7 @@ from fastapi import HTTPException, status, Depends
 from pydantic import BaseModel
 from typing import Union, Optional
 
-
+from config import API_KEY
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
@@ -63,3 +63,11 @@ def get_current_user(
 ) -> Optional[dict]:
     token = credentials.credentials
     return token
+
+def get_current_user_or_abort(user:str = Depends(get_current_user)) -> str:
+    if user != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+        )
+    return user
