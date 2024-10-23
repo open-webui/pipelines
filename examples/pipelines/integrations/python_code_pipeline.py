@@ -29,7 +29,7 @@ class Pipeline:
                 ["python", "-c", code], capture_output=True, text=True, check=True
             )
             stdout = result.stdout.strip()
-            return stdout, result.returncode
+            return f'`finished`\n{stdout}', result.returncode
         except subprocess.CalledProcessError as e:
             return e.stdeer.strip(), e.returncode
 
