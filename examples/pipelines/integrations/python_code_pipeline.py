@@ -31,7 +31,7 @@ class Pipeline:
             stdout = result.stdout.strip()
             return stdout, result.returncode
         except subprocess.CalledProcessError as e:
-            return e.output.strip(), e.returncode
+            return e.stdeer.strip(), e.returncode
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
