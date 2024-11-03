@@ -130,4 +130,9 @@ fi
 
 
 # Start the server
-uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+if [ "$ENV" = "production" ] || [ -z "$ENV" ]; then
+    uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+else
+    echo "Running in development mode"
+    uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --reload
+fi
