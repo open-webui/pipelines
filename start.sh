@@ -1,8 +1,29 @@
 #!/usr/bin/env bash
 PORT="${PORT:-9099}"
 HOST="${HOST:-0.0.0.0}"
-# Default value for PIPELINES_DIR
+# Default values for the variables
 PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
+PIPELINES_VENV=${PIPELINES_VENV:-False}
+PIPELINES_VENV_AUTOUPGRADE=${PIPELINES_VENV_AUTOUPGRADE:-False}
+PIPELINES_VENV_PATH="${PIPELINES_VENV_PATH:-${PIPELINES_DIR}/venv}"
+
+# Actiavte venv if needed
+if [ "$PIPELINES_VENV" = True ]; then
+  echo "PIPELINES_VENV is ACTIVE"
+  echo "PIPELINES_VENV_PATH: $PIPELINES_VENV_PATH"
+  echo "PIPELINES_VENV_AUTOUPGRADE: $PIPELINES_VENV_AUTOUPGRADE"
+
+  # Init venv if not installed
+  if [ ! -d "$PIPELINES_VENV_PATH" ]; then
+    echo "Creating virtual environment at $PIPELINES_VENV_PATH"
+    python3 -m venv "$PIPELINES_VENV_PATH"
+  fi
+
+  # Activate venv
+  echo "Activated virtual environment at $PIPELINES_VENV_PATH"
+  source "$PIPELINES_VENV_PATH"/bin/activate
+fi
+
 
 # Function to reset pipelines
 reset_pipelines_dir() {
@@ -33,6 +54,16 @@ reset_pipelines_dir
 install_requirements() {
   if [[ -f "$1" ]]; then
     echo "requirements.txt found at $1. Installing requirements..."
+
+    # Upgrade pip if PIPELINES_VENV_AUTOUPGRADE is True and venv is active
+    if [ "$PIPELINES_VENV" = True ] && [ "$PIPELINES_VENV_AUTOUPGRADE" = True ]; then
+      echo "Upgrading pip..."
+      pip install --upgrade pip
+
+      echo "Checking for outdated packages."
+      pip install --upgrade -r $1
+    fi
+
     pip install -r "$1"
   else
     echo "requirements.txt not found at $1. Skipping installation of requirements."
@@ -118,7 +149,7 @@ if [[ -n "$PIPELINES_URLS" ]]; then
     download_pipelines "$path" "$PIPELINES_DIR"
   done
 
-  for file in "$pipelines_dir"/*; do
+  for file in "$PIPELINES_DIR"/*; do
     if [[ -f "$file" ]]; then
       install_frontmatter_requirements "$file"
     fi
@@ -127,12 +158,22 @@ else
   echo "PIPELINES_URLS not specified. Skipping pipelines download and installation."
 fi
 
-
-
-# Start the server
 if [ "$PIPELINES_ENV" = "production" ] || [ -z "$PIPELINES_ENV" ]; then
-    uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+    if [ "$PIPELINES_WORKERS" = "auto" ]; then
+        echo "INFO:     Calculate workers based on avaible CPU cores"
+        CPU_COUNT=$(nproc)
+        WORKERS=$((2 * CPU_COUNT + 1))
+        WORKER_CPU_TEXT="(workers: 2*"$CPU_COUNT"xCPU+1)"
+    else
+        WORKERS="${PIPELINES_WORKERS:-1}"
+        WORKER_CPU_TEXT=""
+    fi
+    WORKER_TEXT=$([ "$WORKERS" -eq 1 ] && echo "worker" || echo "workers")
+
+    echo "INFO:     Running in production mode with $WORKERS $WORKER_TEXT $WORKER_CPU_TEXT"
+    uvicorn main:app --host "$HOST" --port "$PORT" --workers "$WORKERS" --forwarded-allow-ips '*'
 else
     echo "INFO:     Running in development mode"
+    # "workers" flag will be ignored when reloading is enabled.
     uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --reload
 fi
