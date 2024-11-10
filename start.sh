@@ -118,7 +118,7 @@ if [[ -n "$PIPELINES_URLS" ]]; then
     download_pipelines "$path" "$PIPELINES_DIR"
   done
 
-  for file in "$pipelines_dir"/*; do
+  for file in "$PIPELINES_DIR"/*; do
     if [[ -f "$file" ]]; then
       install_frontmatter_requirements "$file"
     fi
