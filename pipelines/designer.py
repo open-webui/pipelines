@@ -19,7 +19,7 @@ class Pipeline:
         NUM_IMAGES: int = 4
 
     def __init__(self):
-        self.type = "manifold"
+        self.type = "designer"
         self.name = "Inverse Designer: "
 
         self.valves = self.Valves()
