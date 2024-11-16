@@ -10,6 +10,7 @@ import time
 import zipfile
 
 from fastapi import status, HTTPException
+from urllib.parse import urlparse
 
 
 from config import SUPPRESS_PIP_OUTPUT
@@ -180,6 +181,19 @@ async def download_file(url, filepath):
             with open(filepath, "wb") as f:
                 f.write(data)
             logger.debug(f"Downloaded {filepath}")
+
+
+async def download_file_to_folder(url: str, dest_folder: str):
+    filename = os.path.basename(urlparse(url).path)
+    if not filename.endswith(".py"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="URL must point to a Python file",
+        )
+
+    file_path = os.path.join(dest_folder, filename)
+    await download_file(url, file_path)
+    return file_path
 
 
 async def download_and_extract_zip(url, destination):

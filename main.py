@@ -7,16 +7,15 @@ from starlette.responses import StreamingResponse
 from typing import Generator, Iterator
 
 from contextlib import asynccontextmanager
-from schemas import FilterForm, OpenAIChatCompletionForm
-from urllib.parse import urlparse
 
 import shutil
-import aiohttp
 import os
 import importlib.util
 import time
 import json
 import uuid
+
+from schemas import FilterForm, OpenAIChatCompletionForm
 
 from utils.pipelines.logger import setup_logger
 
@@ -24,7 +23,7 @@ logger = setup_logger(__name__)
 
 from utils.pipelines.auth import bearer_security, get_current_user
 from utils.pipelines.downloads import (
-    download_file,
+    download_file_to_folder,
     download_pipelines,
     install_requirements,
     install_requirements_from_file,
@@ -336,19 +335,6 @@ async def list_pipelines(user: str = Depends(get_current_user)):
 
 class AddPipelineForm(BaseModel):
     url: str
-
-
-async def download_file_to_folder(url: str, dest_folder: str):
-    filename = os.path.basename(urlparse(url).path)
-    if not filename.endswith(".py"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="URL must point to a Python file",
-        )
-
-    file_path = os.path.join(dest_folder, filename)
-    await download_file(url, file_path)
-    return file_path
 
 
 @app.post("/v1/pipelines/add")
