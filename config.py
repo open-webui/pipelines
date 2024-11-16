@@ -21,8 +21,4 @@ RESET_PIPELINES_DIR = os.getenv("RESET_PIPELINES_DIR", "false").lower() == "true
 PIPELINES_REQUIREMENTS_PATH = os.getenv("PIPELINES_REQUIREMENTS_PATH")
 PIPELINES_URLS = os.getenv("PIPELINES_URLS")
 
-SUPPRESS_PIP_OUTPUT = os.getenv("SUPPRESS_PIP_OUTPUT", "true").lower() in (
-    "true",
-    "1",
-    "yes",
-)
+SUPPRESS_PIP_OUTPUT = os.getenv("SUPPRESS_PIP_OUTPUT", "true").lower() == "true"

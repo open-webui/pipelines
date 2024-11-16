@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 
 
 from config import SUPPRESS_PIP_OUTPUT
-from .logger import setup_logger  # Update import path
+from .logger import setup_logger
 
 logger = setup_logger(__name__)
 
