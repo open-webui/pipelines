@@ -3,6 +3,7 @@ from schemas import OpenAIChatMessage
 from pydantic import BaseModel
 import os
 import requests
+import json
 
 
 class Pipeline:
@@ -46,12 +47,11 @@ class Pipeline:
 
         payload = {**body, "model": MODEL}
 
-        if "user" in payload:
-            del payload["user"]
-        if "chat_id" in payload:
-            del payload["chat_id"]
-        if "title" in payload:
-            del payload["title"]
+        # Remove unnecessary fields
+        fields_to_remove = ["user", "chat_id", "title"]
+        for field in fields_to_remove:
+            if field in payload:
+                del payload[field]
 
         print(payload)
 
@@ -65,9 +65,17 @@ class Pipeline:
 
             r.raise_for_status()
 
-            if body["stream"]:
+            if body.get("stream", False):
                 return r.iter_lines()
             else:
                 return r.json()
+        except requests.exceptions.HTTPError as e:
+            error_msg = {"error": str(e)}
+            if e.response is not None:
+                try:
+                    error_msg = e.response.json()
+                except:
+                    pass
+            return json.dumps({"error": error_msg})
         except Exception as e:
-            return f"Error: {e}"
+            return json.dumps({"error": str(e)})
