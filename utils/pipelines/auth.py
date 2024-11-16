@@ -1,18 +1,13 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import HTTPException, status, Depends
+from fastapi import Depends
 
-from pydantic import BaseModel
 from typing import Union, Optional
 
 
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
-import logging
 import os
-
-import requests
-import uuid
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", " ")
 ALGORITHM = "HS256"
