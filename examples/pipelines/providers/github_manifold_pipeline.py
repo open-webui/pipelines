@@ -135,6 +135,11 @@ class Pipeline:
             else:
                 return r.json()
         except Exception as e:
-            # TODO: Render Errors Normally in Open-WebUI, not in the message body
-            print(f"Error generating content: {e}")
-            return f"Error: {str(e)}"
+            # TODO: Render Errors Normally in Open-WebUI, not in the chat message body
+            if r:
+                text = r.text
+                return f"Error: {e} ({text})"
+            else:
+                print(f"Error generating content: {e}")
+                return f"Error: {e}"
+                # return f"Error: {str(e)}"
