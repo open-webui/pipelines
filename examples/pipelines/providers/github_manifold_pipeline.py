@@ -37,7 +37,7 @@ class Pipeline:
 
         self.valves = self.Valves(
             **{
-                "GITHUB_MODELS_BASE_URL": os.getenv("https://models.inference.ai.azure.com","https://models.inference.ai.azure.com"),
+                "GITHUB_MODELS_BASE_URL": os.getenv("GITHUB_MODELS_BASE_URL","https://models.inference.ai.azure.com"),
                 "GITHUB_PAT": os.getenv("GITHUB_PAT", "")                
             }
         )
@@ -135,6 +135,6 @@ class Pipeline:
             else:
                 return r.json()
         except Exception as e:
-            # TODO: Render Errors Normally in Open-WebUI 
+            # TODO: Render Errors Normally in Open-WebUI, not in the message body
             print(f"Error generating content: {e}")
             return f"Error: {str(e)}"
