@@ -9,16 +9,12 @@ class Pipeline:
     class Valves(BaseModel):
         CLOUDFLARE_ACCOUNT_ID: str = ""
         CLOUDFLARE_API_KEY: str = ""
-        CLOUDFLARE_MODEL: str = ""
         pass
 
     def __init__(self):
-        # Optionally, you can set the id and name of the pipeline.
-        # Best practice is to not specify the id so that it can be automatically inferred from the filename, so that users can install multiple versions of the same pipeline.
-        # The identifier must be unique across all pipelines.
-        # The identifier must be an alphanumeric string that can include underscores or hyphens. It cannot contain spaces, special characters, slashes, or backslashes.
-        # self.id = "openai_pipeline"
-        self.name = "Cloudlfare AI"
+        self.type = "manifold"
+        self.name = "Cloudflare/"
+        self.id = "cloudflare"
         self.valves = self.Valves(
             **{
                 "CLOUDFLARE_ACCOUNT_ID": os.getenv(
@@ -28,23 +24,42 @@ class Pipeline:
                 "CLOUDFLARE_API_KEY": os.getenv(
                     "CLOUDFLARE_API_KEY", "your-cloudflare-api-key"
                 ),
-                "CLOUDFLARE_MODEL": os.getenv(
-                    "CLOUDFLARE_MODELS",
-                    "@cf/meta/llama-3.1-8b-instruct",
-                ),
             }
         )
-        pass
+        self.update_headers()
+        self.get_models()
+        self.pipelines = []
+
+    def update_headers(self):
+        self.headers = {
+            "Authorization": f"Bearer {self.valves.CLOUDFLARE_API_KEY}",
+            "content-type": "application/json",
+        }
+
+    def get_models(self):
+        # replace / with ___ to avoid issues with the url
+        self.pipelines = [
+            {"id": "@cf___meta___llama-3.1-70b-instruct", "name": "llama-3.1-70b"},
+            {
+                "id": "@cf___meta___llama-3.2-11b-vision-instruct",
+                "name": "llama-3.2-11b-vision",
+            },
+            {"id": "@cf___meta___llama-3.1-8b-instruct-fast", "name": "llama-3.1-8b"},
+        ]
 
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
-        pass
+        self.get_models()
 
     async def on_shutdown(self):
         # This function is called when the server is stopped.
         print(f"on_shutdown:{__name__}")
         pass
+
+    async def on_valves_updated(self):
+        self.update_headers()
+        self.get_models()
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
@@ -52,11 +67,10 @@ class Pipeline:
         # This is where you can add your custom pipelines like RAG.
         print(f"pipe:{__name__}")
 
-        headers = {}
-        headers["Authorization"] = f"Bearer {self.valves.CLOUDFLARE_API_KEY}"
-        headers["Content-Type"] = "application/json"
+        # fix model name again, url messed up otherwise
+        model = model_id.replace("___", "/")
 
-        payload = {**body, "model": self.valves.CLOUDFLARE_MODEL}
+        payload = {**body, "model": model}
 
         if "user" in payload:
             del payload["user"]
@@ -69,7 +83,7 @@ class Pipeline:
             r = requests.post(
                 url=f"https://api.cloudflare.com/client/v4/accounts/{self.valves.CLOUDFLARE_ACCOUNT_ID}/ai/v1/chat/completions",
                 json=payload,
-                headers=headers,
+                headers=self.headers,
                 stream=True,
             )
 
