@@ -202,6 +202,8 @@ async def load_modules_from_directory(directory):
                             }
                             valves = ValvesModel(**combined_valves)
                             pipeline.valves = valves
+                            if hasattr(pipeline, "on_valves_updated"):
+                                await pipeline.on_valves_updated()
 
                             logging.info(f"Updated valves for module: {module_name}")
 
