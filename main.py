@@ -260,7 +260,7 @@ async def check_url(request: Request, call_next):
 
 @app.get("/v1/models")
 @app.get("/models")
-async def get_models():
+async def get_models(user: str = Depends(get_current_user)):
     """
     Returns the available pipelines
     """

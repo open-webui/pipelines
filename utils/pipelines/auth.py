@@ -1,13 +1,14 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 
 from typing import Union, Optional
-
 
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
 import os
+
+from config import API_KEY
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", " ")
 ALGORITHM = "HS256"
@@ -57,4 +58,11 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_security),
 ) -> Optional[dict]:
     token = credentials.credentials
+
+    if token != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+        )
+
     return token
