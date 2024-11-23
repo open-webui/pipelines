@@ -106,28 +106,31 @@ def get_all_pipelines():
 
     return pipelines
 
+
 def parse_frontmatter(content):
     frontmatter = {}
-    for line in content.split('\n'):
-        if ':' in line:
-            key, value = line.split(':', 1)
+    for line in content.split("\n"):
+        if ":" in line:
+            key, value = line.split(":", 1)
             frontmatter[key.strip().lower()] = value.strip()
     return frontmatter
 
+
 def install_frontmatter_requirements(requirements):
     if requirements:
-        req_list = [req.strip() for req in requirements.split(',')]
+        req_list = [req.strip() for req in requirements.split(",")]
         for req in req_list:
             print(f"Installing requirement: {req}")
             subprocess.check_call([sys.executable, "-m", "pip", "install", req])
     else:
         print("No requirements found in frontmatter.")
 
+
 async def load_module_from_path(module_name, module_path):
 
     try:
         # Read the module content
-        with open(module_path, 'r') as file:
+        with open(module_path, "r") as file:
             content = file.read()
 
         # Parse frontmatter
@@ -139,8 +142,8 @@ async def load_module_from_path(module_name, module_path):
                 frontmatter = parse_frontmatter(frontmatter_content)
 
         # Install requirements if specified
-        if 'requirements' in frontmatter:
-            install_frontmatter_requirements(frontmatter['requirements'])
+        if "requirements" in frontmatter:
+            install_frontmatter_requirements(frontmatter["requirements"])
 
         # Load the module
         spec = importlib.util.spec_from_file_location(module_name, module_path)
@@ -277,7 +280,7 @@ async def check_url(request: Request, call_next):
 
 @app.get("/v1/models")
 @app.get("/models")
-async def get_models():
+async def get_models(user: str = Depends(get_current_user)):
     """
     Returns the available pipelines
     """

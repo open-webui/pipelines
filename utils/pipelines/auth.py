@@ -1,6 +1,7 @@
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import HTTPException, status, Depends
 
+
 from pydantic import BaseModel
 from typing import Union, Optional
 
@@ -13,6 +14,10 @@ import os
 
 import requests
 import uuid
+
+
+from config import API_KEY, PIPELINES_DIR
+
 
 SESSION_SECRET = os.getenv("SESSION_SECRET", " ")
 ALGORITHM = "HS256"
@@ -62,4 +67,11 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer_security),
 ) -> Optional[dict]:
     token = credentials.credentials
+
+    if token != API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid API key",
+        )
+
     return token
