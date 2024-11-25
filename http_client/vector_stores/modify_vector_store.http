@@ -1,0 +1,10 @@
+POST http://localhost:9099/v1/vector_stores/af322871-2fb6-4936-b2ed-193f54bee579
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json
+
+{
+  "name": "my-vector-store-changed",
+  "metadata": {
+    "application": "openwebui"
+  }
+}
