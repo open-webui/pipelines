@@ -64,3 +64,15 @@ beautifulsoup4
 # Llama Index for RAG
 llama-index
 llama-index-llms-ollama
+
+
+#azure 
+azure-functions
+azure-storage-blob
+azure-search-documents
+azure-identity
+azure-cosmos
+pandas
+openpyxl
+jsonschema
+numpy
