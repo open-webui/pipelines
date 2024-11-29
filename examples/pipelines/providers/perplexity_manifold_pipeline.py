@@ -23,6 +23,7 @@ from utils.pipelines.main import pop_system_message
 class Pipeline:
     class Valves(BaseModel):
         PERPLEXITY_API_KEY: str = ""
+        pass
 
     def __init__(self):
         self.type = "manifold"
@@ -56,6 +57,7 @@ class Pipeline:
                 "name": "Perplexity Llama 3.1 Sonar Huge"
             },
         ]
+        pass
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
