@@ -168,6 +168,7 @@ And answer according to the language of the user's question.""",
 
             response = r.json()
             content = response["choices"][0]["message"]["content"]
+            content = content[content.find('{'):content.rfind('}') + 1]
 
             # Parse the function response
             if content != "":
