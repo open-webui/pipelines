@@ -3,7 +3,7 @@
     "private": true,
     "repository": {
         "type": "git",
-        "url": "git@github.com:open-webui/pipelines.git"
+        "url": "git@github.com:Lanhild/pipelines.git"
     },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
