@@ -1,17 +1,19 @@
-from typing import List, Union, Generator, Iterator
-from schemas import OpenAIChatMessage
-from pydantic import BaseModel
 import os
+from typing import Generator, Iterator, List, Union
+
 import requests
+from pydantic import BaseModel
 
 
 class Pipeline:
     class Valves(BaseModel):
         CLOUDFLARE_ACCOUNT_ID: str = ""
         CLOUDFLARE_API_KEY: str = ""
+        CLOUDFLARE_MODELS: str = ""
         pass
 
     def __init__(self):
+        # Add multiple models from the Model Catalog to a Cloudflare AI pipeline, separated by comma.
         self.type = "manifold"
         self.name = "Cloudflare/"
         self.id = "cloudflare"
@@ -23,6 +25,10 @@ class Pipeline:
                 ),
                 "CLOUDFLARE_API_KEY": os.getenv(
                     "CLOUDFLARE_API_KEY", "your-cloudflare-api-key"
+                ),
+                "CLOUDFLARE_MODELS": os.getenv(
+                    "CLOUDFLARE_MODELS",
+                    "@cf/meta/llama-3.3-70b-instruct-fp8-fast,cf/meta/llama-3.2-11b-vision-instruct",
                 ),
             }
         )
@@ -39,12 +45,12 @@ class Pipeline:
     def get_models(self):
         # replace / with ___ to avoid issues with the url
         self.pipelines = [
-            {"id": "@cf___meta___llama-3.1-70b-instruct", "name": "llama-3.1-70b"},
             {
-                "id": "@cf___meta___llama-3.2-11b-vision-instruct",
-                "name": "llama-3.2-11b-vision",
-            },
-            {"id": "@cf___meta___llama-3.1-8b-instruct-fast", "name": "llama-3.1-8b"},
+                "id": entry.replace("/", "___"),
+                "name": entry.replace("/", "___").split("___")[-1],
+            }
+            for entry in self.valves.CLOUDFLARE_MODELS.split(",")
+            if entry
         ]
 
     async def on_startup(self):
