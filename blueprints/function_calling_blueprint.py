@@ -137,6 +137,8 @@ And answer according to the language of the user's question.""",
             # Return the updated messages
             return messages
 
+        return messages
+
     def run_completion(self, system_prompt: str, content: str) -> dict:
         r = None
         try:
