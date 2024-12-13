@@ -19,13 +19,9 @@ class Pipeline:
         self.basic_rag_pipeline = None
 
     async def on_startup(self):
-        os.environ["OPENAI_API_KEY"] = "your_openai_api_key_here"
-
-        from haystack.components.embedders import SentenceTransformersDocumentEmbedder
-        from haystack.components.embedders import SentenceTransformersTextEmbedder
-        from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
+        from haystack.components.retrievers.in_memory import InMemoryBM25Retriever
         from haystack.components.builders import PromptBuilder
-        from haystack.components.generators import OpenAIGenerator
+        from haystack.components.generators import OllamaGenerator
 
         from haystack.document_stores.in_memory import InMemoryDocumentStore
 
@@ -39,7 +35,7 @@ class Pipeline:
         docs = [Document(content=doc["content"], meta=doc["meta"]) for doc in dataset]
 
         doc_embedder = SentenceTransformersDocumentEmbedder(
-            model="sentence-transformers/all-MiniLM-L6-v2"
+            model="sentence-transformers/all-MiniLM-L6-v2", token=Secret.from_token("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")
         )
         doc_embedder.warm_up()
 
@@ -47,7 +43,7 @@ class Pipeline:
         document_store.write_documents(docs_with_embeddings["documents"])
 
         text_embedder = SentenceTransformersTextEmbedder(
-            model="sentence-transformers/all-MiniLM-L6-v2"
+            model="sentence-transformers/all-MiniLM-L6-v2", token=Secret.from_token("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")
         )
 
         retriever = InMemoryEmbeddingRetriever(document_store)
@@ -66,7 +62,7 @@ class Pipeline:
 
         prompt_builder = PromptBuilder(template=template)
 
-        generator = OpenAIGenerator(model="gpt-3.5-turbo")
+        generator = OllamaGenerator(model="Llama-3.2-Test-Finetune:latest", url="http://localhost:11434")
 
         self.basic_rag_pipeline = Pipeline()
         # Add components to your pipeline
