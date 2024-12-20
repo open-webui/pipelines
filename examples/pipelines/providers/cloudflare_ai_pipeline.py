@@ -9,11 +9,9 @@ class Pipeline:
     class Valves(BaseModel):
         CLOUDFLARE_ACCOUNT_ID: str = ""
         CLOUDFLARE_API_KEY: str = ""
-        CLOUDFLARE_MODELS: str = ""
         pass
 
     def __init__(self):
-        # Add multiple models from the Model Catalog to a Cloudflare AI pipeline, separated by comma.
         self.type = "manifold"
         self.name = "Cloudflare/"
         self.id = "cloudflare"
@@ -25,10 +23,6 @@ class Pipeline:
                 ),
                 "CLOUDFLARE_API_KEY": os.getenv(
                     "CLOUDFLARE_API_KEY", "your-cloudflare-api-key"
-                ),
-                "CLOUDFLARE_MODELS": os.getenv(
-                    "CLOUDFLARE_MODELS",
-                    "@cf/meta/llama-3.3-70b-instruct-fp8-fast,cf/meta/llama-3.2-11b-vision-instruct",
                 ),
             }
         )
@@ -43,21 +37,38 @@ class Pipeline:
         }
 
     def get_models(self):
-        # replace / with ___ to avoid issues with the url
-        self.pipelines = [
-            {
-                "id": entry.replace("/", "___"),
-                "name": entry.replace("/", "___").split("___")[-1],
-            }
-            for entry in self.valves.CLOUDFLARE_MODELS.split(",")
-            if entry
-        ]
+        if self.valves.CLOUDFLARE_ACCOUNT_ID and self.valves.CLOUDFLARE_API_KEY:
+            try:
+                list_models = requests.get(
+                    f"https://api.cloudflare.com/client/v4/accounts/{self.valves.CLOUDFLARE_ACCOUNT_ID}/ai/models/search?task=Text%20Generation",
+                    headers=self.headers,
+                ).json()
+
+                models = list_models["result"]
+                self.pipelines = [
+                    {
+                        "id": model["name"].replace("/", "___"),
+                        "name": model["name"].replace("/", "___").split("___")[-1],
+                    }
+                    for model in models
+                ]
+            except Exception as e:
+                print(f"Error: {e}")
+                self.pipelines = [
+                    {
+                        "id": self.id,
+                        "name": "Could not fetch models from Cloudflare, please update the API Key in the valves.",
+                    },
+                ]
+        else:
+            self.pipelines = []
 
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
         self.update_headers()
         self.get_models()
+        pass
 
     async def on_shutdown(self):
         # This function is called when the server is stopped.
