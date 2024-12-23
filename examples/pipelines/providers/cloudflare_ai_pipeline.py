@@ -26,9 +26,9 @@ class Pipeline:
                 ),
             }
         )
+        self.pipelines = []
         self.update_headers()
         self.get_models()
-        self.pipelines = []
 
     def update_headers(self):
         self.headers = {
