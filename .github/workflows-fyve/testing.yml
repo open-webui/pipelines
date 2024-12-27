@@ -1,0 +1,32 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Testing
+on:
+  workflow_call:
+    inputs:
+      call-source:
+        required: false
+        type: string
+
+jobs:
+  Testing:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Execute testing on docker
+      env:
+        GH_FYVEREPO_DEPLOY_SSH_KEY: ${{secrets.GH_FYVEREPO_DEPLOY_SSH_KEY}}
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        echo "$GH_FYVEREPO_DEPLOY_SSH_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+        ./.github/docker_test.sh
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-report
+        path: ./coverage
+        if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn`

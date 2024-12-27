@@ -1,0 +1,24 @@
+name: Bump Version
+on:
+  workflow_call:
+    inputs:
+      call-source:
+        required: false
+        type: string
+
+jobs:
+    Release:
+        # https://github.community/t/how-do-i-specify-job-dependency-running-in-another-workflow/16482
+        # if: ${{ startsWith(github.event.head_commit.message, 'feature:') || startsWith(github.event.head_commit.message, 'fix:') }}
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(release):')
+        runs-on: ubuntu-latest
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 0
+        - name: Python Semantic Release
+          uses: python-semantic-release/python-semantic-release@master
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            changelog: true

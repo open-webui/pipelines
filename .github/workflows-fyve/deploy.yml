@@ -1,0 +1,23 @@
+name: Release
+on:
+  push:
+    branches:
+      - main-fyve
+
+jobs:
+  testing:
+    uses: ./.github/workflows-fyve/testing.yml
+    with:
+      call-source: deploy
+    secrets: inherit      # inherit all screts
+  versioning:
+    needs: testing
+    uses: ./.github/workflows-fyve/versioning.yml
+    with:
+      call-source: deploy
+  publish:
+    needs: versioning
+    uses: ./.github/workflows-fyve/publish_aws.yml
+    with:
+      call-source: deploy
+    secrets: inherit      # inherit all screts

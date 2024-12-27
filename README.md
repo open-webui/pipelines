@@ -1,3 +1,17 @@
+# Fyve-Centric Contributions
+NOTE: This branch "main" should not be pushed to [the main pipelines repository](https://github.com/open-webui/pipelines) -- it is used for internal deployments and development and may have modified build scripts.  Instead, if you want to push to something to the main branch, use the [main-upstream](https://github.com/Fyve-Labs/openweb_pipelines/tree/main-upstream) branch and create a pull request!
+
+## Novel Fyve Pipelines
+Fyve pipelines are launched via a docker-compose script that will retrieve images from our upstream container registry.  For testing this *should* work locally using the same image names, but otherwise, you'll need to access the [Fyve ECR](https://us-east-1.console.aws.amazon.com/ecr/private-registry/repositories?region=us-east-1)
+
+
+
+---
+
+(public Pipelines README below)
+
+---
+
 <p align="center">
   <a href="#"><img src="./docs/images/header.png" alt="Pipelines Logo"></a>
 </p>
