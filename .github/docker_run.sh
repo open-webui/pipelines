@@ -10,6 +10,7 @@ DATA_PATH="$(pwd)/data"
 KEY_PATH="/data"
 PORT_EXPOSE=9099
 PIPELINE_DIR="pipelines-fyve"
+PIPELINE_PREFIX="file:///app"
 
 # if there is an `env.sh` file, load it
 if [ -f "env.sh" ]; then
@@ -26,9 +27,9 @@ for file in "$PIPELINE_DIR"/*; do
     if [[ -f "$file" ]]; then
         if [[ "$file" == *.py ]]; then
             if [ -z "$PIPELINES_URLS" ]; then
-                PIPELINES_URLS="/app/$file"
+                PIPELINES_URLS="$PIPELINE_PREFIX/$file"
             else
-                PIPELINES_URLS="$PIPELINES_URLS;/app/$file"
+                PIPELINES_URLS="$PIPELINES_URLS;$PIPELINE_PREFIX/$file"
             fi
         fi
     fi
@@ -47,8 +48,8 @@ if [ "$SKIP_MODE" == true ]; then
     PATCH_PATH="$(pwd)"
     # echo "Exposing port $PORT_EXPOSE for the server."
     # docker run --rm -t -p $PORT_EXPOSE:$PORT_EXPOSE $IMAGE_NAME:latest
-    docker compose up 
-    docker compose rm -f
+    docker compose --file .github/workflows-fyve/docker-compose-local.yaml up 
+    docker compose --file .github/workflows-fyve/docker-compose-local.yaml rm -f 
 
 else
     # Build the Docker image
@@ -66,7 +67,7 @@ else
     # echo "Exposing port $PORT_EXPOSE for the server."
     # docker run --rm -t -p $PORT_EXPOSE:8000 -e KEY_PATH="$KEY_PATH" -e DATA_PATH="/data" -v "$DATA_PATH":/data $IMAGE_NAME:latest
     # docker run --rm -t -p $PORT_EXPOSE:$PORT_EXPOSE $IMAGE_NAME:latest
-    docker compose up 
-    docker compose rm -f 
+    docker compose --file .github/workflows-fyve/docker-compose-local.yaml up 
+    docker compose --file .github/workflows-fyve/docker-compose-local.yaml rm -f 
 
 fi

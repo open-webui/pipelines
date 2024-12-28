@@ -11,9 +11,11 @@ services:
       ENABLE_OLLAMA_API: False
       OPENAI_API_BASE_URLS: http://pipelines:9099;https://litellm-proxy.fyve.dev
       OPENAI_API_KEYS: 0p3n-w3bu!;${OPENAI_API_KEY}
+      TASK_MODEL_EXTERNAL: gpt-4o-mini
+      DATA_DIR: /app/backend/data
     volumes:
       - type: bind
-        source: ./data/openwebui
+        source: ../../data/openwebui
         target: /app/backend/data
     networks:
       - openweb-local
@@ -31,7 +33,7 @@ services:
       - openweb-local
     volumes:
       - type: bind
-        source: ./pipelines-fyve
+        source: ../../pipelines-fyve
         target: /app/pipelines-fyve    # overwrites install from docker image
 
 networks:
