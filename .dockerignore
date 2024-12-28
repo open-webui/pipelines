@@ -5,6 +5,7 @@
 .github
 Dockerfile
 examples
+data
 docs
 *.md
 dev.sh

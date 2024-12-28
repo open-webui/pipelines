@@ -1,7 +1,7 @@
 FROM python:3.11-slim-bookworm AS base
 
 # Use args
-ARG MINIMUM_BUILD="true"
+ARG MINIMUM_BUILD
 ARG USE_CUDA
 ARG USE_CUDA_VER
 

@@ -1,0 +1,39 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: always
+    ports:
+      - "3000:8080"
+    environment:
+      WEBUI_AUTH: False
+      WEBUI_NAME: Local Test
+      ENABLE_SIGNUP: False
+      ENABLE_OLLAMA_API: False
+      OPENAI_API_BASE_URLS: http://pipelines:9099;https://litellm-proxy.fyve.dev
+      OPENAI_API_KEYS: 0p3n-w3bu!;${OPENAI_API_KEY}
+    volumes:
+      - type: bind
+        source: ./data/openwebui
+        target: /app/backend/data
+    networks:
+      - openweb-local
+
+  pipelines:
+    image: openweb_pipelines
+    restart: always
+    environment:
+      PIPELINES_API_KEY: 0p3n-w3bu!
+      RESET_PIPELINES_DIR: False
+      PIPELINES_URLS: ${PIPELINES_URLS}
+      OPENAI_API_BASE_URL: https://litellm-proxy.fyve.dev
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    networks:
+      - openweb-local
+    volumes:
+      - type: bind
+        source: ./pipelines-fyve
+        target: /app/pipelines-fyve    # overwrites install from docker image
+
+networks:
+  openweb-local:
+    driver: bridge

@@ -1,5 +1,7 @@
 __pycache__
 .env
+env.sh
+data
 
 /litellm
 

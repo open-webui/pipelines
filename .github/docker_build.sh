@@ -37,4 +37,4 @@ if [ ! -f "$SSH_KEY_PATH" ] ; then
 fi
 
 echo "SSH Key Path: $SSH_KEY_PATH"
-DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg DEV=$DEV --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .
+DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg DEV=$DEV --build-arg MINIMUM_BUILD=True --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .
