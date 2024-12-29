@@ -15,8 +15,27 @@ PROJECT_DIR=$(dirname "$(dirname "$0")")
 IMAGE_NAME=$(basename "$PWD")
 cd "$PROJECT_DIR"
 
+# build in the specific pipelines
+PIPELINE_DIR="pipelines-fyve"
+PIPELINE_PREFIX="file:///app"
+
 # build the image as required 
 echo "Building the Docker image (tagged $TAG)... (from directory $(pwd)) (DEV TAG: $DEV)"
+
+# retrieve all the sub files
+export PIPELINES_URLS=
+for file in "$PIPELINE_DIR"/*; do
+    if [[ -f "$file" ]]; then
+        if [[ "$file" == *.py ]]; then
+            if [ -z "$PIPELINES_URLS" ]; then
+                PIPELINES_URLS="$PIPELINE_PREFIX/$file"
+            else
+                PIPELINES_URLS="$PIPELINES_URLS;$PIPELINE_PREFIX/$file"
+            fi
+        fi
+    fi
+done
+echo "New Fyve Install Pipes: $PIPELINES_URLS"
 
 # Build the Docker image with the DEV environment variable
 # buildkit and special mount from this tip -- https://stackoverflow.com/a/55761914
@@ -37,4 +56,4 @@ if [ ! -f "$SSH_KEY_PATH" ] ; then
 fi
 
 echo "SSH Key Path: $SSH_KEY_PATH"
-DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg DEV=$DEV --build-arg MINIMUM_BUILD=True --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .
+DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg PIPELINES_URLS=$PIPELINES_URLS --build-arg DEV=$DEV --build-arg MINIMUM_BUILD=true --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .

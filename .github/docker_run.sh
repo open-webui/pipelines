@@ -9,8 +9,6 @@ cd "$PROJECT_DIR"
 DATA_PATH="$(pwd)/data"
 KEY_PATH="/data"
 PORT_EXPOSE=9099
-PIPELINE_DIR="pipelines-fyve"
-PIPELINE_PREFIX="file:///app"
 
 # if there is an `env.sh` file, load it
 if [ -f "env.sh" ]; then
@@ -20,21 +18,6 @@ fi
 
 # make temp directory for local openweb instance mount
 mkdir -p data/openwebui
-
-# retrieve all the sub files
-export PIPELINES_URLS=
-for file in "$PIPELINE_DIR"/*; do
-    if [[ -f "$file" ]]; then
-        if [[ "$file" == *.py ]]; then
-            if [ -z "$PIPELINES_URLS" ]; then
-                PIPELINES_URLS="$PIPELINE_PREFIX/$file"
-            else
-                PIPELINES_URLS="$PIPELINES_URLS;$PIPELINE_PREFIX/$file"
-            fi
-        fi
-    fi
-done
-echo "New Fyve Install Pipes: $PIPELINES_URLS"
 
 # Check if the '--cli' or '--skip' option is passed
 SKIP_MODE=false
