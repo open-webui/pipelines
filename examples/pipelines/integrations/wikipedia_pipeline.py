@@ -79,7 +79,10 @@ class Pipeline:
         messages: List[dict], 
         body: dict
     ) -> Union[str, Generator, Iterator]:
-        # This is where you can add your custom pipelines like RAG.
+        """
+        Main pipeline function. Performs wikipedia article lookup by query
+        and returns the summary of the first article.
+        """
         logger.debug(f"pipe:{self.name}")
 
         # Check if title generation is requested
@@ -101,86 +104,115 @@ class Pipeline:
         #   'user': {'name': 'User', 'id': '235a828f-84a3-44a0-b7af-721ee8be6571', 
         #            'email': 'admin@localhost', 'role': 'admin'}}
 
-        re_query = re.compile(r"[^0-9A-Z]", re.IGNORECASE)
-        re_rough_word = re.compile(r"[\w]+", re.IGNORECASE)
-
-        topics = []
         dt_start = datetime.now()
+        multi_part = False
+        streaming = body.get("stream", False)
+        logger.warning(f"Stream: {streaming}")
+        context = ""
 
         # examples from https://pypi.org/project/wikipedia/
         # new addition - ability to include multiple topics with a semicolon
         for query in user_message.split(';'):
             self.rate_check(dt_start)
             query = query.strip()
-            try:
-                titles_found = wikipedia.search(query)
-                # r = requests.get(
-                #     f"https://en.wikipedia.org/w/api.php?action=opensearch&search={query}&limit=1&namespace=0&format=json"
-                # )
-                logger.info(f"Query: {query}, Found: {titles_found}")
-                topics.append((query, titles_found))
-            except Exception as e:
-                logger.error(f"Search Error: {query} -> {e}")
-                return f"Page Search Error: {query}"
 
-        context = ""
-        for query, titles_found in topics:
-            self.rate_check(dt_start)
-
-            if context: # add separator if multiple topics
-                context += "---\n"
-            try:
-                title_check = titles_found[0]
-                wiki_page = wikipedia.page(title_check, auto_suggest=False)   # trick! don't auto-suggest
-            except wikipedia.exceptions.DisambiguationError as e:
-                str_error = str(e).replace("\n", ", ")
-                str_error = f"## Disambiguation Error ({query})\n* Status: {str_error}"
-                logger.error(str_error)
-                context += str_error + "\n"
-                continue
-            except wikipedia.exceptions.RedirectError as e:
-                str_error = str(e).replace("\n", ", ")
-                str_error = f"## Redirect Error ({query})\n* Status: {str_error}"
-                logger.error(str_error)
-                context += str_error + "\n"
-                continue
-            except Exception as e:
-                if titles_found:
-                    str_error = f"## Page Retrieve Error ({query})\n* Found Topics (matched '{title_check}') {titles_found}"
-                    logger.error(f"{str_error} -> {e}")
+            if multi_part:
+                if streaming:
+                    yield "---\n"
                 else:
-                    str_error = f"## Page Not Found ({query})\n* Unknown error"
-                    logger.error(f"{str_error} -> {e}")
-                context += str_error + "\n"
-                continue
-
-            # found a page / section
-            logger.info(f"Page Sections[{query}]: {wiki_page.sections}")
-            context += f"## {title_check}\n"
-
-            # flatten internal links
-            # link_md = [f"[{x}]({self.valves.WIKIPEDIA_ROOT}/{re_query.sub('_', x)})" for x in wiki_page.links[:10]]
-            # context += "* Links (first 30): " + ",".join(link_md) + "\n"
-
-            # add the textual summary
-            summary_full = wiki_page.summary
-            word_positions = [x.start() for x in re_rough_word.finditer(summary_full)]
-            if len(word_positions) > self.valves.WORD_LIMIT:
-                context += summary_full[:word_positions[self.valves.WORD_LIMIT]] + "...\n"
+                    context += "---\n"
+            if body.get("stream", True):
+                yield from self.stream_retrieve(query, dt_start)
             else:
-                context += summary_full + "\n"
+                for chunk in self.stream_retrieve(query, dt_start):
+                    context += chunk
+            multi_part = True
+        
+        if not streaming:
+            return context if context else "No information found"
 
-            # the more you know! link to further reading        
-            context += "### Learn More" + "\n"
-            context += f"* [Read more on Wikipedia...]({wiki_page.url})\n"
 
-            # also spit out the related topics from search
-            link_md = [f"[{x}]({self.valves.WIKIPEDIA_ROOT}/{re_query.sub('_', x)})" for x in titles_found]
-            context += f"* Related topics: {', '.join(link_md)}\n"
+    def stream_retrieve(
+            self, query:str, dt_start: datetime,
+        ) -> Generator:
+        """
+        Retrieve the wikipedia page for the query and return the summary.  Return a generator
+        for streaming responses but can also be iterated for a single response.
+        """
 
-            # throw in the first image for good measure
-            if wiki_page.images:
-                context += f"\n![Image: {title_check}]({wiki_page.images[0]})\n"
+        re_query = re.compile(r"[^0-9A-Z]", re.IGNORECASE)
+        re_rough_word = re.compile(r"[\w]+", re.IGNORECASE)
 
-        #  done with querying for different pages    
-        return context if context else "No information found"
+        titles_found = None
+        try:
+            titles_found = wikipedia.search(query)
+            # r = requests.get(
+            #     f"https://en.wikipedia.org/w/api.php?action=opensearch&search={query}&limit=1&namespace=0&format=json"
+            # )
+            logger.info(f"Query: {query}, Found: {titles_found}")
+        except Exception as e:
+            logger.error(f"Search Error: {query} -> {e}")
+            yield f"Page Search Error: {query}"
+
+        if titles_found is None or not titles_found:   # no results
+            yield f"No information found for '{query}'"
+            return
+
+        self.rate_check(dt_start)
+
+        # if context: # add separator if multiple topics
+        #     context += "---\n"
+        try:
+            title_check = titles_found[0]
+            wiki_page = wikipedia.page(title_check, auto_suggest=False)   # trick! don't auto-suggest
+        except wikipedia.exceptions.DisambiguationError as e:
+            str_error = str(e).replace("\n", ", ")
+            str_error = f"## Disambiguation Error ({query})\n* Status: {str_error}"
+            logger.error(str_error)
+            yield str_error + "\n"
+            return
+        except wikipedia.exceptions.RedirectError as e:
+            str_error = str(e).replace("\n", ", ")
+            str_error = f"## Redirect Error ({query})\n* Status: {str_error}"
+            logger.error(str_error)
+            yield str_error + "\n"
+            return
+        except Exception as e:
+            if titles_found:
+                str_error = f"## Page Retrieve Error ({query})\n* Found Topics (matched '{title_check}') {titles_found}"
+                logger.error(f"{str_error} -> {e}")
+            else:
+                str_error = f"## Page Not Found ({query})\n* Unknown error"
+                logger.error(f"{str_error} -> {e}")
+            yield str_error + "\n"
+            return
+
+        # found a page / section
+        logger.info(f"Page Sections[{query}]: {wiki_page.sections}")
+        yield f"## {title_check}\n"
+
+        # flatten internal links
+        # link_md = [f"[{x}]({self.valves.WIKIPEDIA_ROOT}/{re_query.sub('_', x)})" for x in wiki_page.links[:10]]
+        # yield "* Links (first 30): " + ",".join(link_md) + "\n"
+
+        # add the textual summary
+        summary_full = wiki_page.summary
+        word_positions = [x.start() for x in re_rough_word.finditer(summary_full)]
+        if len(word_positions) > self.valves.WORD_LIMIT:
+            yield summary_full[:word_positions[self.valves.WORD_LIMIT]] + "...\n"
+        else:
+            yield summary_full + "\n"
+
+        # the more you know! link to further reading        
+        yield "### Learn More" + "\n"
+        yield f"* [Read more on Wikipedia...]({wiki_page.url})\n"
+
+        # also spit out the related topics from search
+        link_md = [f"[{x}]({self.valves.WIKIPEDIA_ROOT}/{re_query.sub('_', x)})" for x in titles_found]
+        yield f"* Related topics: {', '.join(link_md)}\n"
+
+        # throw in the first image for good measure
+        if wiki_page.images:
+            yield f"\n![Image: {title_check}]({wiki_page.images[0]})\n"
+
+        return
