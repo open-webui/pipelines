@@ -154,6 +154,7 @@ done
 echo "New Custom Install Pipes: $PIPELINES_URLS"
 
 docker build --build-arg PIPELINES_URLS=$PIPELINES_URLS --build-arg MINIMUM_BUILD=true -f Dockerfile .
+```
 
 ### Testing the Pipelines Server
 
