@@ -20,6 +20,5 @@ jobs:
         - name: Python Semantic Release
           uses: python-semantic-release/python-semantic-release@master
           with:
-            root_options: "--config .github/workflows-fyve/pyproject.toml"
             github_token: ${{ secrets.GITHUB_TOKEN }}
             changelog: true
