@@ -4,13 +4,15 @@ FROM python:3.11-slim-bookworm AS base
 ARG MINIMUM_BUILD
 ARG USE_CUDA
 ARG USE_CUDA_VER
-ARG PIPELINES_URLS
-ARG PIPELINES_REQUIREMENTS_PATH
+ARG USE_TEST=false
+ARG PIPELINES_URLS=
+ARG PIPELINES_REQUIREMENTS_PATH=
 
 ## Basis ##
 ENV ENV=prod \
     PORT=9099 \
     # pass build args to the build
+    USE_TEST=${USE_TEST} \
     MINIMUM_BUILD=${MINIMUM_BUILD} \
     USE_CUDA_DOCKER=${USE_CUDA} \
     USE_CUDA_DOCKER_VER=${USE_CUDA_VER}
@@ -27,6 +29,7 @@ WORKDIR /app
 # Install Python dependencies
 COPY ./requirements.txt .
 COPY ./requirements-minimum.txt .
+COPY ./requirements-test.txt .
 RUN pip3 install uv
 RUN if [ "$MINIMUM_BUILD" != "true" ]; then \
         if [ "$USE_CUDA_DOCKER" = "true" ]; then \
@@ -40,13 +43,16 @@ RUN if [ "$MINIMUM_BUILD" = "true" ]; then \
     else \
         uv pip install --system -r requirements.txt --no-cache-dir; \
     fi
-
+RUN if [ "$USE_TEST" != "false" ]; then \
+    uv pip install --system -r requirements-test.txt --no-cache-dir; \
+fi
 
 # Layer on for other components
 FROM base AS app
 
 ENV PIPELINES_URLS=${PIPELINES_URLS} \
     PIPELINES_REQUIREMENTS_PATH=${PIPELINES_REQUIREMENTS_PATH}
+
 
 # Copy the application code
 COPY . .
@@ -61,5 +67,5 @@ RUN if [ -n "$PIPELINES_URLS" ] || [ -n "$PIPELINES_REQUIREMENTS_PATH" ]; then \
 ENV HOST="0.0.0.0"
 ENV PORT="9099"
 
-# if we already installed the requirements on build, we can skip this step on run
-ENTRYPOINT [ "bash", "start.sh" ]
+# we use a CMD so that it can be overriden by other tests on the container
+CMD [ "bash", "start.sh" ]
