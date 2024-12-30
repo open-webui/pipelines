@@ -124,6 +124,55 @@ Get started with Pipelines in a few easy steps:
 
 Once the server is running, set the OpenAI URL on your client to the Pipelines URL. This unlocks the full capabilities of Pipelines, integrating any Python library and creating custom workflows tailored to your needs.
 
+### Advanced Docker Builds
+If you create your own pipelines, you can install them when the Docker image is built.  For example,
+create a bash script with the snippet below to collect files from a path, add them as install URLs, 
+and build the Docker image with the new pipelines automatically installed.
+
+NOTE: The pipelines module will still attempt to install any package dependencies found at in your
+file headers at start time, but they will not be downloaded again.
+
+```sh
+# build in the specific pipelines
+PIPELINE_DIR="pipelines-custom"
+# assuming the above directory is in your source repo and not skipped by `.dockerignore`, it will get copied to the image
+PIPELINE_PREFIX="file:///app"
+
+# retrieve all the sub files
+export PIPELINES_URLS=
+for file in "$PIPELINE_DIR"/*; do
+    if [[ -f "$file" ]]; then
+        if [[ "$file" == *.py ]]; then
+            if [ -z "$PIPELINES_URLS" ]; then
+                PIPELINES_URLS="$PIPELINE_PREFIX/$file"
+            else
+                PIPELINES_URLS="$PIPELINES_URLS;$PIPELINE_PREFIX/$file"
+            fi
+        fi
+    fi
+done
+echo "New Custom Install Pipes: $PIPELINES_URLS"
+
+docker build --build-arg PIPELINES_URLS=$PIPELINES_URLS --build-arg MINIMUM_BUILD=true -f Dockerfile .
+
+### Testing the Pipelines Server
+
+To be updated as the project matures, testing for coverage and basic functionality is included in the 
+tests directory.  You can build a docker image and start a test with the following commands.
+
+```sh
+# build the image
+docker build -t pipelines:dev --build-arg USE_TEST=$USE_TEST --build-arg MINIMUM_BUILD=true -f Dockerfile .
+
+# prep coverage directory
+mkdir -p `pwd`/coverage
+docker run --rm -v "`pwd`/coverage:/coverage" -v "`pwd`/tests:/app/tests" pipelines:dev pytest --cov=/app  --cov-report html:/coverage/coverage.html --cov-report=xml:/coverage/coverage.xml tests
+
+# run flake8 for syntax suggestions
+SELECT_CLAUSE="--ignore=E501,E121,E128,E124,E123"
+docker run --rm -v "`pwd`/coverage:/coverage" pipelines:dev flake8 /app --exclude .venv --count $SELECT_CLAUSE --show-source --statistics --output-file=/coverage/flake8.txt --color=never --exit-zero
+```
+
 ## 📂 Directory Structure and Examples
 
 The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.

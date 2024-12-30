@@ -21,12 +21,12 @@ on:
   
 env:
   AWS_REGION: us-east-1                   # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: fyve/openweb_pipeline           # set this to your Amazon ECR repository name
+  ECR_REPOSITORY: fyve/openweb_pipelines           # set this to your Amazon ECR repository name
   ECS_SERVICE: test                  # set this to your Amazon ECS service name
   ECS_CLUSTER: test                  # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION: test.json                   # set this to the path to your Amazon ECS task definition
                                                # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: openweb_pipeline           # set this to the name of the container in the
+  CONTAINER_NAME: openweb_pipelines           # set this to the name of the container in the
                                                # containerDefinitions section of your task definition
 permissions:    # as a workflow call instead of a triggered action - from https://stackoverflow.com/a/78230041
   id-token: write   # This is required for requesting the JWT
@@ -74,7 +74,7 @@ jobs:
           IMAGE_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
           echo "Image Tag: $IMAGE_TAG ($ECR_REPOSITORY); SHA: $IMAGE_SHA; Container: $CONTAINER_NAME"
 
-          ./.github/docker_build.sh $IMAGE_TAG
+          ./.github/workflows-fyve/docker_build.sh $IMAGE_TAG
           docker tag $CONTAINER_NAME:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $CONTAINER_NAME:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           # docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
