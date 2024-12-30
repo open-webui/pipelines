@@ -11,7 +11,7 @@ else
 fi
 
 # Navigate to the root of the project
-PROJECT_DIR=$(dirname "$(dirname "$0")")
+PROJECT_DIR=$(dirname $(dirname "$(dirname "$0")"))
 IMAGE_NAME=$(basename "$PWD")
 cd "$PROJECT_DIR"
 

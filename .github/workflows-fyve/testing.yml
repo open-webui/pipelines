@@ -23,7 +23,7 @@ jobs:
         echo "$GH_FYVEREPO_DEPLOY_SSH_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-        ./.github/docker_test.sh
+        ./.github/workflows-fyve/docker_test.sh
     - name: Archive code coverage results
       uses: actions/upload-artifact@v4
       with:

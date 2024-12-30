@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Navigate to the root of the project
-PROJECT_DIR=$(dirname "$(dirname "$0")")
+PROJECT_DIR=$(dirname $(dirname "$(dirname "$0")"))
 IMAGE_NAME=$(basename "$PWD")
 cd "$PROJECT_DIR"
 
 # Exit immediately if a command exits with a non-zero status
 set -e
 # Build the Docker image
-DEV=1 ./.github/docker_build.sh dev
+DEV=1 ./.github/workflows-fyve/docker_build.sh dev
 
 # Generate a temporary directory name
 DATA_PATH="$(mktemp -d)/data"

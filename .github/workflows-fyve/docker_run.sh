@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Navigate to the root of the project
-PROJECT_DIR=$(dirname "$(dirname "$0")")
+PROJECT_DIR=$(dirname $(dirname "$(dirname "$0")"))
 IMAGE_NAME=$(basename "$PWD")
 cd "$PROJECT_DIR"
 
@@ -36,7 +36,7 @@ if [ "$SKIP_MODE" == true ]; then
 
 else
     # Build the Docker image
-    ./.github/docker_build.sh
+    ./.github/workflows-fyve/docker_build.sh
 
     # Check if the Docker build was successful
     if [ $? -ne 0 ]; then
