@@ -7,13 +7,13 @@ on:
 
 jobs:
     testing:
-        uses: ./.github/workflows-fyve/testing.yml
+        uses: ./.github/workflows/fyve_testing.yml
         with:
           call-source: pull_request
         secrets: inherit
     coverage:
         #  https://docs.github.com/en/actions/quickstart
         needs: testing
-        uses: ./.github/workflows-fyve/coverage.yml
+        uses: ./.github/workflows/fyve_coverage.yml
         with:
           call-source: pull_request

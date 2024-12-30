@@ -6,18 +6,18 @@ on:
 
 jobs:
   testing:
-    uses: ./.github/workflows-fyve/testing.yml
+    uses: ./.github/workflows/fyve_testing.yml
     with:
       call-source: deploy
     secrets: inherit      # inherit all screts
   versioning:
     needs: testing
-    uses: ./.github/workflows-fyve/versioning.yml
+    uses: ./.github/workflows/fyve_versioning.yml
     with:
       call-source: deploy
   publish:
     needs: versioning
-    uses: ./.github/workflows-fyve/publish_aws.yml
+    uses: ./.github/workflows/fyve_publish_aws.yml
     with:
       call-source: deploy
     secrets: inherit      # inherit all screts
