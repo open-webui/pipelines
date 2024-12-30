@@ -8,7 +8,7 @@ cd "$PROJECT_DIR"
 # Exit immediately if a command exits with a non-zero status
 set -e
 # Build the Docker image
-DEV=1 ./.github/workflows-fyve/docker_build.sh dev
+USE_TEST=true ./.github/workflows-fyve/docker_build.sh dev
 
 # Generate a temporary directory name
 DATA_PATH="$(mktemp -d)/data"

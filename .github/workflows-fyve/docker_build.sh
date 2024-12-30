@@ -20,7 +20,7 @@ PIPELINE_DIR="pipelines-fyve"
 PIPELINE_PREFIX="file:///app"
 
 # build the image as required 
-echo "Building the Docker image (tagged $TAG)... (from directory $(pwd)) (DEV TAG: $DEV)"
+echo "Building the Docker image (tagged $TAG)... (from directory $(pwd)) (USE_TEST TAG: $USE_TEST)"
 
 # retrieve all the sub files
 export PIPELINES_URLS=
@@ -56,4 +56,4 @@ if [ ! -f "$SSH_KEY_PATH" ] ; then
 fi
 
 echo "SSH Key Path: $SSH_KEY_PATH"
-DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg PIPELINES_URLS=$PIPELINES_URLS --build-arg DEV=$DEV --build-arg MINIMUM_BUILD=true --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .
+DOCKER_BUILDKIT=1 docker build -t $IMAGE_NAME:$TAG --build-arg PIPELINES_URLS=$PIPELINES_URLS --build-arg USE_TEST=$USE_TEST --build-arg MINIMUM_BUILD=true --ssh github_ssh_key=$SSH_KEY_PATH -f Dockerfile .
