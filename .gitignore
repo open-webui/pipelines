@@ -3,7 +3,7 @@ __pycache__
 
 /litellm
 
-
+coverage
 pipelines/*
 !pipelines/.gitignore
 .DS_Store
