@@ -43,7 +43,7 @@ RUN if [ "$MINIMUM_BUILD" = "true" ]; then \
     else \
         uv pip install --system -r requirements.txt --no-cache-dir; \
     fi
-RUN if [ "$USE_TEST" != "false" ]; then \
+RUN if [ -n "$USE_TEST" ] && [ "$USE_TEST" != "false" ]; then \
     uv pip install --system -r requirements-test.txt --no-cache-dir; \
 fi
 
