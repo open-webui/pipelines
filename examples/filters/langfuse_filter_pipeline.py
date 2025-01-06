@@ -44,6 +44,7 @@ class Pipeline:
             }
         )
         self.langfuse = None
+        self.chat_traces = {}
         self.chat_generations = {}
 
     async def on_startup(self):
@@ -107,17 +108,18 @@ class Pipeline:
             metadata={"interface": "open-webui"},
         )
 
+        self.chat_traces[body["chat_id"]] = trace
         self.chat_generations[body["chat_id"]] = generation
-        print(trace.get_trace_url())
 
         return body
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"outlet:{__name__}")
         print(f"Received body: {body}")
-        if body["chat_id"] not in self.chat_generations:
+        if body["chat_id"] not in self.chat_generations or body["chat_id"] not in self.chat_traces:
             return body
 
+        trace = self.chat_traces[body["chat_id"]]
         generation = self.chat_generations[body["chat_id"]]
         assistant_message = get_last_assistant_message(body["messages"])
 
@@ -138,6 +140,9 @@ class Pipeline:
                     }
 
         # Update generation
+        trace.update(
+            output=assistant_message,
+        )
         generation.end(
             output=assistant_message,
             metadata={"interface": "open-webui"},
@@ -145,6 +150,7 @@ class Pipeline:
         )
 
         # Clean up the chat_generations dictionary
+        del self.chat_traces[body["chat_id"]]
         del self.chat_generations[body["chat_id"]]
 
         return body
