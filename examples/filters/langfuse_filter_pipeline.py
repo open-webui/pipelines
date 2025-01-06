@@ -79,12 +79,11 @@ class Pipeline:
         print(f"Received body: {body}")
         print(f"User: {user}")
 
-        # Check for presence of required keys and generate chat_id if missing
+        # Check for presence of required keys
         if "chat_id" not in body:
-            unique_id = f"SYSTEM MESSAGE {uuid.uuid4()}"
-            body["chat_id"] = unique_id
-            print(f"chat_id was missing, set to: {unique_id}")
-
+            print("chat_id missing in inlet")
+            return body
+        
         required_keys = ["model", "messages"]
         missing_keys = [key for key in required_keys if key not in body]
         
@@ -116,7 +115,11 @@ class Pipeline:
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"outlet:{__name__}")
         print(f"Received body: {body}")
+        if "chat_id" not in body:
+            print("chat_id missing in outlet")
+            return body
         if body["chat_id"] not in self.chat_generations or body["chat_id"] not in self.chat_traces:
+            print("Langfuse trace or generation client not found for this chat_id in outlet")
             return body
 
         trace = self.chat_traces[body["chat_id"]]
