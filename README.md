@@ -101,6 +101,24 @@ Get started with Pipelines in a few easy steps:
 
 Once the server is running, set the OpenAI URL on your client to the Pipelines URL. This unlocks the full capabilities of Pipelines, integrating any Python library and creating custom workflows tailored to your needs.
 
+### Testing the Pipelines Server
+
+To be updated as the project matures, testing for coverage and basic functionality is included in the 
+tests directory.  You can build a docker image and start a test with the following commands.
+
+```sh
+# build the image
+docker build -t pipelines:dev --build-arg USE_TEST=$USE_TEST --build-arg MINIMUM_BUILD=true -f Dockerfile .
+
+# prep coverage directory
+mkdir -p `pwd`/coverage
+docker run --rm -v "`pwd`/coverage:/coverage" -v "`pwd`/tests:/app/tests" pipelines:dev pytest --cov=/app  --cov-report html:/coverage/coverage.html --cov-report=xml:/coverage/coverage.xml tests
+
+# run flake8 for syntax suggestions
+SELECT_CLAUSE="--ignore=E501,E121,E128,E124,E123"
+docker run --rm -v "`pwd`/coverage:/coverage" pipelines:dev flake8 /app --exclude .venv --count $SELECT_CLAUSE --show-source --statistics --output-file=/coverage/flake8.txt --color=never --exit-zero
+```
+
 ## 📂 Directory Structure and Examples
 
 The `/pipelines` directory is the core of your setup. Add new modules, customize existing ones, and manage your workflows here. All the pipelines in the `/pipelines` directory will be **automatically loaded** when the server launches.

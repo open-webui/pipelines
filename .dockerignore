@@ -4,7 +4,11 @@
 .gitignore
 .github
 Dockerfile
+blueprints
 examples
+tests
+coverage
+data
 docs
 *.md
 dev.sh
