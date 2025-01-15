@@ -1,0 +1,14 @@
+POST http://localhost:9099/v1/vector_stores/03d8aed5-55c7-4a07-b65c-d3d9aa604470/files
+Authorization: Bearer 0p3n-w3bu!
+Content-Type: application/json
+
+{
+  "file_id": "4447401f-fc37-4a62-bdfe-715acd57d554",
+  "chunking_strategy": {
+    "type": "static",
+    "static": {
+      "max_chunk_size_tokens": 100,
+      "chunk_overlap_tokens": 20
+    }
+  }
+}
