@@ -44,6 +44,7 @@ class Pipeline:
     def get_deepseek_models(self):
         return [
             {"id": "deepseek-chat", "name": "DeepSeek Chat"},
+            {"id": "deepseek-reasoner", "name": "DeepSeek R1"},
         ]
 
     async def on_startup(self):
