@@ -79,12 +79,12 @@ class Pipeline:
         print(f"Received body: {body}")
         print(f"User: {user}")
 
-        # Check for presence of required keys and generate chat_id if missing
-        if "chat_id" not in body:
-            unique_id = f"SYSTEM MESSAGE {uuid.uuid4()}"
-            body["chat_id"] = unique_id
-            print(f"chat_id was missing, set to: {unique_id}")
-
+       # Check for presence of required keys and generate chat_id if it is needed
+        chat_id = body.get("chat_id") or body.get("metadata", {}).get("chat_id") or body.get("metadata", {}).get("task_body", {}).get("chat_id")
+        if not chat_id:
+           chat_id = str(uuid.uuid4())  # Generate a unique UUID for chat_id
+           body["metadata"]["chat_id"] = chat_id  # Add it to metadata
+        
         required_keys = ["model", "messages"]
         missing_keys = [key for key in required_keys if key not in body]
         
@@ -98,29 +98,34 @@ class Pipeline:
             input=body,
             user_id=user["email"],
             metadata={"user_name": user["name"], "user_id": user["id"]},
-            session_id=body["chat_id"],
+            session_id=chat_id,
         )
 
         generation = trace.generation(
-            name=body["chat_id"],
+            name=chat_id,
             model=body["model"],
             input=body["messages"],
             metadata={"interface": "open-webui"},
         )
 
-        self.chat_traces[body["chat_id"]] = trace
-        self.chat_generations[body["chat_id"]] = generation
-
+        self.chat_tracesy[chat_id] = trace
+        self.chat_generations[chat_id] = generation
+        
         return body
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
         print(f"outlet:{__name__}")
         print(f"Received body: {body}")
-        if body["chat_id"] not in self.chat_generations or body["chat_id"] not in self.chat_traces:
+        
+        #Define chat_id as a variable
+        chat_id = body.get("chat_id") or body.get("metadata", {}).get("chat_id") or body.get("metadata", {}).get("task_body", {}).get("chat_id")
+                
+        if chat_id not in self.chat_generations or chat_id not in self.chat_traces:
+            print("Langfuse trace not found for this chat_id in outlet")
             return body
 
-        trace = self.chat_traces[body["chat_id"]]
-        generation = self.chat_generations[body["chat_id"]]
+        trace = self.chat_traces[chat_id]
+        generation = self.chat_generations[chat_id]
         assistant_message = get_last_assistant_message(body["messages"])
 
         
@@ -150,7 +155,10 @@ class Pipeline:
         )
 
         # Clean up the chat_generations dictionary
-        del self.chat_traces[body["chat_id"]]
-        del self.chat_generations[body["chat_id"]]
-
+        if chat_id in self.chat_traces:
+            del self.chat_traces[chat_id]
+        
+        if chat_id in self.chat_generations:
+            del self.chat_generations[chat_id]
+        
         return body
