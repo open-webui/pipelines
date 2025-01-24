@@ -108,7 +108,7 @@ class Pipeline:
             metadata={"interface": "open-webui"},
         )
 
-        self.chat_tracesy[chat_id] = trace
+        self.chat_traces[chat_id] = trace
         self.chat_generations[chat_id] = generation
         
         return body
