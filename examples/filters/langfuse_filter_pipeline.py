@@ -80,9 +80,12 @@ class Pipeline:
         print(f"User: {user}")
 
         # Check for presence of required keys and generate chat_id if missing
-        if "chat_id" not in body:
+        if "chat_id" not in body.get("metadata", {}):
             unique_id = f"SYSTEM MESSAGE {uuid.uuid4()}"
-            body["chat_id"] = unique_id
+            # Ensure the metadata key exists before assigning chat_id
+            if "metadata" not in body:
+                body["metadata"] = {}  # Correct this indentation
+            body["metadata"]["chat_id"] = unique_id
             print(f"chat_id was missing, set to: {unique_id}")
 
         required_keys = ["model", "messages"]
@@ -93,23 +96,27 @@ class Pipeline:
             print(error_message)
             raise ValueError(error_message)
 
+        user_id = user.get("id") if user else None
+        user_name = user.get("name") if user else None
+        user_email = user.get("email") if user else None
+
         trace = self.langfuse.trace(
             name=f"filter:{__name__}",
             input=body,
-            user_id=user["email"],
-            metadata={"user_name": user["name"], "user_id": user["id"]},
-            session_id=body["chat_id"],
+            user_id=user_email,
+            metadata={"user_name": user_name, "user_id": user_id,"chat_id": body["metadata"]["chat_id"]},
+            session_id=body["metadata"]["chat_id"],
         )
 
         generation = trace.generation(
-            name=body["chat_id"],
+            name=body["metadata"]["chat_id"],
             model=body["model"],
             input=body["messages"],
             metadata={"interface": "open-webui"},
         )
 
-        self.chat_traces[body["chat_id"]] = trace
-        self.chat_generations[body["chat_id"]] = generation
+        self.chat_traces[body["metadata"]["chat_id"]] = trace
+        self.chat_generations[body["metadata"]["chat_id"]] = generation
 
         return body
 
