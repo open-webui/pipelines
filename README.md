@@ -39,6 +39,8 @@ Integrating Pipelines with any OpenAI API-compatible UI client is simple. Launch
 > [!WARNING]
 > Pipelines are a plugin system with arbitrary code execution — **don't fetch random pipelines from sources you don't trust**.
 
+### Docker
+
 For a streamlined setup using Docker:
 
 1. **Run the Pipelines container:**
@@ -74,6 +76,45 @@ If you need to install a custom pipeline with additional dependencies:
 Alternatively, you can directly install pipelines from the admin settings by copying and pasting the pipeline URL, provided it doesn't have additional dependencies.
 
 That's it! You're now ready to build customizable AI integrations effortlessly with Pipelines. Enjoy!
+
+### Docker Compose together with Open WebUI
+
+Using [Docker Compose](https://docs.docker.com/compose/) simplifies the management of multi-container Docker applications.
+
+Here is an example configuration file `docker-compose.yaml` for setting up Open WebUI together with Pipelines using Docker Compose:
+
+```yaml
+services:
+  openwebui:
+      image: ghcr.io/open-webui/open-webui:main
+      ports:
+        - "3000:8080"
+      volumes:
+        - open-webui:/app/backend/data
+
+  pipelines:
+      image: ghcr.io/open-webui/pipelines:main
+      volumes:
+        - pipelines:/app/pipelines
+      restart: always
+      environment:
+        - PIPELINES_API_KEY=0p3n-w3bu!
+
+volumes:
+  open-webui: {}
+  pipelines: {}
+```
+
+To start your services, run the following command:
+
+```
+docker compose up -d
+```
+
+You can then use `http://pipelines:9099` (the name is the same as the service's name defined in `docker-compose.yaml`) as an API URL to connect to Open WebUI.
+
+> [!NOTE]
+> The `pipelines` service is accessible only by `openwebui` Docker service and thus provide additional layer of security.
 
 ## 📦 Installation and Setup
 
