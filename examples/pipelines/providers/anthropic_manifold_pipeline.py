@@ -1,8 +1,8 @@
 """
 title: Anthropic Manifold Pipeline
 author: justinh-rahb, sriparashiva
-date: 2024-06-20
-version: 1.4
+date: 2024-12-23
+version: 1.5
 license: MIT
 description: A pipeline for generating text and processing images using the Anthropic API.
 requirements: requests, sseclient-py
@@ -31,27 +31,49 @@ class Pipeline:
         self.valves = self.Valves(
             **{"ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY", "your-api-key-here")}
         )
-        self.url = 'https://api.anthropic.com/v1/messages'
+        self.url = "https://api.anthropic.com/v1/messages"
+        self.pipelines = []
         self.update_headers()
+        self.get_anthropic_models()
 
     def update_headers(self):
         self.headers = {
-            'anthropic-version': '2023-06-01',
-            'content-type': 'application/json',
-            'x-api-key': self.valves.ANTHROPIC_API_KEY
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+            "x-api-key": self.valves.ANTHROPIC_API_KEY,
         }
 
     def get_anthropic_models(self):
-        return [
-            {"id": "claude-3-haiku-20240307", "name": "claude-3-haiku"},
-            {"id": "claude-3-opus-20240229", "name": "claude-3-opus"},
-            {"id": "claude-3-sonnet-20240229", "name": "claude-3-sonnet"},
-            {"id": "claude-3-5-haiku-20241022", "name": "claude-3.5-haiku"},
-            {"id": "claude-3-5-sonnet-20241022", "name": "claude-3.5-sonnet"},
-        ]
+        if self.valves.ANTHROPIC_API_KEY:
+            try:
+                list_models = requests.get(
+                    "https://api.anthropic.com/v1/models",
+                    headers=self.headers,
+                ).json()
+
+                models = list_models["data"]
+                self.pipelines = [
+                    {
+                        "id": model["id"],
+                        "name": model["display_name"],
+                    }
+                    for model in models
+                ]
+            except Exception as e:
+                print(f"Error: {e}")
+                self.pipelines = [
+                    {
+                        "id": self.id,
+                        "name": "Could not fetch models from Anthropic, please update the API Key in the valves.",
+                    },
+                ]
+        else:
+            self.pipelines = []
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
+        self.update_headers()
+        self.get_anthropic_models()
         pass
 
     async def on_shutdown(self):
@@ -60,9 +82,7 @@ class Pipeline:
 
     async def on_valves_updated(self):
         self.update_headers()
-
-    def pipelines(self) -> List[dict]:
-        return self.get_anthropic_models()
+        self.get_anthropic_models()
 
     def process_image(self, image_data):
         if image_data["url"].startswith("data:image"):
@@ -87,7 +107,7 @@ class Pipeline:
     ) -> Union[str, Generator, Iterator]:
         try:
             # Remove unnecessary keys
-            for key in ['user', 'chat_id', 'title']:
+            for key in ["user", "chat_id", "title"]:
                 body.pop(key, None)
 
             system_message, messages = pop_system_message(messages)
@@ -101,28 +121,40 @@ class Pipeline:
                 if isinstance(message.get("content"), list):
                     for item in message["content"]:
                         if item["type"] == "text":
-                            processed_content.append({"type": "text", "text": item["text"]})
+                            processed_content.append(
+                                {"type": "text", "text": item["text"]}
+                            )
                         elif item["type"] == "image_url":
                             if image_count >= 5:
-                                raise ValueError("Maximum of 5 images per API call exceeded")
+                                raise ValueError(
+                                    "Maximum of 5 images per API call exceeded"
+                                )
 
                             processed_image = self.process_image(item["image_url"])
                             processed_content.append(processed_image)
 
                             if processed_image["source"]["type"] == "base64":
-                                image_size = len(processed_image["source"]["data"]) * 3 / 4
+                                image_size = (
+                                    len(processed_image["source"]["data"]) * 3 / 4
+                                )
                             else:
                                 image_size = 0
 
                             total_image_size += image_size
                             if total_image_size > 100 * 1024 * 1024:
-                                raise ValueError("Total size of images exceeds 100 MB limit")
+                                raise ValueError(
+                                    "Total size of images exceeds 100 MB limit"
+                                )
 
                             image_count += 1
                 else:
-                    processed_content = [{"type": "text", "text": message.get("content", "")}]
+                    processed_content = [
+                        {"type": "text", "text": message.get("content", "")}
+                    ]
 
-                processed_messages.append({"role": message["role"], "content": processed_content})
+                processed_messages.append(
+                    {"role": message["role"], "content": processed_content}
+                )
 
             # Prepare the payload
             payload = {
@@ -145,7 +177,9 @@ class Pipeline:
             return f"Error: {e}"
 
     def stream_response(self, payload: dict) -> Generator:
-        response = requests.post(self.url, headers=self.headers, json=payload, stream=True)
+        response = requests.post(
+            self.url, headers=self.headers, json=payload, stream=True
+        )
 
         if response.status_code == 200:
             client = sseclient.SSEClient(response)
@@ -170,6 +204,8 @@ class Pipeline:
         response = requests.post(self.url, headers=self.headers, json=payload)
         if response.status_code == 200:
             res = response.json()
-            return res["content"][0]["text"] if "content" in res and res["content"] else ""
+            return (
+                res["content"][0]["text"] if "content" in res and res["content"] else ""
+            )
         else:
             raise Exception(f"Error: {response.status_code} - {response.text}")
