@@ -82,9 +82,14 @@ class Pipeline:
        # Check for presence of required keys and generate chat_id if it is needed
         chat_id = body.get("chat_id") or body.get("metadata", {}).get("chat_id") or body.get("metadata", {}).get("task_body", {}).get("chat_id")
         if not chat_id:
+           print("chat_id is missing in inlet")
            chat_id = str(uuid.uuid4())  # Generate a unique UUID for chat_id
+           print(f"Generated new chat_id: {chat_id}")
            body["metadata"]["chat_id"] = chat_id  # Add it to metadata
-        
+           print(f"Received body: {body}")
+        else:
+           print(f"Chat ID exists: {chat_id}")
+
         required_keys = ["model", "messages"]
         missing_keys = [key for key in required_keys if key not in body]
         
@@ -108,9 +113,9 @@ class Pipeline:
             metadata={"interface": "open-webui"},
         )
 
-        self.chat_traces[chat_id] = trace
+        self.chat_tracesy[chat_id] = trace
         self.chat_generations[chat_id] = generation
-        
+        print(trace.get_trace_url())
         return body
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
@@ -119,7 +124,8 @@ class Pipeline:
         
         #Define chat_id as a variable
         chat_id = body.get("chat_id") or body.get("metadata", {}).get("chat_id") or body.get("metadata", {}).get("task_body", {}).get("chat_id")
-                
+        print(f"Found Chat ID: {chat_id}")
+        
         if chat_id not in self.chat_generations or chat_id not in self.chat_traces:
             print("Langfuse trace not found for this chat_id in outlet")
             return body
