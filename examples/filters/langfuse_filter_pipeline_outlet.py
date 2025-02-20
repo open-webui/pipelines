@@ -25,6 +25,12 @@ def get_last_assistant_message_obj(messages: List[dict]) -> dict:
     return {}
 
 
+def remove_last_assistant_message(messages: List[dict]) -> List[dict]:
+    if messages and messages[-1]["role"] == "assistant":
+        return messages[:-1]
+    return messages
+
+
 class Pipeline:
     class Valves(BaseModel):
         pipelines: List[str] = []
@@ -45,8 +51,6 @@ class Pipeline:
             }
         )
         self.langfuse = None
-        self.chat_traces = {}
-        self.chat_generations = {}
 
     async def on_startup(self):
         print(f"on_startup:{__name__}")
@@ -85,38 +89,30 @@ class Pipeline:
             print("chat_id not in body")
             return body
 
-        if (
-            body["chat_id"] not in self.chat_generations
-            or body["chat_id"] not in self.chat_traces
-        ):
-            user_id = user.get("id") if user else None
-            user_name = user.get("name") if user else None
-            user_email = user.get("email") if user else None
+        user_id = user.get("id") if user else None
+        user_name = user.get("name") if user else None
+        user_email = user.get("email") if user else None
 
-            trace = self.langfuse.trace(
-                name=f"filter:{__name__}",
-                input=body,
-                user_id=user_email,
-                metadata={
-                    "user_name": user_name,
-                    "user_id": user_id,
-                    "chat_id": body["chat_id"],
-                },
-                session_id=body["chat_id"],
-            )
+        input_messages = remove_last_assistant_message(body["messages"])
+        trace = self.langfuse.trace(
+            name=f"filter:{__name__}",
+            input=input_messages,
+            user_id=user_email,
+            metadata={
+                "user_name": user_name,
+                "user_id": user_id,
+                "chat_id": body["chat_id"],
+            },
+            session_id=body["chat_id"],
+        )
 
-            generation = trace.generation(
-                name=body["chat_id"],
-                model=body["model"],
-                input=body["messages"],
-                metadata={"interface": "open-webui"},
-            )
+        generation = trace.generation(
+            name=body["chat_id"],
+            model=body["model"],
+            input=input_messages,
+            metadata={"interface": "open-webui"},
+        )
 
-            self.chat_traces[body["chat_id"]] = trace
-            self.chat_generations[body["chat_id"]] = generation
-
-        trace = self.chat_traces[body["chat_id"]]
-        generation = self.chat_generations[body["chat_id"]]
         assistant_message = get_last_assistant_message(body["messages"])
 
         # Extract usage information for models that support it
@@ -145,9 +141,5 @@ class Pipeline:
             metadata={"interface": "open-webui"},
             usage=usage,
         )
-
-        # Clean up the chat_generations dictionary
-        del self.chat_traces[body["chat_id"]]
-        del self.chat_generations[body["chat_id"]]
 
         return body
