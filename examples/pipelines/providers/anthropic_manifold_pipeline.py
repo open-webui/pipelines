@@ -48,6 +48,7 @@ class Pipeline:
             {"id": "claude-3-sonnet-20240229", "name": "claude-3-sonnet"},
             {"id": "claude-3-5-haiku-20241022", "name": "claude-3.5-haiku"},
             {"id": "claude-3-5-sonnet-20241022", "name": "claude-3.5-sonnet"},
+            {"id": "claude-3-7-sonnet-20250219", "name": "claude-3.7-sonnet"},
         ]
 
     async def on_startup(self):
