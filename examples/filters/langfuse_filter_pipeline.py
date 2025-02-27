@@ -113,23 +113,8 @@ class Pipeline:
             raise ValueError(error_message)
 
         user_email = user.get("email") if user else None
-        task_name = metadata.get("task", "user_response")  # Default to user_response if task is missing
+        task_name = metadata.get("task", "user_response")  
 
-        # **Extract system message from metadata and prepend**
-        system_message = ""
-        if "model" in metadata and "params" in metadata["model"]:
-            system_message = metadata["model"]["params"].get("system", "")
-
-        for message in body["messages"]:
-            if message["role"] == "system":
-                message["content"] = system_message + "\n\n" + message["content"]
-                break
-        else:
-            # If no system message was found, add one
-            if system_message:
-                body["messages"].insert(0, {"role": "system", "content": system_message})
-
-        # Ensure unique tracking per task
         if chat_id not in self.chat_traces:
             self.log(f"Creating new trace for chat_id: {chat_id}")
 
@@ -137,7 +122,7 @@ class Pipeline:
                 "name": f"chat:{chat_id}",
                 "input": body,
                 "user_id": user_email,
-                "metadata": metadata,  # Preserve all metadata
+                "metadata": metadata,
                 "session_id": chat_id,
             }
 
@@ -150,7 +135,6 @@ class Pipeline:
             trace = self.chat_traces[chat_id]
             self.log(f"Reusing existing trace for chat_id: {chat_id}")
 
-        # Ensure all metadata fields are passed through
         metadata["type"] = task_name
         metadata["interface"] = "open-webui"
 
@@ -158,7 +142,7 @@ class Pipeline:
             "name": f"{task_name}:{str(uuid.uuid4())}",
             "model": body["model"],
             "input": body["messages"],
-            "metadata": metadata,  # Preserve all metadata
+            "metadata": metadata,
         }
 
         if self.valves.debug:
@@ -173,7 +157,7 @@ class Pipeline:
 
         chat_id = body.get("chat_id")
         metadata = body.get("metadata", {})
-        task_name = metadata.get("task", "llm_response")  # Default to llm_response if missing
+        task_name = metadata.get("task", "llm_response")  
 
         if chat_id not in self.chat_traces:
             self.log(f"[WARNING] No matching trace found for chat_id: {chat_id}, attempting to re-register.")
@@ -186,7 +170,7 @@ class Pipeline:
         usage = None
         assistant_message_obj = get_last_assistant_message_obj(body["messages"])
         if assistant_message_obj:
-            info = assistant_message_obj.get("info", {})
+            info = assistant_message_obj.get("usage", {})
             if isinstance(info, dict):
                 input_tokens = info.get("prompt_eval_count") or info.get("prompt_tokens")
                 output_tokens = info.get("eval_count") or info.get("completion_tokens")
@@ -206,14 +190,14 @@ class Pipeline:
         generation_payload = {
             "name": f"{task_name}:{str(uuid.uuid4())}",
             "input": body["messages"],
-            "metadata": metadata,  # Preserve all metadata
-            "usage": usage,
+            "metadata": metadata,
+            "usage": usage,  
         }
 
         if self.valves.debug:
             print(f"[DEBUG] Langfuse generation end request: {json.dumps(generation_payload, indent=2)}")
 
-        trace.generation().end(**generation_payload)
+        trace.generation().end(**generation_payload)  
         self.log(f"Generation ended for chat_id: {chat_id}")
 
         return body
