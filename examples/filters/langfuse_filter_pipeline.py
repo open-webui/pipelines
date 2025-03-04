@@ -244,6 +244,7 @@ class Pipeline:
             # If it's an LLM generation
             generation_payload = {
                 "name": f"{task_name}:{str(uuid.uuid4())}",
+                "model": body.get("model"),   # <-- Include the model in LLM generation 
                 "input": body["messages"],
                 "metadata": metadata,
                 "usage": usage,
