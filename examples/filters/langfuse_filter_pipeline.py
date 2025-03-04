@@ -34,9 +34,9 @@ class Pipeline:
         secret_key: str
         public_key: str
         host: str
-        debug: bool = False
         # New valve that controls whether task names are added as tags:
         insert_tags: bool = True
+        debug: bool = False
 
     def __init__(self):
         self.type = "filter"
