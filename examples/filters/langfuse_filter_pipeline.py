@@ -239,10 +239,10 @@ class Pipeline:
         # Extract usage if available
         usage = None
         if assistant_message_obj:
-            info = assistant_message_obj.get("info", {})
-            if isinstance(info, dict):
-                input_tokens = info.get("prompt_eval_count") or info.get("prompt_tokens")
-                output_tokens = info.get("eval_count") or info.get("completion_tokens")
+            message_usage = assistant_message_obj.get("usage", {})
+            if isinstance(message_usage, dict):
+                input_tokens = message_usage.get("prompt_eval_count") or message_usage.get("prompt_tokens")
+                output_tokens = message_usage.get("eval_count") or message_usage.get("completion_tokens")
                 if input_tokens is not None and output_tokens is not None:
                     usage = {
                         "input": input_tokens,
