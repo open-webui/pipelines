@@ -173,6 +173,7 @@ class Pipeline:
                 # Allow users to input an integer value representing budget tokens
                 if (
                     not budget_tokens
+                    and reasoning_effort is not None
                     and reasoning_effort not in REASONING_EFFORT_BUDGET_TOKEN_MAP.keys()
                 ):
                     try:
