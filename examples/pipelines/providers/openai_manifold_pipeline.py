@@ -66,7 +66,7 @@ class Pipeline:
                         "name": model["name"] if "name" in model else model["id"],
                     }
                     for model in models["data"]
-                    if "gpt" in model["id"]
+                    if "gpt" in model["id"] or "o1" in model["id"] or "o3" in model["id"]
                 ]
 
             except Exception as e:
