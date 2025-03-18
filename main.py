@@ -667,13 +667,13 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Pipeline {form_data.model} not found",
         )
+    
     async def execute_pipe(pipe, *args, **kwargs):
         if inspect.isasyncgenfunction(pipe):
             async for res in pipe(*args, **kwargs):
                 yield res
         elif inspect.iscoroutinefunction(pipe):
-            ls = await pipe(*args, **kwargs)
-            for item in ls:
+            for item in await pipe(*args, **kwargs):
                 yield item
         else:
             for item in await run_in_threadpool(pipe, *args, **kwargs):
