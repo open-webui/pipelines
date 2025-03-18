@@ -100,14 +100,18 @@ class Pipeline:
 
     def get_models(self):
         try:
-            response = self.bedrock.list_foundation_models(byProvider='Anthropic', byInferenceType='ON_DEMAND')
-            return [
-                {
-                    "id": model["modelId"],
-                    "name": model["modelName"],
-                }
-                for model in response["modelSummaries"]
-            ]
+            res = []
+            response = self.bedrock.list_foundation_models(byProvider='Anthropic')
+            for model in response['modelSummaries']:
+                inference_types = model.get('inferenceTypesSupported', [])
+                if "ON_DEMAND" in inference_types:
+                    res.append({'id': model['modelId'], 'name': model['modelName']})
+                elif "INFERENCE_PROFILE" in inference_types:
+                    inferenceProfileId = self.getInferenceProfileId(model['modelArn'])
+                    if inferenceProfileId:
+                        res.append({'id': inferenceProfileId, 'name': model['modelName']})
+
+            return res
         except Exception as e:
             print(f"Error: {e}")
             return [
@@ -116,6 +120,14 @@ class Pipeline:
                     "name": "Could not fetch models from Bedrock, please check permissoin.",
                 },
             ]
+
+    def getInferenceProfileId(self, modelArn: str) -> str:
+        response = self.bedrock.list_inference_profiles()
+        for profile in response.get('inferenceProfileSummaries', []):
+            for model in profile.get('models', []):
+                if model.get('modelArn') == modelArn:
+                    return profile['inferenceProfileId']
+        return None
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
