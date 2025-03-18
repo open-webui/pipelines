@@ -165,9 +165,22 @@ class Pipeline:
 
     def stream_response(self, model_id: str, payload: dict) -> Generator:
         streaming_response = self.bedrock_runtime.converse_stream(**payload)
+
+        in_resasoning_context = False
         for chunk in streaming_response["stream"]:
-            if "contentBlockDelta" in chunk and "text" in chunk["contentBlockDelta"]["delta"]:
-                yield chunk["contentBlockDelta"]["delta"]["text"]
+            if in_resasoning_context and "contentBlockStop" in chunk:
+                in_resasoning_context = False
+                yield "\n </think> \n\n"
+            elif "contentBlockDelta" in chunk and "delta" in chunk["contentBlockDelta"]:
+                if "reasoningContent" in chunk["contentBlockDelta"]["delta"]:
+                    if not in_resasoning_context:
+                        yield "<think>"
+
+                    in_resasoning_context = True
+                    if "text" in chunk["contentBlockDelta"]["delta"]["reasoningContent"]:
+                        yield chunk["contentBlockDelta"]["delta"]["reasoningContent"]["text"]
+                elif "text" in chunk["contentBlockDelta"]["delta"]:
+                    yield chunk["contentBlockDelta"]["delta"]["text"]
 
     def get_completion(self, model_id: str, payload: dict) -> str:
         response = self.bedrock_runtime.converse(**payload)
