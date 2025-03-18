@@ -12,7 +12,7 @@ import base64
 import json
 import logging
 from io import BytesIO
-from typing import List, Union, Generator, Iterator
+from typing import List, Union, Generator, Iterator, Optional, Any
 
 import boto3
 
@@ -26,9 +26,9 @@ from utils.pipelines.main import pop_system_message
 
 class Pipeline:
     class Valves(BaseModel):
-        AWS_ACCESS_KEY: str = ""
-        AWS_SECRET_KEY: str = ""
-        AWS_REGION_NAME: str = ""
+        AWS_ACCESS_KEY: Optional[str] = None
+        AWS_SECRET_KEY: Optional[str] = None
+        AWS_REGION_NAME: Optional[str] = None
 
     def __init__(self):
         self.type = "manifold"
@@ -47,21 +47,25 @@ class Pipeline:
             }
         )
 
-        self.bedrock = boto3.client(aws_access_key_id=self.valves.AWS_ACCESS_KEY,
-                                    aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                    service_name="bedrock",
-                                    region_name=self.valves.AWS_REGION_NAME)
-        self.bedrock_runtime = boto3.client(aws_access_key_id=self.valves.AWS_ACCESS_KEY,
-                                            aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                            service_name="bedrock-runtime",
-                                            region_name=self.valves.AWS_REGION_NAME)
+        self.valves = self.Valves(
+            **{
+                "AWS_ACCESS_KEY": os.getenv("AWS_ACCESS_KEY", ""),
+                "AWS_SECRET_KEY": os.getenv("AWS_SECRET_KEY", ""),
+                "AWS_REGION_NAME": os.getenv(
+                    "AWS_REGION_NAME", os.getenv(
+                        "AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "")
+                    )
+                ),
+            }
+        )
 
-        self.pipelines = self.get_models()
+        self.update_pipelines()
 
 
     async def on_startup(self):
         # This function is called when the server is started.
         print(f"on_startup:{__name__}")
+        self.update_pipelines()
         pass
 
     async def on_shutdown(self):
@@ -72,40 +76,46 @@ class Pipeline:
     async def on_valves_updated(self):
         # This function is called when the valves are updated.
         print(f"on_valves_updated:{__name__}")
-        self.bedrock = boto3.client(aws_access_key_id=self.valves.AWS_ACCESS_KEY,
-                                    aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                    service_name="bedrock",
-                                    region_name=self.valves.AWS_REGION_NAME)
-        self.bedrock_runtime = boto3.client(aws_access_key_id=self.valves.AWS_ACCESS_KEY,
-                                            aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                            service_name="bedrock-runtime",
-                                            region_name=self.valves.AWS_REGION_NAME)
-        self.pipelines = self.get_models()
+        self.update_pipelines()
 
-    def pipelines(self) -> List[dict]:
-        return self.get_models()
+    def update_pipelines(self) -> None:
+        try:
+            self.bedrock = boto3.client(service_name="bedrock",
+                                        aws_access_key_id=self.valves.AWS_ACCESS_KEY,
+                                        aws_secret_access_key=self.valves.AWS_SECRET_KEY,
+                                        region_name=self.valves.AWS_REGION_NAME)
+            self.bedrock_runtime = boto3.client(service_name="bedrock-runtime",
+                                                aws_access_key_id=self.valves.AWS_ACCESS_KEY,
+                                                aws_secret_access_key=self.valves.AWS_SECRET_KEY,
+                                                region_name=self.valves.AWS_REGION_NAME)
+            self.pipelines = self.get_models()
+        except Exception as e:
+            print(f"Error: {e}")
+            self.pipelines = [
+                {
+                    "id": "error",
+                    "name": "Could not fetch models from Bedrock, please set up AWS Key/Secret or Instance/Task Role.",
+                },
+            ]
 
     def get_models(self):
-        if self.valves.AWS_ACCESS_KEY and self.valves.AWS_SECRET_KEY:
-            try:
-                response = self.bedrock.list_foundation_models(byProvider='Anthropic', byInferenceType='ON_DEMAND')
-                return [
-                    {
-                        "id": model["modelId"],
-                        "name": model["modelName"],
-                    }
-                    for model in response["modelSummaries"]
-                ]
-            except Exception as e:
-                print(f"Error: {e}")
-                return [
-                    {
-                        "id": "error",
-                        "name": "Could not fetch models from Bedrock, please update the Access/Secret Key in the valves.",
-                    },
-                ]
-        else:
-            return []
+        try:
+            response = self.bedrock.list_foundation_models(byProvider='Anthropic', byInferenceType='ON_DEMAND')
+            return [
+                {
+                    "id": model["modelId"],
+                    "name": model["modelName"],
+                }
+                for model in response["modelSummaries"]
+            ]
+        except Exception as e:
+            print(f"Error: {e}")
+            return [
+                {
+                    "id": "error",
+                    "name": "Could not fetch models from Bedrock, please check permissoin.",
+                },
+            ]
 
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
