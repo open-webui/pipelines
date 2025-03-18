@@ -227,17 +227,24 @@ class Pipeline:
 
     def process_image(self, image: str):
         img_stream = None
-        if image["url"].startswith("data:image"):
-            if ',' in image["url"]:
-                base64_string = image["url"].split(',')[1]
-            image_data = base64.b64decode(base64_string)
+        content_type = None
 
+        if image["url"].startswith("data:image"):
+            mime_type, base64_string = image["url"].split(",", 1)
+            content_type = mime_type.split(":")[1].split(";")[0]
+            image_data = base64.b64decode(base64_string)
             img_stream = BytesIO(image_data)
         else:
-            img_stream = requests.get(image["url"]).content
+            response = requests.get(image["url"])
+            img_stream = BytesIO(response.content)
+            content_type = response.headers.get('Content-Type', 'image/jpeg')
+
+        media_type = content_type.split('/')[-1] if '/' in content_type else content_type
         return {
-            "image": {"format": "png" if image["url"].endswith(".png") else "jpeg",
-                      "source": {"bytes": img_stream.read()}}
+            "image": {
+                "format": media_type,
+                "source": {"bytes": img_stream.read()}
+            }
         }
 
     def stream_response(self, model_id: str, payload: dict) -> Generator:
