@@ -16,7 +16,7 @@ httpx
 # AI libraries
 openai
 anthropic
-google-generativeai
+google-genai==1.2.0
 vertexai
 
 # Database
