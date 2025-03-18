@@ -140,8 +140,13 @@ class Pipeline:
             payload = {"modelId": model_id,
                        "messages": processed_messages,
                        "system": [{'text': system_message["content"] if system_message else 'you are an intelligent ai assistant'}],
-                       "inferenceConfig": {"temperature": body.get("temperature", 0.5)},
-                       "additionalModelRequestFields": {"top_k": body.get("top_k", 200), "top_p": body.get("top_p", 0.9)}
+                       "inferenceConfig": {
+                           "temperature": body.get("temperature", 0.5),
+                           "topP": body.get("top_p", 0.9),
+                           "maxTokens": body.get("max_tokens", 4096),
+                           "stopSequences": body.get("stop", []),
+                        },
+                        "additionalModelRequestFields": {"top_k": body.get("top_k", 200)}
                        }
             if body.get("stream", False):
                 return self.stream_response(model_id, payload)
@@ -166,8 +171,6 @@ class Pipeline:
         }
 
     def stream_response(self, model_id: str, payload: dict) -> Generator:
-        if "additionalModelRequestFields" in payload:
-            del payload["additionalModelRequestFields"]
         streaming_response = self.bedrock_runtime.converse_stream(**payload)
         for chunk in streaming_response["stream"]:
             if "contentBlockDelta" in chunk:
