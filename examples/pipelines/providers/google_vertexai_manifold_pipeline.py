@@ -51,9 +51,11 @@ class Pipeline:
         )
         self.pipelines = [
             {"id": "gemini-1.5-flash-001", "name": "Gemini 1.5 Flash"},
+            {"id": "gemini-2.0-flash", "name": "Gemini 2.0 Flash"},
+            {"id": "gemini-2.0-flash-lite", "name": "Gemini 2.0 Flash-Lite"},
+            {"id": "gemini-2.0-flash-thinking-exp-01-21", "name": "Gemini 2.0 Flash Thinking"},
             {"id": "gemini-1.5-pro-001", "name": "Gemini 1.5 Pro"},
-            {"id": "gemini-flash-experimental", "name": "Gemini 1.5 Flash Experimental"},
-            {"id": "gemini-pro-experimental", "name": "Gemini 1.5 Pro Experimental"},
+            {"id": "gemini-2.0-pro-exp-02-05", "name": "Gemini 2.0 Pro"},
         ]
 
     async def on_startup(self) -> None:
