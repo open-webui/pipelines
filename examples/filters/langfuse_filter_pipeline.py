@@ -198,6 +198,7 @@ class Pipeline:
             new_generation = trace.generation(**new_generation_payload)
             self.chat_generations[chat_id] = new_generation
 
+        del body["chat_id"]
         return body
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
