@@ -1,8 +1,8 @@
 """
 title: Langfuse Filter Pipeline
 author: open-webui
-date: 2025-03-04
-version: 1.6
+date: 2025-03-28
+version: 1.7
 license: MIT
 description: A filter pipeline that uses Langfuse.
 requirements: langfuse
@@ -36,6 +36,8 @@ class Pipeline:
         host: str
         # New valve that controls whether task names are added as tags:
         insert_tags: bool = True
+        # New valve that controls whether to use model name instead of model ID for generation
+        use_model_name_instead_of_id_for_generation: bool = False
         debug: bool = False
 
     def __init__(self):
@@ -48,6 +50,7 @@ class Pipeline:
                 "secret_key": os.getenv("LANGFUSE_SECRET_KEY", "your-secret-key-here"),
                 "public_key": os.getenv("LANGFUSE_PUBLIC_KEY", "your-public-key-here"),
                 "host": os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com"),
+                "use_model_name_instead_of_id_for_generation": os.getenv("USE_MODEL_NAME", "false").lower() == "true",
                 "debug": os.getenv("DEBUG_MODE", "false").lower() == "true",
             }
         )
@@ -55,6 +58,8 @@ class Pipeline:
         self.langfuse = None
         self.chat_traces = {}
         self.suppressed_logs = set()
+        # Dictionary to store model names for each chat
+        self.model_names = {}
 
         # Only these tasks will be treated as LLM "generations":
         self.GENERATION_TASKS = {"llm_response"}
@@ -124,6 +129,20 @@ class Pipeline:
         metadata["chat_id"] = chat_id
         body["metadata"] = metadata
 
+        # Extract and store both model name and ID if available
+        model_info = metadata.get("model", {})
+        model_id = body.get("model")
+        
+        # Store model information for this chat
+        if chat_id not in self.model_names:
+            self.model_names[chat_id] = {"id": model_id}
+        else:
+            self.model_names[chat_id]["id"] = model_id
+            
+        if isinstance(model_info, dict) and "name" in model_info:
+            self.model_names[chat_id]["name"] = model_info["name"]
+            self.log(f"Stored model info - name: '{model_info['name']}', id: '{model_id}' for chat_id: {chat_id}")
+
         required_keys = ["model", "messages"]
         missing_keys = [key for key in required_keys if key not in body]
         if missing_keys:
@@ -169,9 +188,20 @@ class Pipeline:
 
         # If it's a task that is considered an LLM generation
         if task_name in self.GENERATION_TASKS:
+            # Determine which model value to use based on the use_model_name valve
+            model_id = self.model_names.get(chat_id, {}).get("id", body["model"])
+            model_name = self.model_names.get(chat_id, {}).get("name", "unknown")
+            
+            # Pick primary model identifier based on valve setting
+            model_value = model_name if self.valves.use_model_name_instead_of_id_for_generation else model_id
+            
+            # Add both values to metadata regardless of valve setting
+            metadata["model_id"] = model_id
+            metadata["model_name"] = model_name
+            
             generation_payload = {
                 "name": f"{task_name}:{str(uuid.uuid4())}",
-                "model": body["model"],
+                "model": model_value,
                 "input": body["messages"],
                 "metadata": metadata,
             }
@@ -241,10 +271,21 @@ class Pipeline:
         metadata["interface"] = "open-webui"
 
         if task_name in self.GENERATION_TASKS:
+            # Determine which model value to use based on the use_model_name valve
+            model_id = self.model_names.get(chat_id, {}).get("id", body.get("model"))
+            model_name = self.model_names.get(chat_id, {}).get("name", "unknown")
+            
+            # Pick primary model identifier based on valve setting
+            model_value = model_name if self.valves.use_model_name_instead_of_id_for_generation else model_id
+            
+            # Add both values to metadata regardless of valve setting
+            metadata["model_id"] = model_id
+            metadata["model_name"] = model_name
+            
             # If it's an LLM generation
             generation_payload = {
                 "name": f"{task_name}:{str(uuid.uuid4())}",
-                "model": body.get("model"),   # <-- Include the model in LLM generation 
+                "model": model_value,   # <-- Use model name or ID based on valve setting
                 "input": body["messages"],
                 "metadata": metadata,
                 "usage": usage,
