@@ -32,6 +32,7 @@ psycopg2-binary
 # Observability
 langfuse
 ddtrace
+opik
 
 # ML libraries
 torch
