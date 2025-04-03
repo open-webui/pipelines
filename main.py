@@ -682,13 +682,18 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             pipe = PIPELINE_MODULES[pipeline_id].pipe
 
         if form_data.stream:
-
             def stream_content():
+
+                def __event_emitter__(event):
+                    logging.error(f"stream_event:{event}")
+                    return f"event: {json.dumps(event)}\n\n"
+
                 res = pipe(
                     user_message=user_message,
                     model_id=pipeline_id,
                     messages=messages,
                     body=form_data.model_dump(),
+                    __event_emitter__=__event_emitter__,
                 )
 
                 logging.info(f"stream:true:{res}")
@@ -711,7 +716,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                         logging.info(f"stream_content:Generator:{line}")
 
-                        if line.startswith("data:"):
+                        if line.startswith("data:") or line.startswith("event:"):
                             yield f"{line}\n\n"
                         else:
                             line = stream_message_template(form_data.model, line)
@@ -732,7 +737,13 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                             }
                         ],
                     }
-
+                    event = {
+                        "type" : 'status',
+                        "data" : {
+                            "description" : "test",
+                            "done" : True
+                        }
+                    }
                     yield f"data: {json.dumps(finish_message)}\n\n"
                     yield f"data: [DONE]"
 
