@@ -737,13 +737,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                             }
                         ],
                     }
-                    event = {
-                        "type" : 'status',
-                        "data" : {
-                            "description" : "test",
-                            "done" : True
-                        }
-                    }
                     yield f"data: {json.dumps(finish_message)}\n\n"
                     yield f"data: [DONE]"
 
