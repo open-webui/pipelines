@@ -685,8 +685,11 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
             def stream_content():
 
                 def __event_emitter__(event):
-                    logging.error(f"stream_event:{event}")
-                    return f"event: {json.dumps(event)}\n\n"
+                    logging.info(f"stream_event:{event}")
+                    eventData = {
+                        "event" : event
+                    }
+                    return f"data: {json.dumps(eventData)}\n\n"
 
                 res = pipe(
                     user_message=user_message,
@@ -716,7 +719,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                         logging.info(f"stream_content:Generator:{line}")
 
-                        if line.startswith("data:") or line.startswith("event:"):
+                        if line.startswith("data:"):
                             yield f"{line}\n\n"
                         else:
                             line = stream_message_template(form_data.model, line)
