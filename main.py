@@ -39,6 +39,10 @@ PIPELINES = {}
 PIPELINE_MODULES = {}
 PIPELINE_NAMES = {}
 
+#Add GLOBAL_LOG_LEVEL for Pipeplines
+log_level = os.getenv('GLOBAL_LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVELS[log_level])
+
 
 def get_all_pipelines():
     pipelines = {}
