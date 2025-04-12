@@ -1,9 +1,9 @@
 """
 title: FlowiseAI Integration
-author: Claude
-author_url: https://anthropic.com
+author: Eric Zavesky
+author_url: https://github.com/ezavesky
 git_url: https://github.com/open-webui/pipelines/
-description: Access FlowiseAI endpoints with customizable flows
+description: Access FlowiseAI endpoints via chat integration
 required_open_webui_version: 0.4.3
 requirements: requests,flowise>=1.0.4
 version: 0.4.3
@@ -85,6 +85,33 @@ class Pipeline:
         self.flows = {}
         self.update_flows()
 
+    def get_flow_details(self, flow_id: str) -> Optional[dict]:
+        """
+        Fetch flow details from the FlowiseAI API
+        
+        Args:
+            flow_id (str): The ID of the flow to fetch
+            
+        Returns:
+            Optional[dict]: Flow details if successful, None if failed
+        """
+        try:
+            api_url = f"{self.valves.FLOWISE_BASE_URL.rstrip('/')}/api/v1/chatflows/{flow_id}"
+            headers = {"Authorization": f"Bearer {self.valves.FLOWISE_API_KEY}"}
+            
+            response = requests.get(api_url, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data
+            else:
+                logger.error(f"Error fetching flow details: Status {response.status_code}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error fetching flow details: {str(e)}")
+            return None
+
     def update_flows(self):
         """Update the flows dictionary based on the current valve settings"""
         self.flows = {}
@@ -98,9 +125,18 @@ class Pipeline:
             flow_name = getattr(self.valves, f"FLOW_{i}_NAME", None)
             
             if enabled and flow_id and flow_name:
-                self.flows[flow_name.lower()] = flow_id
+                # Fetch flow details from API
+                flow_details = self.get_flow_details(flow_id)
+                api_name = flow_details.get('name', 'Unknown') if flow_details else 'Unknown'
+                
+                # Store both names in the flows dictionary
+                self.flows[flow_name.lower()] = {
+                    'id': flow_id,
+                    'brief_name': flow_name,
+                    'api_name': api_name
+                }
         
-        logger.info(f"Updated flows: {list(self.flows.keys())}")
+        logger.info(f"Updated flows: {[{k: v['api_name']} for k, v in self.flows.items()]}")
 
     async def on_startup(self):
         """Called when the server is started"""
@@ -202,8 +238,8 @@ class Pipeline:
                 else:
                     return no_flows_msg
             
-            flows_list = "\n".join([f"- {flow}" for flow in available_flows])
-            help_msg = f"Please specify a flow using the format: flow_name: your query\n\nAvailable flows:\n{flows_list}"
+            flows_list = "\n".join([f"- flow_name: {flow} (description:{self.flows[flow]['api_name']})" for flow in available_flows])
+            help_msg = f"Please specify a flow using the format: <flow_name>: <your query>\n\nAvailable flows:\n{flows_list}"
             
             if flow_name is None:
                 help_msg = "No flow specified. " + help_msg
@@ -217,7 +253,7 @@ class Pipeline:
                 return help_msg
         
         # Get the flow ID from the map
-        flow_id = self.flows[flow_name]
+        flow_id = self.flows[flow_name]['id']
         
         if streaming:
             yield from self.stream_retrieve(flow_id, flow_name, query, dt_start)
