@@ -41,8 +41,8 @@ PIPELINE_NAMES = {}
 
 #Add GLOBAL_LOG_LEVEL for Pipeplines
 log_level = os.getenv('GLOBAL_LOG_LEVEL', 'INFO').upper()
-logging.basicConfig(level=LOG_LEVELS[log_level])
-
+numeric_level = getattr(logging, log_level, logging.INFO)
+logging.basicConfig(level=numeric_level)
 
 def get_all_pipelines():
     pipelines = {}
