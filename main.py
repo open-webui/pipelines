@@ -703,6 +703,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                 if isinstance(res, Iterator):
                     for line in res:
+                        print(line)
                         if isinstance(line, BaseModel):
                             line = line.model_dump_json()
                             line = f"data: {line}"
@@ -714,15 +715,14 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                         try:
                             line = line.decode("utf-8")
                             logging.info(f"stream_content:Generator:{line}")
-
-                            if line.startswith("data:"):
-                                yield f"{line}\n\n"
-                            else:
-                                line = stream_message_template(form_data.model, line)
-                                yield f"data: {json.dumps(line)}\n\n"
-
                         except:
                             pass
+
+                        if isinstance(line, str) and line.startswith("data:"):
+                            yield f"{line}\n\n"
+                        else:
+                            line = stream_message_template(form_data.model, line)
+                            yield f"data: {json.dumps(line)}\n\n"
 
                 if isinstance(res, str) or isinstance(res, Generator):
                     finish_message = {
