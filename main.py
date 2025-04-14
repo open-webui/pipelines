@@ -703,7 +703,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
 
                 if isinstance(res, Iterator):
                     for line in res:
-                        print(line)
                         if isinstance(line, BaseModel):
                             line = line.model_dump_json()
                             line = f"data: {line}"
