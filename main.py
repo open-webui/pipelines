@@ -39,8 +39,8 @@ PIPELINES = {}
 PIPELINE_MODULES = {}
 PIPELINE_NAMES = {}
 
-#Add GLOBAL_LOG_LEVEL for Pipeplines
-log_level = os.getenv('GLOBAL_LOG_LEVEL', 'INFO').upper()
+# Add GLOBAL_LOG_LEVEL for Pipeplines
+log_level = os.getenv("GLOBAL_LOG_LEVEL", "INFO").upper()
 logging.basicConfig(level=LOG_LEVELS[log_level])
 
 
@@ -694,7 +694,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     messages=messages,
                     body=form_data.model_dump(),
                 )
-
                 logging.info(f"stream:true:{res}")
 
                 if isinstance(res, str):
@@ -708,18 +707,22 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                             line = line.model_dump_json()
                             line = f"data: {line}"
 
+                        elif isinstance(line, dict):
+                            line = json.dumps(line)
+                            line = f"data: {line}"
+
                         try:
                             line = line.decode("utf-8")
+                            logging.info(f"stream_content:Generator:{line}")
+
+                            if line.startswith("data:"):
+                                yield f"{line}\n\n"
+                            else:
+                                line = stream_message_template(form_data.model, line)
+                                yield f"data: {json.dumps(line)}\n\n"
+
                         except:
                             pass
-
-                        logging.info(f"stream_content:Generator:{line}")
-
-                        if line.startswith("data:"):
-                            yield f"{line}\n\n"
-                        else:
-                            line = stream_message_template(form_data.model, line)
-                            yield f"data: {json.dumps(line)}\n\n"
 
                 if isinstance(res, str) or isinstance(res, Generator):
                     finish_message = {
