@@ -73,7 +73,7 @@ class Pipeline:
                         "name": model["name"] if "name" in model else model["id"],
                     }
                     for model in models["data"]
-                    if any(substring in model["id"] for substring in allowed_models):
+                    if any(substring in model["id"] for substring in allowed_models)
                 ]
 
             except Exception as e:
