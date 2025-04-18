@@ -29,7 +29,7 @@ import sys
 import subprocess
 
 
-from config import API_KEY, PIPELINES_DIR
+from config import API_KEY, PIPELINES_DIR, LOG_LEVELS
 
 if not os.path.exists(PIPELINES_DIR):
     os.makedirs(PIPELINES_DIR)
@@ -38,6 +38,10 @@ if not os.path.exists(PIPELINES_DIR):
 PIPELINES = {}
 PIPELINE_MODULES = {}
 PIPELINE_NAMES = {}
+
+# Add GLOBAL_LOG_LEVEL for Pipeplines
+log_level = os.getenv("GLOBAL_LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=LOG_LEVELS[log_level])
 
 
 def get_all_pipelines():
@@ -690,7 +694,6 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     messages=messages,
                     body=form_data.model_dump(),
                 )
-
                 logging.info(f"stream:true:{res}")
 
                 if isinstance(res, str):
@@ -704,14 +707,17 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                             line = line.model_dump_json()
                             line = f"data: {line}"
 
+                        elif isinstance(line, dict):
+                            line = json.dumps(line)
+                            line = f"data: {line}"
+
                         try:
                             line = line.decode("utf-8")
+                            logging.info(f"stream_content:Generator:{line}")
                         except:
                             pass
 
-                        logging.info(f"stream_content:Generator:{line}")
-
-                        if line.startswith("data:"):
+                        if isinstance(line, str) and line.startswith("data:"):
                             yield f"{line}\n\n"
                         else:
                             line = stream_message_template(form_data.model, line)
