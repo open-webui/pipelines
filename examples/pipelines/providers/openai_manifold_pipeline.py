@@ -59,6 +59,13 @@ class Pipeline:
                     f"{self.valves.OPENAI_API_BASE_URL}/models", headers=headers
                 )
 
+                allowed_models = [
+                    "gpt",
+                    "o1",
+                    "o3",
+                    "o4",
+                ]
+
                 models = r.json()
                 return [
                     {
@@ -66,7 +73,7 @@ class Pipeline:
                         "name": model["name"] if "name" in model else model["id"],
                     }
                     for model in models["data"]
-                    if "gpt" in model["id"] or "o1" in model["id"] or "o3" in model["id"]
+                    if any(substring in model["id"] for substring in allowed_models)
                 ]
 
             except Exception as e:
