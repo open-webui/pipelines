@@ -4,6 +4,8 @@ HOST="${HOST:-0.0.0.0}"
 # Default value for PIPELINES_DIR
 PIPELINES_DIR=${PIPELINES_DIR:-./pipelines}
 
+UVICORN_LOOP="${UVICORN_LOOP:-auto}"
+
 # Function to reset pipelines
 reset_pipelines_dir() {
   if [ "$RESET_PIPELINES_DIR" = true ]; then
@@ -150,6 +152,6 @@ fi
 
 if [[ "$MODE" == "run" || "$MODE" == "full" ]]; then
   echo "Running via Mode: $MODE"
-  uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+  uvicorn main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*' --loop "$UVICORN_LOOP"
 fi
 
