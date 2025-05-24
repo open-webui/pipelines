@@ -10,3 +10,9 @@ pipelines/*
 
 .venv
 venv/
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
