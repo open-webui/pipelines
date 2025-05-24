@@ -62,7 +62,7 @@ class Pipeline:
                 ),
                 "OPENAI_API_KEY": os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_API_KEY"),
                 "TASK_MODEL": os.getenv("TASK_MODEL", "gpt-3.5-turbo"),
-                "TEMPLATE": """Use the following context as your learned knowledge, inside <context></context> XML tags.
+                "TEMPLATE": os.getenv("TEMPLATE", """Use the following context as your learned knowledge, inside <context></context> XML tags.
 <context>
     {{CONTEXT}}
 </context>
@@ -71,7 +71,7 @@ When answer to user:
 - If you don't know, just say that you don't know.
 - If you don't know when you are not sure, ask for clarification.
 Avoid mentioning that you obtained the information from the context.
-And answer according to the language of the user's question.""",
+And answer according to the language of the user's question."""),
             }
         )
 
@@ -170,6 +170,7 @@ And answer according to the language of the user's question.""",
 
             response = r.json()
             content = response["choices"][0]["message"]["content"]
+            content = content[content.find('{'):content.rfind('}') + 1]
 
             # Parse the function response
             if content != "":
