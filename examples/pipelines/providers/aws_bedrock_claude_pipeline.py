@@ -52,14 +52,6 @@ class Pipeline:
 
         self.valves = self.Valves(
             **{
-                "AWS_ACCESS_KEY": os.getenv("AWS_ACCESS_KEY", "your-aws-access-key-here"),
-                "AWS_SECRET_KEY": os.getenv("AWS_SECRET_KEY", "your-aws-secret-key-here"),
-                "AWS_REGION_NAME": os.getenv("AWS_REGION_NAME", "your-aws-region-name-here"),
-            }
-        )
-
-        self.valves = self.Valves(
-            **{
                 "AWS_ACCESS_KEY": os.getenv("AWS_ACCESS_KEY", ""),
                 "AWS_SECRET_KEY": os.getenv("AWS_SECRET_KEY", ""),
                 "AWS_REGION_NAME": os.getenv(
@@ -72,6 +64,13 @@ class Pipeline:
 
         self.update_pipelines()
 
+    def get_thinking_supported_models(self):
+        """Returns list of model identifiers that support extended thinking"""
+        return [
+            "claude-3-7",
+            "claude-sonnet-4",
+            "claude-opus-4"
+        ]
 
     async def on_startup(self):
         # This function is called when the server is started.
@@ -183,13 +182,14 @@ class Pipeline:
                        }
 
             if body.get("stream", False):
-                supports_thinking = "claude-3-7" in model_id
+                supports_thinking = any(model in model_id for model in self.get_thinking_supported_models())
                 reasoning_effort = body.get("reasoning_effort", "none")
                 budget_tokens = REASONING_EFFORT_BUDGET_TOKEN_MAP.get(reasoning_effort)
 
                 # Allow users to input an integer value representing budget tokens
                 if (
                     not budget_tokens
+                    and reasoning_effort is not None
                     and reasoning_effort not in REASONING_EFFORT_BUDGET_TOKEN_MAP.keys()
                 ):
                     try:
