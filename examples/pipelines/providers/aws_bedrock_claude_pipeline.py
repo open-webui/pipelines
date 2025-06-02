@@ -1,12 +1,12 @@
 """
 title: AWS Bedrock Claude Pipeline
-author: G-mario
-date: 2024-08-18
-version: 1.0
+author: G-mario, jknapp
+date: 2025-06-02
+version: 1.4
 license: MIT
 description: A pipeline for generating text and processing images using the AWS Bedrock API(By Anthropic claude).
 requirements: requests, boto3
-environment_variables: AWS_ACCESS_KEY, AWS_SECRET_KEY, AWS_REGION_NAME
+environment_variables: AWS_ACCESS_KEY (optional with instance roles), AWS_SECRET_KEY (optional with instance roles), AWS_REGION_NAME
 """
 import base64
 import json
@@ -31,8 +31,9 @@ REASONING_EFFORT_BUDGET_TOKEN_MAP = {
     "max": 32768,
 }
 
-# Maximum combined token limit for Claude 3.7
+# Maximum combined token limit for Claude Sonnet 3.7 and 4.0
 MAX_COMBINED_TOKENS = 64000
+OPUS_MAX_COMBINED_TOKENS = 32000
 
 
 class Pipeline:
@@ -91,21 +92,36 @@ class Pipeline:
 
     def update_pipelines(self) -> None:
         try:
-            self.bedrock = boto3.client(service_name="bedrock",
+            # Check if we have explicit credentials or should try instance role
+            if self.valves.AWS_ACCESS_KEY and self.valves.AWS_SECRET_KEY:
+                # Use explicit credentials
+                self.bedrock = boto3.client(
+                    service_name="bedrock",
                                         aws_access_key_id=self.valves.AWS_ACCESS_KEY,
                                         aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                        region_name=self.valves.AWS_REGION_NAME)
-            self.bedrock_runtime = boto3.client(service_name="bedrock-runtime",
+                    region_name=self.valves.AWS_REGION_NAME
+                )
+                self.bedrock_runtime = boto3.client(
+                    service_name="bedrock-runtime",
                                                 aws_access_key_id=self.valves.AWS_ACCESS_KEY,
                                                 aws_secret_access_key=self.valves.AWS_SECRET_KEY,
-                                                region_name=self.valves.AWS_REGION_NAME)
+                    region_name=self.valves.AWS_REGION_NAME
+                )
+                print("Using provided AWS credentials")
+            else:
+                # Try to use instance role
+                region = self.valves.AWS_REGION_NAME if self.valves.AWS_REGION_NAME else None
+                self.bedrock = boto3.client(service_name="bedrock", region_name=region)
+                self.bedrock_runtime = boto3.client(service_name="bedrock-runtime", region_name=region)
+                print("No AWS credentials provided, using instance role or AWS credential chain")
+
             self.pipelines = self.get_models()
         except Exception as e:
             print(f"Error: {e}")
             self.pipelines = [
                 {
                     "id": "error",
-                    "name": "Could not fetch models from Bedrock, please set up AWS Key/Secret or Instance/Task Role.",
+                    "name": "Could not fetch models from Bedrock. Please check AWS credentials or instance role permissions.",
                 },
             ]
 
@@ -124,11 +140,11 @@ class Pipeline:
 
             return res
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error accessing Bedrock: {e}")
             return [
                 {
                     "id": "error",
-                    "name": "Could not fetch models from Bedrock, please check permissoin.",
+                    "name": "Could not fetch models from Bedrock. Please check AWS credentials or instance role permissions.",
                 },
             ]
 
@@ -183,7 +199,16 @@ class Pipeline:
                        }
 
             if body.get("stream", False):
-                supports_thinking = "claude-3-7" in model_id
+                supports_thinking = False
+                if "claude" in model_id.lower():
+                    # Extract version from model_id using string operations or regex
+                    import re
+                    version_match = re.search(r'claude-(\d+)(?:\.(\d+))?', model_id.lower())
+                    if version_match:
+                        major_version = int(version_match.group(1))
+                        minor_version = int(version_match.group(2)) if version_match.group(2) else 0
+                        # Claude 3.7+ and Claude 4+ support thinking
+                        supports_thinking = (major_version > 3) or (major_version == 3 and minor_version >= 7)
                 reasoning_effort = body.get("reasoning_effort", "none")
                 budget_tokens = REASONING_EFFORT_BUDGET_TOKEN_MAP.get(reasoning_effort)
 
@@ -202,11 +227,17 @@ class Pipeline:
                     # Check if the combined tokens (budget_tokens + max_tokens) exceeds the limit
                     max_tokens = payload.get("max_tokens", 4096)
                     combined_tokens = budget_tokens + max_tokens
-
-                    if combined_tokens > MAX_COMBINED_TOKENS:
-                        error_message = f"Error: Combined tokens (budget_tokens {budget_tokens} + max_tokens {max_tokens} = {combined_tokens}) exceeds the maximum limit of {MAX_COMBINED_TOKENS}"
-                        print(error_message)
-                        return error_message
+                    # Opus version of the model has a lower max token theshold 
+                    if "opus" in model_id.lower():
+                        if combined_tokens > OPUS_MAX_COMBINED_TOKENS:
+                            error_message = f"Error: Combined tokens (budget_tokens {budget_tokens} + max_tokens {max_tokens} = {combined_tokens}) exceeds the maximum limit of {MAX_COMBINED_TOKENS}"
+                            print(error_message)
+                            return error_message
+                    else:
+                        if combined_tokens > MAX_COMBINED_TOKENS:
+                            error_message = f"Error: Combined tokens (budget_tokens {budget_tokens} + max_tokens {max_tokens} = {combined_tokens}) exceeds the maximum limit of {MAX_COMBINED_TOKENS}"
+                            print(error_message)
+                            return error_message
 
                     payload["inferenceConfig"]["maxTokens"] = combined_tokens
                     payload["additionalModelRequestFields"]["thinking"] = {
