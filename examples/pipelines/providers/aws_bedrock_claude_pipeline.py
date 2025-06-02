@@ -1,6 +1,6 @@
 """
 title: AWS Bedrock Claude Pipeline
-author: G-mario, jknapp
+author: G-mario, shadowdao
 date: 2025-06-02
 version: 1.4
 license: MIT
