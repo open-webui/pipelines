@@ -156,6 +156,33 @@ class Pipeline:
                     return profile['inferenceProfileId']
         return None
 
+    def check_supports_thinking(self, model_id: str) -> bool:
+        """Helper function to determine if a model supports thinking feature"""
+        if "claude" not in model_id.lower():
+            return False
+
+        import re
+
+        # Initialize version variables
+        major_version = None
+        minor_version = None
+
+        # First try the standard pattern (claude-3-7)
+        version_match = re.search(r'claude-(\d+)(?:[.-](\d+))?', model_id.lower())
+        if version_match:
+            major_version = int(version_match.group(1))
+            minor_version = int(version_match.group(2)) if version_match.group(2) else 0
+        else:
+        # Try Claude 4 pattern with potential minor version (claude-sonnet-4-2, claude-sonnet-4.2)
+            version_match = re.search(r'claude-\w+-(\d+)(?:[.-](\d+))?', model_id.lower())
+            if version_match:
+                major_version = int(version_match.group(1))
+                minor_version = int(version_match.group(2)) if version_match.group(2) else 0
+        # Set supports_thinking if version was found
+        if major_version is not None:
+            return (major_version > 3) or (major_version == 3 and minor_version >= 7)
+        return False
+
     def pipe(
         self, user_message: str, model_id: str, messages: List[dict], body: dict
     ) -> Union[str, Generator, Iterator]:
@@ -165,7 +192,6 @@ class Pipeline:
         system_message, messages = pop_system_message(messages)
 
         logging.info(f"pop_system_message: {json.dumps(messages)}")
-
         try:
             processed_messages = []
             image_count = 0
@@ -199,16 +225,12 @@ class Pipeline:
                        }
 
             if body.get("stream", False):
-                supports_thinking = False
-                if "claude" in model_id.lower():
-                    # Extract version from model_id using string operations or regex
-                    import re
-                    version_match = re.search(r'claude-(\d+)(?:\.(\d+))?', model_id.lower())
-                    if version_match:
-                        major_version = int(version_match.group(1))
-                        minor_version = int(version_match.group(2)) if version_match.group(2) else 0
-                        # Claude 3.7+ and Claude 4+ support thinking
-                        supports_thinking = (major_version > 3) or (major_version == 3 and minor_version >= 7)
+                supports_thinking = self.check_supports_thinking(model_id)
+
+                # Debug logging to help troubleshoot version detection
+                print(f"Model ID: {model_id}")
+                print(f"Supports thinking: {supports_thinking}")
+
                 reasoning_effort = body.get("reasoning_effort", "none")
                 budget_tokens = REASONING_EFFORT_BUDGET_TOKEN_MAP.get(reasoning_effort)
 
