@@ -1,7 +1,7 @@
 """
 title: Langfuse Filter Pipeline
 author: open-webui
-date: 2025-03-28
+date: 2025-06-16
 version: 1.7
 license: MIT
 description: A filter pipeline that uses Langfuse.
@@ -126,6 +126,12 @@ class Pipeline:
 
         metadata = body.get("metadata", {})
         chat_id = metadata.get("chat_id", str(uuid.uuid4()))
+
+        # Handle temporary chats
+        if chat_id == "local":
+            session_id = metadata.get("session_id")
+            chat_id = f"temporary-session-{session_id}"
+
         metadata["chat_id"] = chat_id
         body["metadata"] = metadata
 
@@ -233,6 +239,12 @@ class Pipeline:
         self.log(f"Outlet function called with body: {body}")
 
         chat_id = body.get("chat_id")
+
+        # Handle temporary chats
+        if chat_id == "local":
+            session_id = body.get("session_id")
+            chat_id = f"temporary-session-{session_id}"
+
         metadata = body.get("metadata", {})
         # Defaulting to 'llm_response' if no task is provided
         task_name = metadata.get("task", "llm_response")
