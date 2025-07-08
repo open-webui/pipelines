@@ -68,6 +68,14 @@ class Pipeline:
             {"id": "claude-sonnet-4-20250514", "name": "claude-4-sonnet"},
         ]
 
+    def get_thinking_supported_models(self):
+        """Returns list of model identifiers that support extended thinking"""
+        return [
+            "claude-3-7",
+            "claude-sonnet-4",
+            "claude-opus-4"
+        ]
+
     async def on_startup(self):
         print(f"on_startup:{__name__}")
         pass
@@ -168,7 +176,7 @@ class Pipeline:
             }
 
             if body.get("stream", False):
-                supports_thinking = "claude-3-7" in model_id
+                supports_thinking = any(model in model_id for model in self.get_thinking_supported_models())
                 reasoning_effort = body.get("reasoning_effort", "none")
                 budget_tokens = REASONING_EFFORT_BUDGET_TOKEN_MAP.get(reasoning_effort)
 
