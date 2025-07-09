@@ -5,7 +5,7 @@ date: 2025-06-16
 version: 1.7
 license: MIT
 description: A filter pipeline that uses Langfuse.
-requirements: langfuse
+requirements: langfuse<3.0.0
 """
 
 from typing import List, Optional
