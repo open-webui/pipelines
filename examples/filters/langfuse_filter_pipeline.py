@@ -233,6 +233,7 @@ class Pipeline:
 
             trace.event(**event_payload)
 
+        del body["chat_id"]
         return body
 
     async def outlet(self, body: dict, user: Optional[dict] = None) -> dict:
