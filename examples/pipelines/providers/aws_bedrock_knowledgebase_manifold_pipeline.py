@@ -1,6 +1,10 @@
-""AWS Bedrock pipeline for OpenWebUI
-
-This manifold pipeline allows selecting from multiple Knowledge Bases.
+"""
+title: AWS Bedrock pipeline for OpenWebUI
+author: weisser-dev
+date: 2025-03-26
+version: 1.0
+license: MIT
+description: This manifold pipeline allows selecting from multiple Knowledge Bases.
 Configure the available pipelines using the ``AWS_BEDROCK_KB_IDS`` and
 ``AWS_BEDROCK_KB_NAMES`` environment variables.
 You also have the option to set custom endpoints if you work for e.g. in a VPC
