@@ -54,7 +54,7 @@ For a streamlined setup using Docker:
 
 2. **Connect to Open WebUI:**
 
-   - Navigate to the **Settings > Connections > OpenAI API** section in Open WebUI.
+   - In the **admin panel**, navigate to **Settings > Connections**. In the OpenAI API section, add a new OpenAI API connection:
    - Set the API URL to `http://localhost:9099` and the API key to `0p3n-w3bu!`. Your pipelines should now be active.
 
 > [!NOTE]
@@ -62,7 +62,7 @@ For a streamlined setup using Docker:
 
 3. **Manage Configurations:**
 
-   - In the admin panel, go to **Admin Settings > Pipelines tab**.
+   - In the **admin panel**, go to **Settings > Pipelines** tab.
    - Select your desired pipeline and modify the valve values directly from the WebUI.
 
 > [!TIP]
