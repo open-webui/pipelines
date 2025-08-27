@@ -391,6 +391,8 @@ class Pipeline:
                 generation.update(usage=usage)
 
             generation.end()
+            trace.end()
+            
             self.log(f"LLM generation completed for chat_id: {chat_id}")
         except Exception as e:
             self.log(f"Failed to create LLM generation: {e}")
