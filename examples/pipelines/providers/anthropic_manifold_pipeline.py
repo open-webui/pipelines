@@ -67,6 +67,7 @@ class Pipeline:
             {"id": "claude-opus-4-20250514", "name": "claude-4-opus"},
             {"id": "claude-sonnet-4-20250514", "name": "claude-4-sonnet"},
             {"id": "claude-opus-4-1-20250805", "name": "claude-4.1-opus"},
+            {"id": "claude-sonnet-4-5-20250929", "name": "claude-4.5-sonnet"},
         ]
 
     def get_thinking_supported_models(self):
