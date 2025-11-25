@@ -2,7 +2,7 @@
 title: Anthropic Manifold Pipeline
 author: justinh-rahb, sriparashiva
 date: 2024-06-20
-version: 1.4
+version: 1.5
 license: MIT
 description: A pipeline for generating text and processing images using the Anthropic API.
 requirements: requests, sseclient-py
@@ -26,7 +26,7 @@ REASONING_EFFORT_BUDGET_TOKEN_MAP = {
     "max": 32768,
 }
 
-# Maximum combined token limit for Claude 3.7
+# Maximum combined token limit for thinking-enabled models (Claude 3.7, 4.x, 4.5)
 MAX_COMBINED_TOKENS = 64000
 
 
@@ -67,6 +67,9 @@ class Pipeline:
             {"id": "claude-opus-4-20250514", "name": "claude-4-opus"},
             {"id": "claude-sonnet-4-20250514", "name": "claude-4-sonnet"},
             {"id": "claude-opus-4-1-20250805", "name": "claude-4.1-opus"},
+            {"id": "claude-haiku-4-5-20251001", "name": "claude-4.5-haiku"},
+            {"id": "claude-sonnet-4-5-20250929", "name": "claude-4.5-sonnet"},
+            {"id": "claude-opus-4-5-20251101", "name": "claude-4.5-opus"},
         ]
 
     def get_thinking_supported_models(self):
@@ -74,7 +77,11 @@ class Pipeline:
         return [
             "claude-3-7",
             "claude-sonnet-4",
-            "claude-opus-4"
+            "claude-opus-4",
+            "claude-opus-4-1",
+            "claude-sonnet-4-5",
+            "claude-opus-4-5",
+            "claude-haiku-4-5",
         ]
 
     async def on_startup(self):
