@@ -33,6 +33,7 @@ psycopg2-binary
 langfuse
 ddtrace
 opik
+mlflow[databricks]>=3.0.0
 
 # ML libraries
 torch
