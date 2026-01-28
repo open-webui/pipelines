@@ -23,9 +23,9 @@ import os
 import importlib.util
 import logging
 import time
+import sys
 import json
 import uuid
-import sys
 import subprocess
 
 
@@ -150,6 +150,12 @@ async def load_module_from_path(module_name, module_path):
             install_frontmatter_requirements(frontmatter["requirements"])
 
         # Load the module
+        # Clear module from sys.modules cache to ensure fresh reload
+        # This fixes the issue where pipeline reload API would return 200 but
+        # continue using cached module code instead of reloading updated files
+        if module_name in sys.modules:
+            del sys.modules[module_name]
+        
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
