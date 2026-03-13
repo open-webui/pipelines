@@ -19,6 +19,7 @@ from urllib.parse import urlparse
 
 import shutil
 import aiohttp
+import inspect
 import os
 import importlib.util
 import logging
@@ -658,7 +659,9 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
 
 @app.post("/v1/chat/completions")
 @app.post("/chat/completions")
-async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
+async def generate_openai_chat_completion(
+    request: Request, form_data: OpenAIChatCompletionForm
+):
     messages = [message.model_dump() for message in form_data.messages]
     user_message = get_last_user_message(messages)
 
@@ -685,6 +688,12 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
         else:
             pipe = PIPELINE_MODULES[pipeline_id].pipe
 
+        # Build optional keyword arguments based on the pipe's signature
+        pipe_params = inspect.signature(pipe).parameters
+        optional_kwargs = {}
+        if "__request__" in pipe_params:
+            optional_kwargs["__request__"] = request
+
         if form_data.stream:
 
             def stream_content():
@@ -693,6 +702,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                     model_id=pipeline_id,
                     messages=messages,
                     body=form_data.model_dump(),
+                    **optional_kwargs,
                 )
                 logging.info(f"stream:true:{res}")
 
@@ -749,6 +759,7 @@ async def generate_openai_chat_completion(form_data: OpenAIChatCompletionForm):
                 model_id=pipeline_id,
                 messages=messages,
                 body=form_data.model_dump(),
+                **optional_kwargs,
             )
             logging.info(f"stream:false:{res}")
 
