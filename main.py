@@ -616,6 +616,8 @@ async def filter_inlet(pipeline_id: str, form_data: FilterForm):
             return body
         else:
             return form_data.body
+    except HTTPException:
+        raise
     except Exception as e:
         print(e)
         raise HTTPException(
@@ -648,6 +650,8 @@ async def filter_outlet(pipeline_id: str, form_data: FilterForm):
             return body
         else:
             return form_data.body
+    except HTTPException:
+        raise
     except Exception as e:
         print(e)
         raise HTTPException(
