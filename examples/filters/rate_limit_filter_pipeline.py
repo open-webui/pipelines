@@ -1,5 +1,6 @@
 import os
 from typing import List, Optional
+from fastapi import HTTPException
 from pydantic import BaseModel
 from schemas import OpenAIChatMessage
 import time
@@ -121,7 +122,10 @@ class Pipeline:
         if user.get("role", "admin") == "user":
             user_id = user["id"] if user and "id" in user else "default_user"
             if self.rate_limited(user_id):
-                raise Exception("Rate limit exceeded. Please try again later.")
+                raise HTTPException(
+                    status_code=429,
+                    detail="Rate limit exceeded. Please try again later.",
+                )
 
             self.log_request(user_id)
         return body
