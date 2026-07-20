@@ -99,7 +99,7 @@ def get_tools_specs(tools) -> List[dict]:
     function_list = [
         {"name": func, "function": getattr(tools, func)}
         for func in dir(tools)
-        if callable(getattr(tools, func)) and not func.startswith("__")
+        if callable(getattr(tools, func)) and not func.startswith("_")
     ]
 
     specs = []
