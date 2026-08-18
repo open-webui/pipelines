@@ -150,8 +150,10 @@ async def load_module_from_path(module_name, module_path):
             install_frontmatter_requirements(frontmatter["requirements"])
 
         # Load the module
+        sys.modules.pop(module_name, None)
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
         spec.loader.exec_module(module)
         print(f"Loaded module: {module.__name__}")
         if hasattr(module, "Pipeline"):
@@ -278,8 +280,16 @@ async def check_url(request: Request, call_next):
     response = await call_next(request)
     process_time = int(time.time()) - start_time
     response.headers["X-Process-Time"] = str(process_time)
-
     return response
+
+
+@app.get("/v1/pipelines/reload")
+@app.get("/pipelines/reload")
+@app.post("/v1/pipelines/reload")
+@app.post("/pipelines/reload")
+async def trigger_pipeline_reload():
+    await reload()
+    return {"status": True, "detail": "Pipelines reloaded successfully"}
 
 
 @app.get("/v1/models")
