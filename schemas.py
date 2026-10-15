@@ -1,19 +1,26 @@
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict
 
+
 class OpenAIChatMessage(BaseModel):
     role: str
     content: str | List
 
+
     model_config = ConfigDict(extra="allow")
+
+
 
 
 class OpenAIChatCompletionForm(BaseModel):
-    stream: bool = True
+    stream: bool = False
     model: str
     messages: List[OpenAIChatMessage]
 
+
     model_config = ConfigDict(extra="allow")
+
+
 
 
 class FilterForm(BaseModel):
