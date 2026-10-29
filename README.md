@@ -1,13 +1,37 @@
+# ⚠️ DEPRECATED: Pipelines is no longer maintained
+
+> [!CAUTION]
+> **Do not use Pipelines, not for new setups and not for existing ones.**
+>
+> This repository is archived and read-only. There will be no new releases, no bug fixes and no security fixes, and the `ghcr.io/open-webui/pipelines` images will not be updated again. Issues, pull requests and vulnerability reports for Pipelines are not accepted. If you still run a Pipelines server, move off it.
+
+## Use Functions instead
+
+Everything Pipelines was used for is now built into Open WebUI itself. There is no separate server to deploy, connect, update or secure, and there is no use case left that needs a Pipelines server.
+
+| You used Pipelines for | Use this instead |
+| --- | --- |
+| A custom model, agent or provider integration (pipe pipelines) | [Pipe Functions](https://docs.openwebui.com/features/extensibility/plugin/functions/pipe) |
+| Changing messages before or after the model, such as rate limits, monitoring, translation or moderation (filter pipelines) | [Filter Functions](https://docs.openwebui.com/features/extensibility/plugin/functions/filter) |
+| Adding a provider like OpenAI, Anthropic, Mistral, Groq or DeepSeek | A plain [OpenAI-compatible connection](https://docs.openwebui.com/getting-started/quick-start/connect-a-provider/starting-with-openai-compatible), no plugin needed |
+| Running heavy work (large models, long jobs) away from the Open WebUI server | Run it as your own service and call it from a [Pipe Function](https://docs.openwebui.com/features/extensibility/plugin/functions/pipe), or expose it as an [OpenAPI Tool Server](https://docs.openwebui.com/features/extensibility/plugin/tools/openapi-servers/) or [MCP server](https://docs.openwebui.com/features/extensibility/mcp) |
+| Giving the model tools to call | [Tools](https://docs.openwebui.com/features/extensibility/plugin/tools/) |
+| Using your pipelines from other OpenAI API clients | Pipe Functions show up as regular models, so other clients reach them through the [Open WebUI API](https://docs.openwebui.com/reference/api-endpoints) |
+
+Start with the [Functions overview](https://docs.openwebui.com/features/extensibility/plugin/functions/) and the [guide to installing your first Function](https://docs.openwebui.com/getting-started/quick-start/connect-a-provider/starting-with-functions). Ready-made Functions are published on [openwebui.com](https://openwebui.com/search).
+
+> [!WARNING]
+> Functions run arbitrary Python code on your Open WebUI server. Only install Functions from sources you trust and read the code before you import it.
+
+---
+
+**Everything below is the original README, kept for reference only. Do not follow it.**
+
 <p align="center">
   <a href="#"><img src="./docs/images/header.png" alt="Pipelines Logo"></a>
 </p>
 
 # Pipelines: UI-Agnostic OpenAI API Plugin Framework
-
-> [!TIP]
-> **DO NOT USE PIPELINES!**
->
-> If your goal is simply to add support for additional providers like Anthropic or basic filters, you likely don't need Pipelines . For those cases, Open WebUI Functions are a better fit—it's built-in, much more convenient, and easier to configure. Pipelines, however, comes into play when you're dealing with computationally heavy tasks (e.g., running large models or complex logic) that you want to offload from your main Open WebUI instance for better performance and scalability.
 
 
 Welcome to **Pipelines**, an [Open WebUI](https://github.com/open-webui) initiative. Pipelines bring modular, customizable workflows to any UI client supporting OpenAI API specs – and much more! Easily extend functionalities, integrate unique logic, and create dynamic workflows with just a few lines of code.
